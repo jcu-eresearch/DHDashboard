@@ -26,21 +26,24 @@ function unpack(message) {
 }
 
 function insert_weight(connectionsubject, message, unpacked_data) {
-    // var Weight = connectionsubject.model('Weight', weightSchema);
     var ins = Weight({
         id: unpacked_data.id,
         weight: unpacked_data.weight,
         rssi: message.rssi,
         tag_id: message.tag_id,
-        sequence: message.sequence,
+        sequence: message.data.sequence,
         receiver: message.receiver,
         date: moment(message.time * 1000),
         ts: message.time
     });
 
     ins.save(function (err, data) {
-        if (err) console.log(err);
-        else console.log('Saved : ', data );
+        if (err) {
+            console.log(err)
+        }
+        else {
+            console.log('Saved : ', data );
+        }
     });
 }
 

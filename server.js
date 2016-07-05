@@ -5,6 +5,8 @@ var mongoose       = require('mongoose');
 var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 
+
+
 // configuration ===========================================
 	
 // config files
@@ -13,7 +15,8 @@ var db = require('./config/db');
 
 // connect to our mongoDB database (commented out after you enter in your own credentials)
 connectionsubject = mongoose.createConnection(db.urlSubjectViews);
-
+var taggle = require('./app/taggle');
+taggle(connectionsubject);
 
 
 // get all data/stuff of the body (POST) parameters

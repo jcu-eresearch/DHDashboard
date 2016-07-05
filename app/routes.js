@@ -1,4 +1,5 @@
 var Subjects = require('./models/SubjectViews');
+var Weight = require('./models/WeightsSchema');
 
 module.exports = function(app) {
 
@@ -18,7 +19,14 @@ module.exports = function(app) {
  });
 
  
+app.get('/api/weights', function(req, res){
+ Weight.find({}, {_id:0, __v:0}, function(err, weights){
+  // console.log(weights);
+  res.json(weights)
+ });
 
+
+});
 
 
  // frontend routes =========================================================

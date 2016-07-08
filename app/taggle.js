@@ -3,6 +3,7 @@ var Decimal = require('decimal.js');
 var mongoose = require('mongoose');
 var moment = require("moment");
 var Weight = require("./models/WeightsSchema");
+var Status = require("./models/StatusSchema");
 
 require('buffertools').extend();
 
@@ -47,6 +48,58 @@ function insert_weight(connectionsubject, message, unpacked_data) {
     });
 }
 
+function unpack_status(status_message) {
+    buffer = new Buffer(status_message, 'hex');
+
+    if (buffer[3] == 0xFF) {
+        //Error messages
+
+        //Parse Errors
+        if (buffer[2] == 0x01) {
+            if (buffer[0] == 0x00) {
+                return {message_type: 'ERROR', type:'PARSE_ERROR', message: 'UNEXPECTED_NULL'}
+            } else if (buffer[0] == 0x01) {
+                return {message_type: 'ERROR', type:'PARSE_ERROR', message: 'INCORRECT_INPUT_COUNT'}
+            }
+        }
+    } else if (buffer[3] == 0xFE) {
+        //Status messages
+
+        //Heartbeats
+        if (buffer[2] == 0x01) {
+            if (buffer[0] == 0x00) {
+                return {message_type: 'STATUS', type:'HEARTBEAT', message: 'STARTUP'}
+            } else if (buffer[0] == 0x01) {
+                return {message_type: 'STATUS', type:'HEARTBEAT', message: 'PERIODIC'}
+            }
+        }
+    }
+}
+
+function insert_status(connectionsubject, message, unpacked_data) {
+    var ins = Status({
+        message_type: unpacked_data.message_type,
+        type: unpacked_data.type,
+        message: unpacked_data.message,
+        value: unpacked_data.value,
+        rssi: message.rssi,
+        tag_id: message.tag_id,
+        sequence: message.data.sequence,
+        receiver: message.receiver,
+        date: moment(message.time * 1000),
+        ts: message.time
+    });
+
+    ins.save(function (err, data) {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            console.log('Saved : ', data );
+        }
+    });
+}
+
 function taggle(connectionsubject) {
     return function _taggle(message) {
         console.log(message);
@@ -57,8 +110,10 @@ function taggle(connectionsubject) {
                 var unpacked_data = unpack(message['data']['user_payload']);
                 // console.log(unpacked_data);
                 insert_weight(connectionsubject, message, unpacked_data);
-            } else if ('alt_data' in message['data']) {
+            } else if ('alt_user_data' in message['data']) {
                 //Status Messages
+                var status_message = unpack_status(message['data']['alt_user_data']);
+                insert_status(connectionsubject, message, status_message);
             }
         }
     }

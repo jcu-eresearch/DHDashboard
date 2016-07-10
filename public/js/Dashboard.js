@@ -1,166 +1,389 @@
-queue()
-    .defer(d3.json, "/api/data")
-    .await(makeGraphs);
 
-function makeGraphs(error, apiData) {
-	
-//Start Transformations
-	var dataSet = apiData;
-	var dateFormat = d3.time.format("%m/%d/%Y");
-	dataSet.forEach(function(d) {
-		d.date_posted = dateFormat.parse(d.date_posted);
-				d.date_posted.setDate(1);
-		d.total_donations = +d.total_donations;
-	});
+var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages']);
 
-	//Create a Crossfilter instance
-	var ndx = crossfilter(dataSet);
+homesteadApp.controller('AppCtrl', function($scope,  tagDataService) {
 
-	//Define Dimensions
-	var datePosted = ndx.dimension(function(d) { return d.date_posted; });
-	var gradeLevel = ndx.dimension(function(d) { return d.grade_level; });
-	var resourceType = ndx.dimension(function(d) { return d.resource_type; });
-	var fundingStatus = ndx.dimension(function(d) { return d.funding_status; });
-	var povertyLevel = ndx.dimension(function(d) { return d.poverty_level; });
-	var state = ndx.dimension(function(d) { return d.school_state; });
-	var totalDonations  = ndx.dimension(function(d) { return d.total_donations; });
+	$scope.tagList=[];
+	$scope.selectedTag;
+	$scope.allTags={};
 
+	$scope.layout = {
+		height: 250,
+		title: "Tag Weight and Change in Weight",
+		yaxis: {title: "Weight (KG)"},
+		showlegend: false
+	};
 
-	//Calculate metrics
-	var projectsByDate = datePosted.group(); 
-	var projectsByGrade = gradeLevel.group(); 
-	var projectsByResourceType = resourceType.group();
-	var projectsByFundingStatus = fundingStatus.group();
-	var projectsByPovertyLevel = povertyLevel.group();
-	var stateGroup = state.group();
+	$scope.init=function(){
 
-	var all = ndx.groupAll();
+		tagDataService.getAllTagData(render);
+		function render(apiData) {
 
-	//Calculate Groups
-	var totalDonationsState = state.group().reduceSum(function(d) {
-		return d.total_donations;
-	});
+			mapboxgl.accessToken = 'pk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWFkeHZvZjAxcGNmbmtremEwNmV5ajkifQ.cOseeBhCXFdDPp06el09yQ';
+			var map = new mapboxgl.Map({
+				container: 'map', // container id
+				style: 'mapbox://styles/mapbox/streets-v9', //stylesheet location
+				center: [146.864, -19.66882], // starting position
+				zoom: 8 // starting zoom
+			});
 
-	var totalDonationsGrade = gradeLevel.group().reduceSum(function(d) {
-		return d.grade_level;
-	});
+			map.on('style.load', function() {
+				map.addSource("markers", {
+					"type": "geojson",
+					"data": {
+						"type": "FeatureCollection",
+						"features": [{
+							"type": "Feature",
+							"geometry": {
+								"type": "Point",
+								"coordinates": [146.835306, -19.657496]
+							},
+							"properties": {
+								"title": "Digital Homestead",
+								"marker-symbol": "marker-15"
+							}
+						},
+							{
+								"type": "Feature",
+								"geometry": {
+									"type": "Point",
+									"coordinates": [146.864, -19.66882]
+								},
+								"properties": {
+									"title": "Spring Creek",
+									"marker-symbol": "marker-15"
+								}
+							},
+							{
+								"type": "Feature",
+								"geometry": {
+									"type": "Point",
+									"coordinates": [146.8462,  -19.66574]
+								},
+								"properties": {
+									"title": "Double Barrel",
+									"marker-symbol": "marker-15"
+								}
+							},
+							{
+								"type": "Feature",
+								"geometry": {
+									"type": "Point",
+									"coordinates": [146.8642,  -19.66872]
+								},
+								"properties": {
+									"title": "Junction",
+									"marker-symbol": "marker-15"
+								}
+							}
+						]
+					}
+				});
 
-	var totalDonationsFundingStatus = fundingStatus.group().reduceSum(function(d) {
-		return d.funding_status;
-	});
+				map.addLayer({
+					"id": "markers",
+					"type": "symbol",
+					"source": "markers",
+					"layout": {
+						"icon-image": "{marker-symbol}",
+						"text-field": "{title}",
+						"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+						"text-offset": [0, 0.6],
+						"text-anchor": "top"
+					},
+					"paint": {
 
+					}
+				});
+			});
 
+			map.addControl(new mapboxgl.Navigation());
 
-	var netTotalDonations = ndx.groupAll().reduceSum(function(d) {return d.total_donations;});
+			var layerList = document.getElementById('menu');
+			var inputs = layerList.getElementsByTagName('input');
 
-	//Define threshold values for data
-	var minDate = datePosted.bottom(1)[0].date_posted;
-	var maxDate = datePosted.top(1)[0].date_posted;
+			function switchLayer(layer) {
+				var layerId = layer.target.id;
+				map.setStyle('mapbox://styles/mapbox/' + layerId + '-v9');
+			}
 
-console.log(minDate);
-console.log(maxDate);
+			for (var i = 0; i < inputs.length; i++) {
+				inputs[i].onclick = switchLayer;
+			}
 
-    //Charts
-	var dateChart = dc.lineChart("#date-chart");
-	var gradeLevelChart = dc.rowChart("#grade-chart");
-	var resourceTypeChart = dc.rowChart("#resource-chart");
-	var fundingStatusChart = dc.pieChart("#funding-chart");
-	var povertyLevelChart = dc.rowChart("#poverty-chart");
-	var totalProjects = dc.numberDisplay("#total-projects");
-	var netDonations = dc.numberDisplay("#net-donations");
-	var stateDonations = dc.barChart("#state-donations");
+			//Start Transformations
+			var dataSet = apiData;
 
+			dataSet.forEach(function(d) {
+				d.date_posted  = d.date.substring(0, d.date.length - 14);
+				d.total_weight = +d["weight"];
+			});
 
-  selectField = dc.selectMenu('#menuselect')
-        .dimension(state)
-        .group(stateGroup); 
+			function groupBy( array , f ){
+				var groups = {};
+				array.forEach( function( o ){
+					var group = JSON.stringify( f(o) );
+					groups[group] = groups[group] || [];
+					groups[group].push( o );
+				});
+				return Object.keys(groups).map( function( group ){
+					return groups[group];
+				})
+			}
 
-       dc.dataCount("#row-selection")
-        .dimension(ndx)
-        .group(all);
-
-
-	totalProjects
-		.formatNumber(d3.format("d"))
-		.valueAccessor(function(d){return d; })
-		.group(all);
-
-	netDonations
-		.formatNumber(d3.format("d"))
-		.valueAccessor(function(d){return d; })
-		.group(netTotalDonations)
-		.formatNumber(d3.format(".3s"));
-
-	dateChart
-		//.width(600)
-		.height(220)
-		.margins({top: 10, right: 50, bottom: 30, left: 50})
-		.dimension(datePosted)
-		.group(projectsByDate)
-		.renderArea(true)
-		.transitionDuration(500)
-		.x(d3.time.scale().domain([minDate, maxDate]))
-		.elasticY(true)
-		.renderHorizontalGridLines(true)
-    	.renderVerticalGridLines(true)
-		.xAxisLabel("Year")
-		.yAxis().ticks(6);
-
-	resourceTypeChart
-        //.width(300)
-        .height(220)
-        .dimension(resourceType)
-        .group(projectsByResourceType)
-        .elasticX(true)
-        .xAxis().ticks(5);
-
-	povertyLevelChart
-		//.width(300)
-		.height(220)
-        .dimension(povertyLevel)
-        .group(projectsByPovertyLevel)
-        .xAxis().ticks(4);
-
-	gradeLevelChart
-		//.width(300)
-		.height(220)
-        .dimension(gradeLevel)
-        .group(projectsByGrade)
-        .xAxis().ticks(4);
-
-  
-          fundingStatusChart
-            .height(220)
-            //.width(350)
-            .radius(90)
-            .innerRadius(40)
-            .transitionDuration(1000)
-            .dimension(fundingStatus)
-            .group(projectsByFundingStatus);
+			var idGroup = groupBy(dataSet, function(item){
+				return [item.id];
+			});
 
 
-    stateDonations
-    	//.width(800)
-        .height(220)
-        .transitionDuration(1000)
-        .dimension(state)
-        .group(totalDonationsState)
-        .margins({top: 10, right: 50, bottom: 30, left: 50})
-        .centerBar(false)
-        .gap(5)
-        .elasticY(true)
-        .x(d3.scale.ordinal().domain(state))
-        .xUnits(dc.units.ordinal)
-        .renderHorizontalGridLines(true)
-        .renderVerticalGridLines(true)
-        .ordering(function(d){return d.value;})
-        .yAxis().tickFormat(d3.format("s"));
+			$scope.tagGraphs=[];
+
+			for(var j=0; j<idGroup.length; j++){
+				var d=idGroup[j];
+				var trace1={
+					x:[],
+					y:[],
+					mode: 'lines'
+				};
+				var trace2={
+					x:[],
+					y:[],
+					mode: 'lines'
+				};
+				if(d[0]){
+					trace1["name"]=d[0].id+' weight';
+					trace1.x.push(d[0].date_posted);
+					trace1.y.push(d[0].total_weight);
+					trace2["name"]=d[0].id+' change';
+					trace2.x.push(d[0].date_posted);
+					trace2.y.push(0);
+				}
+				for(var i=1; i<d.length; i++){
+					var dt=d[i].date_posted, wt=d[i].total_weight,
+						df=d[i].total_weight-d[i-1].total_weight;
+
+					//duplicate readings
+					var dupSum=trace1.y[i-1], index=i, count=1;
+					if(d[index].date_posted== d[index-1].date_posted)
+						while(d[index] && d[index].date_posted== d[index-1].date_posted && index<d.length && d[index]){
+							dupSum+=d[index].total_weight;
+							index++; count++;
+						}
+					if(count>1){
+						wt=dupSum/count;
+						df=wt-d[i-1].total_weight;
+						trace1.y[i-1]=wt;
+						trace2.y[i-1]=df;
+						i=index-1;
+						continue;
+					}
+
+					trace1.x.push(dt);
+					trace1.y.push(wt);
+					trace2.x.push(dt);
+					trace2.y.push(df);
+				}
+				var traces=[trace1, trace2];
+
+				if(d[0]) {
+					$scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
+					if(j==0)$scope.selectedTag=$scope.tagGraphs[j];
+				}
+
+			}
+
+			var dateGroup = groupBy(dataSet, function(item){
+				return [item.date_posted];
+			});
+
+			var tagDateGroup=[];
+			dateGroup.forEach(function(d) {
+				tagDateGroup.push(groupBy(d, function(item){
+					return [item.id];
+				}));
+			});
 
 
+			var days=[];
+			var weights=[];
+			var diffs=[];
+			tagDateGroup.forEach(function(d) {
+				if(d[0][0])
+					days.push(d[0][0].date_posted);
+				var sumWeight=0;
+				var count=0;
+				d.forEach(function(e) {
+					if(e[0]) {
 
+						var aveTagWeight=0;
+						var readingCount=0;
 
+						//take the average of duplicates
+						e.forEach( function(f){
+							aveTagWeight+=f.total_weight;
+							readingCount++;
+						});
+						if(readingCount>1)
+							aveTagWeight=aveTagWeight/readingCount;
 
+						sumWeight += aveTagWeight;
+						count++;
+					}
+				});
+				if(count>0)
+					sumWeight=sumWeight/count;
+				weights.push(sumWeight);
+			});
 
-    dc.renderAll();
+			diffs.push(0);
+			for(var i=1; i<weights.length; i++){
+				diffs.push(weights[i]-weights[i-1]);
+			}
 
-};
+			var total_weights = {
+				x: days,
+				y: weights,
+				mode: 'lines',
+				name: "Ave Wt"
+			};
+
+			var difference = {
+				x: days,
+				y: diffs,
+				mode: 'lines',
+				name: "Wt Change"
+			};
+
+			var layout = {
+				height: 250,
+				title: "Average Herd Weight and Change in Weight",
+				yaxis: {title: "Weight (KG)"},
+				showlegend: false
+			};
+
+			var data = [ total_weights, difference ];
+
+			$scope.allTags.traces=data;
+			$scope.allTags.layout=layout;
+
+		};
+	}
+
+	$scope.init();
+});
+
+homesteadApp.factory('tagDataService', tagDataService);
+
+function tagDataService($http) {
+	var service = {
+		getAllTagData: getAllTagData
+	};
+	return service;
+
+	function getAllTagData(callback) {
+		var uri = "/api/weights";
+
+		$http.get(uri)
+			.then(getAllTagDataSuccess, getAllTagDataError);
+
+		function getAllTagDataSuccess(resp) {
+
+			if (callback && resp.data) {
+
+				callback(resp.data);
+			}
+		}
+
+		function getAllTagDataError() {
+			callback({success: false, message: 'Unable to fetch tag data'});
+		}
+	}
+}
+
+homesteadApp.directive('plotly', [
+	'$window',
+	function($window) {
+		return {
+			restrict: 'E',
+			template: '<div style="width:40vw" ></div>',
+			scope: {
+				plotlyData: '=',
+				plotlyLayout: '=',
+				plotlyOptions: '=',
+				plotlyAlerts: '='
+			},
+			link: function(scope, element) {
+				var graph = element[0].children[0];
+				var initialized = false;
+
+				function onUpdate() {
+
+					//No data yet, or clearing out old data
+					if (!(scope.plotlyData)) {
+						if (initialized) {
+							Plotly.Plots.purge(graph);
+							graph.innerHTML = '';
+						}
+						return;
+					}
+					//If this is the first run with data, initialize
+					if (!initialized) {
+						initialized = true;
+						Plotly.plot(graph, scope.plotlyData, scope.plotlyLayout, scope.plotlyOptions);
+					}
+					graph.layout = scope.plotlyLayout;
+					graph.layout.annotations=scope.plotlyAlerts;
+					graph.data = scope.plotlyData;
+					Plotly.redraw(graph);
+					Plotly.Plots.resize(graph);
+					graph.on('plotly_click', function(event, data) {
+						Plotly.relayout(graph, 'annotations[0]', 'remove');
+					});
+				}
+
+				onUpdate();
+
+				function onResize() {
+					if (!(initialized && scope.plotlyData)) return;
+					Plotly.Plots.resize(graph);
+				}
+
+				scope.$watchGroup([
+					function() {
+						return scope.plotlyLayout;
+					},
+					function() {
+						return scope.plotlyData;
+					},
+					function() {
+						return scope.plotlyAlerts;
+					}
+				], function(newValue, oldValue) {
+					if (angular.equals(newValue, oldValue)) return;
+					onUpdate();
+				}, true);
+
+				scope.$watch('scope.plotlyAlerts', function(newValue, oldValue) {
+					if (angular.equals(newValue, oldValue)) return;
+					onUpdate();
+				});
+
+				scope.$watch(function() {
+					return {
+						'h': element[0].offsetHeight,
+						'w': element[0].offsetWidth
+					};
+				}, function(newValue, oldValue) {
+					if (angular.equals(newValue, oldValue)) return;
+					onResize();
+				}, true);
+
+				angular.element($window).bind('resize', onResize);
+
+				scope.$on("message", function(e, msg, dataSeries) {
+					if (msg === "alertsUpdated")onUpdate();
+				});
+			}
+		};
+	}
+]);

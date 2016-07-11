@@ -19,6 +19,15 @@ homesteadApp.controller('AppCtrl', function($scope,  tagDataService) {
 		tagDataService.getAllTagData(render);
 		function render(apiData) {
 
+			//Start Transformations
+			var dataSet = apiData;
+
+			if(!dataSet){
+				console.log("No data available");
+				return;
+			}
+
+
 			mapboxgl.accessToken = 'pk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWFkeHZvZjAxcGNmbmtremEwNmV5ajkifQ.cOseeBhCXFdDPp06el09yQ';
 			var map = new mapboxgl.Map({
 				container: 'map', // container id
@@ -111,8 +120,6 @@ homesteadApp.controller('AppCtrl', function($scope,  tagDataService) {
 				inputs[i].onclick = switchLayer;
 			}
 
-			//Start Transformations
-			var dataSet = apiData;
 
 			dataSet.forEach(function(d) {
 				d.date_posted  = d.date.substring(0, d.date.length - 14);

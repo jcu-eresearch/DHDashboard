@@ -1,4 +1,4 @@
-var LiveWeights = angular.module('LiveWeights', []);
+
 var pubnub = PUBNUB({
     ssl: true,  // <- enable TLS Tunneling over TCP
     publish_key: "demo",
@@ -22,4 +22,4 @@ var locations = {
         long: 146.8642
     }
 };
-register_digitalHomesteadLive_component(LiveWeights, "components/digitalhomesteadlive/digitalhomesteadlive.templ.html", pubnub, pubnub_channels, locations);
+register_digitalHomesteadLive_component(homesteadApp, "components/digitalhomesteadlive/digitalhomesteadlive.templ.html", pubnub, pubnub_channels, locations);

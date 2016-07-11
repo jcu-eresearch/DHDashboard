@@ -19,7 +19,7 @@ homesteadApp.controller('AppCtrl', function($scope,  tagDataService) {
 		tagDataService.getAllTagData(render);
 		function render(apiData) {
 
-			mapboxgl.accessToken = 'pk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWFkeHZvZjAxcGNmbmtremEwNmV5ajkifQ.cOseeBhCXFdDPp06el09yQ';
+			mapboxgl.accessToken = 'sk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWg5OWpxcjA0ajFmb25lYndlcnV2dG4ifQ.xSIlaENIwOWyoulK9X7MrQ';
 			var map = new mapboxgl.Map({
 				container: 'map', // container id
 				style: 'mapbox://styles/mapbox/streets-v9', //stylesheet location

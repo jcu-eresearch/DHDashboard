@@ -1,0 +1,24 @@
+{
+  "name": "DHDashboard",
+  "description": "Digital Homestead Dash Board",
+  "main": "server.js",
+  "authors": [
+  ],
+  "license": "GPLv3.0",
+  "homepage": "https://github.com/jcu-eresearch/DHDashboard",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/js",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "decimal.js": "git://github.com/MikeMcl/decimal.js#^6.0.0",
+    "moment": "^2.14.1",
+    "pubnub": "^3.15.2",
+    "restruct": "restruct.js#^0.1.3"
+  }
+}

@@ -1,7 +1,7 @@
 
 var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages']);
 
-homesteadApp.controller('AppCtrl', function($scope,  tagDataService) {
+homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService) {
 
 	$scope.tagList=[];
 	$scope.selectedTag;
@@ -274,10 +274,28 @@ homesteadApp.controller('AppCtrl', function($scope,  tagDataService) {
 			$scope.allTags.layout=layout;
 
 		};
-	}
+	};
+
+	$scope.showLiveData = function() {
+		$scope.alert = '';
+		$mdBottomSheet.show({
+			templateUrl: 'templates/live.templ.html',
+			controller: 'LiveDataCtrl',
+			clickOutsideToClose: true
+		}).then(function (clickedItem) {
+			$mdToast.show(
+				$mdToast.simple()
+					.textContent(clickedItem['name'] + ' clicked!')
+					.position('top right')
+					.hideDelay(1500)
+			);
+		});
+	};
 
 	$scope.init();
 });
+
+homesteadApp.controller('LiveDataCtrl', function($scope, $mdBottomSheet){});
 
 homesteadApp.factory('tagDataService', tagDataService);
 

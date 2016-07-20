@@ -4,10 +4,9 @@ var mongoose = require('mongoose');
 var moment = require("moment");
 var Weight = require("./models/WeightsSchema");
 var Status = require("./models/StatusSchema");
+var Stations = require("./models/StationsSchema");
 
 require('buffertools').extend();
-
-
 
 
 Decimal.config({precision: 64, rounding: 4});
@@ -43,7 +42,7 @@ function insert_weight(connectionsubject, message, unpacked_data) {
             console.log(err)
         }
         else {
-            console.log('Saved : ', data );
+            console.log('Saved : ', data);
         }
     });
 }
@@ -57,9 +56,9 @@ function unpack_status(status_message) {
         //Parse Errors
         if (buffer[2] == 0x01) {
             if (buffer[0] == 0x00) {
-                return {message_type: 'ERROR', type:'PARSE_ERROR', message: 'UNEXPECTED_NULL'}
+                return {message_type: 'ERROR', type: 'PARSE_ERROR', message: 'UNEXPECTED_NULL'}
             } else if (buffer[0] == 0x01) {
-                return {message_type: 'ERROR', type:'PARSE_ERROR', message: 'INCORRECT_INPUT_COUNT'}
+                return {message_type: 'ERROR', type: 'PARSE_ERROR', message: 'INCORRECT_INPUT_COUNT'}
             }
         }
     } else if (buffer[3] == 0xFE) {
@@ -68,9 +67,9 @@ function unpack_status(status_message) {
         //Heartbeats
         if (buffer[2] == 0x01) {
             if (buffer[0] == 0x00) {
-                return {message_type: 'STATUS', type:'HEARTBEAT', message: 'STARTUP'}
+                return {message_type: 'STATUS', type: 'HEARTBEAT', message: 'STARTUP'}
             } else if (buffer[0] == 0x01) {
-                return {message_type: 'STATUS', type:'HEARTBEAT', message: 'PERIODIC'}
+                return {message_type: 'STATUS', type: 'HEARTBEAT', message: 'PERIODIC'}
             }
         }
     }
@@ -95,26 +94,41 @@ function insert_status(connectionsubject, message, unpacked_data) {
             console.log(err)
         }
         else {
-            console.log('Saved : ', data );
+            console.log('Saved : ', data);
         }
     });
 }
 
 function taggle(connectionsubject) {
     return function _taggle(message) {
-        console.log(message);
-        if ('data' in message) {
-            if ('user_payload' in message['data']) {
-                // console.log("===============");
-                // console.log(message);
-                var unpacked_data = unpack(message['data']['user_payload']);
-                // console.log(unpacked_data);
-                insert_weight(connectionsubject, message, unpacked_data);
-            } else if ('alt_user_data' in message['data']) {
-                //Status Messages
-                var status_message = unpack_status(message['data']['alt_user_data']);
-                insert_status(connectionsubject, message, status_message);
-            }
+        try {
+            Stations.find({$or: [{tag_id: message['tag_id']}, {receiver: message['receiver']}]}, function (err, Stations) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Received Message: "+JSON.stringify(message));
+                    if (Stations.length > 0) {
+                        if ('data' in message) {
+                            if ('user_payload' in message['data']) {
+                                //Weight
+                                var unpacked_data = unpack(message['data']['user_payload']);
+                                insert_weight(connectionsubject, message, unpacked_data);
+                            } else if ('alt_user_data' in message['data']) {
+                                //Status Messages
+                                var status_message = unpack_status(message['data']['alt_user_data']);
+                                insert_status(connectionsubject, message, status_message);
+                            }
+                        }
+                    }
+                    else {
+                        console.log("Ignoring message: " + JSON.stringify(message));
+                    }
+                }
+            });
+        } catch (ex) {
+            console.log("Error processing message: ");
+            console.log(message);
+            console.log(ex);
         }
     }
 }

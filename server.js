@@ -16,7 +16,7 @@ var db = require('./config/db');
 // connect to our mongoDB database (commented out after you enter in your own credentials)
 connectionsubject = mongoose.createConnection(db.urlSubjectViews);
 var taggle = require('./app/taggle');
-taggle(connectionsubject);
+taggle.init(connectionsubject);
 
 
 // get all data/stuff of the body (POST) parameters

@@ -7,8 +7,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 	$scope.selectedTag;
 	$scope.allTags={};
 
-	var thresholdWeight=600;
-	
+	var thresholdWeight=500;
+
 	$scope.layout = {
 		height: 250,
 		title: "Individual Trend",

@@ -87,40 +87,40 @@
 	<div layout="row" layout-padding style="width:100%;" layout-align="stretch">
 
 		<md-content class="background" layout="column" flex="45" layout-fill layout-align="center center">
-			<div >
-			<div class="card-panel" flex>
-				<div class="card-content" >
-					<div layout="row" >
-						<plotly plotly-data="allTags.traces"
-								plotly-layout="allTags.layout"
-						></plotly>
+			<div style="height:90vh;">
+				<div class="card-panel" flex >
+					<div class="card-content" >
+						<div layout="row"  >
+							<plotly plotly-data="allTags.traces"
+									plotly-layout="allTags.layout"
+							></plotly>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="card-panel" flex>
-				<div class="card-content"  >
-					<div layout="row" >
-						<md-input-container class="no-padding right ">
-							<label>Select a Tag </label>
-							<md-select ng-model="selectedTag" >
-								<md-option ng-repeat="tag in tagGraphs" ng-value="tag" >
-									{{tag.name}}
-								</md-option>
-							</md-select>
-						</md-input-container>
-					</div>
-					<div layout="row" >
-						<plotly plotly-data="selectedTag.traces"
-								plotly-layout="selectedTag.layout"
-						></plotly>
-					</div>
+				<div class="card-panel" flex >
+					<div class="card-content"  >
+						<div layout="row" >
+							<md-input-container class="no-padding right ">
+								<label>Select a Tag </label>
+								<md-select ng-model="selectedTag" >
+									<md-option ng-repeat="tag in tagGraphs" ng-value="tag" >
+										{{tag.name}}
+									</md-option>
+								</md-select>
+							</md-input-container>
+						</div>
+						<div layout="row"  >
+							<plotly plotly-data="selectedTag.traces"
+									plotly-layout="selectedTag.layout"
+							></plotly>
+						</div>
 
+					</div>
 				</div>
 			</div>
-		</div>
 		</md-content>
 
-		<div flex="55" >
+		<div flex="55" style="height:90vh;" >
 			<div class="card-panel"  flex>
 				<div class="card-content" >
 					<div id="map" style="height:80vh; width:100%; "></div>

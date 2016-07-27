@@ -162,4 +162,4 @@ function init(connectionsubject) {
     });
 }
 
-module.exports = init;
+module.exports = {'init':init, 'taggle':taggle};

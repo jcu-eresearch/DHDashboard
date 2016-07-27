@@ -21,12 +21,12 @@ module.exports = function(app) {
 
  
 app.get('/api/weights', function(req, res){
- Weight.find({}, {_id:0, __v:0}, function(err, weights){
+ Weight.find({}, {_id:0, __v:0}).sort({ts:'asc'}).exec(function(err, weights){
   // console.log(weights);
   res.json(weights)
  });
 });
- 
+
  app.get('/api/stations', function(req, res){
   Stations.find({}, {_id:0, __v:0}, function(err, stations){
    // console.log(weights);

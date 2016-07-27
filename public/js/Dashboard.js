@@ -9,7 +9,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.layout = {
 		height: 250,
-		title: "Tag Weight and Change in Weight",
+		title: "Individual Trend",
 		yaxis: {title: "Weight (KG)"},
 		showlegend: false
 	};
@@ -26,7 +26,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				console.log("No data available");
 				return;
 			}
-
 
 			mapboxgl.accessToken = 'pk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWFkeHZvZjAxcGNmbmtremEwNmV5ajkifQ.cOseeBhCXFdDPp06el09yQ';
 			var map = new mapboxgl.Map({
@@ -120,7 +119,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				inputs[i].onclick = switchLayer;
 			}
 
-
 			dataSet.forEach(function(d) {
 				d.date_posted  = d.date.substring(0, d.date.length - 14);
 				d.total_weight = +d["weight"];
@@ -142,8 +140,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				return [item.id];
 			});
 
-
 			$scope.tagGraphs=[];
+			var dict={};
+
 
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
@@ -157,6 +156,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					y:[],
 					mode: 'lines'
 				};
+				var tagDict={};
+
 				if(d[0]){
 					trace1["name"]=d[0].id+' weight';
 					trace1.x.push(d[0].date_posted);
@@ -164,6 +165,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					trace2["name"]=d[0].id+' change';
 					trace2.x.push(d[0].date_posted);
 					trace2.y.push(0);
+					tagDict[d[0].date_posted]=d[0].total_weight;
 				}
 				for(var i=1; i<d.length; i++){
 					var dt=d[i].date_posted, wt=d[i].total_weight,
@@ -189,14 +191,25 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					trace1.y.push(wt);
 					trace2.x.push(dt);
 					trace2.y.push(df);
+					tagDict[dt]=wt;
 				}
 				var traces=[trace1, trace2];
 
 				if(d[0]) {
 					$scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
+					dict[d[0].id]={dict: tagDict, trace: trace1};
 					if(j==0)$scope.selectedTag=$scope.tagGraphs[j];
 				}
 
+			}
+
+			//New Code The Tags with 2 weights
+			var relevantTags={};
+			for(var j=0; j<idGroup.length; j++){
+				var d=idGroup[j];
+				if(d && d.length>1){ //these are the ones with multiple
+					relevantTags[d[0].id]=true;
+				}
 			}
 
 			var dateGroup = groupBy(dataSet, function(item){
@@ -214,19 +227,29 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			var days=[];
 			var weights=[];
 			var diffs=[];
+
+			// New Code
+			var relevantWeights=[];
+			debugger;
+
 			tagDateGroup.forEach(function(d) {
 				if(d[0][0])
 					days.push(d[0][0].date_posted);
 				var sumWeight=0;
 				var count=0;
-				d.forEach(function(e) {
+
+				//New Code
+				var sumWeightTrend=0;
+				var countTrend=0;
+
+				d.forEach(function(e) {//e is the tag
 					if(e[0]) {
 
 						var aveTagWeight=0;
 						var readingCount=0;
 
 						//take the average of duplicates
-						e.forEach( function(f){
+						e.forEach( function(f){ //when e has more than one reading that day
 							aveTagWeight+=f.total_weight;
 							readingCount++;
 						});
@@ -235,11 +258,51 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 						sumWeight += aveTagWeight;
 						count++;
+
+						//New Code
+						if(relevantTags[e[0].id]){
+							//(today -lastday)/number of days
+
+							debugger;
+							var currTag=dict[e[0].id];
+							var diff=aveTagWeight;
+							var days=1;
+
+							var last;
+							if(currTag.trace.x)
+							for(var z=0; z<currTag.trace.x.length; z++){
+								if(currTag.trace.x[z]==e[0].date_posted && z>0){
+
+									debugger;
+									last=currTag.dict[currTag.trace.x[z-1]];
+
+									var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+									var firstDate = new Date(currTag.trace.x[z]);
+									var secondDate = new Date(currTag.trace.x[z-1]);
+
+									var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+
+									diff=diff-last;
+									if(diffDays>1)
+										diff=diff/diffDays;
+
+									sumWeightTrend+=diff;
+									countTrend++;
+								}
+
+							}
+
+						}
 					}
 				});
 				if(count>0)
 					sumWeight=sumWeight/count;
 				weights.push(sumWeight);
+
+				if(countTrend>0) {
+					sumWeightTrend = sumWeightTrend / countTrend;
+					relevantWeights.push(sumWeightTrend);
+				}
 			});
 
 			diffs.push(0);
@@ -249,7 +312,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			var total_weights = {
 				x: days,
-				y: weights,
+				//changed
+				y: relevantWeights,
 				mode: 'lines',
 				name: "Ave Wt"
 			};
@@ -263,12 +327,12 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			var layout = {
 				height: 250,
-				title: "Average Herd Weight and Change in Weight",
+				title: "Herd Trend",
 				yaxis: {title: "Weight (KG)"},
 				showlegend: false
 			};
 
-			var data = [ total_weights, difference ];
+			var data = [ total_weights/*, difference*/ ];
 
 			$scope.allTags.traces=data;
 			$scope.allTags.layout=layout;

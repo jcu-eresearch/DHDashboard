@@ -7,6 +7,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 	$scope.selectedTag;
 	$scope.allTags={};
 
+	var thresholdWeight=600;
+	
 	$scope.layout = {
 		height: 250,
 		title: "Individual Trend",
@@ -187,11 +189,13 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						continue;
 					}
 
-					trace1.x.push(dt);
-					trace1.y.push(wt);
-					trace2.x.push(dt);
-					trace2.y.push(df);
-					tagDict[dt]=wt;
+					if(wt<thresholdWeight) {
+						trace1.x.push(dt);
+						trace1.y.push(wt);
+						trace2.x.push(dt);
+						trace2.y.push(df);
+						tagDict[dt] = wt;
+					}
 				}
 				var traces=[trace1 /*, trace2*/];
 

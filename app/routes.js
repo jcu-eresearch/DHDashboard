@@ -1,5 +1,6 @@
 var Subjects = require('./models/SubjectViews');
 var Weight = require('./models/WeightsSchema');
+var Stations = require("./models/StationsSchema");
 
 module.exports = function(app) {
 
@@ -24,7 +25,13 @@ app.get('/api/weights', function(req, res){
   // console.log(weights);
   res.json(weights)
  });
-
+});
+ 
+ app.get('/api/stations', function(req, res){
+  Stations.find({}, {_id:0, __v:0}, function(err, stations){
+   // console.log(weights);
+   res.json(stations)
+  });
 
 });
 

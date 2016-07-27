@@ -49,6 +49,5 @@ station.save(function (err, data) {
 });
 
 console.log(ins);
-process.exit(0);
 
 

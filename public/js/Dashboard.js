@@ -193,7 +193,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					trace2.y.push(df);
 					tagDict[dt]=wt;
 				}
-				var traces=[trace1, trace2];
+				var traces=[trace1 /*, trace2*/];
 
 				if(d[0]) {
 					$scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});

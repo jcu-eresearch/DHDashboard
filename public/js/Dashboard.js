@@ -207,7 +207,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			var relevantTags={};
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
-				if(d && d.length>1){ //these are the ones with multiple
+
+				if(d && d.length>1 && d[0].id!="-1") {
+					//these are the ones with multiple
 					relevantTags[d[0].id]=true;
 				}
 			}
@@ -230,7 +232,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			// New Code
 			var relevantWeights=[];
-			debugger;
+
 
 			tagDateGroup.forEach(function(d) {
 				if(d[0][0])
@@ -263,7 +265,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						if(relevantTags[e[0].id]){
 							//(today -lastday)/number of days
 
-							debugger;
+
 							var currTag=dict[e[0].id];
 							var diff=aveTagWeight;
 							var days=1;
@@ -271,9 +273,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 							var last;
 							if(currTag.trace.x)
 							for(var z=0; z<currTag.trace.x.length; z++){
-								if(currTag.trace.x[z]==e[0].date_posted && z>0){
+								if(currTag.trace.x[z]==e[0].date_posted && z>0 ){
 
-									debugger;
+
 									last=currTag.dict[currTag.trace.x[z-1]];
 
 									var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds

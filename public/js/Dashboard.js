@@ -10,7 +10,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 	var thresholdWeight=500;
 
 	$scope.layout = {
-		height: 250,
+		
 		title: "Individual Trend",
 		yaxis: {title: "Weight (KG)"},
 		showlegend: false
@@ -332,7 +332,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			};
 
 			var layout = {
-				height: 250,
+				
 				title: "Herd Trend",
 				yaxis: {title: "Weight (KG)"},
 				showlegend: false

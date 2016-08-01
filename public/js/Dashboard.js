@@ -32,9 +32,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			mapboxgl.accessToken = 'pk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWFkeHZvZjAxcGNmbmtremEwNmV5ajkifQ.cOseeBhCXFdDPp06el09yQ';
 			var map = new mapboxgl.Map({
 				container: 'map', // container id
-				style: 'mapbox://styles/mapbox/streets-v9', //stylesheet location
+				style: 'mapbox://styles/mapbox/satellite-v9', //stylesheet location
 				center: [146.864, -19.66882], // starting position
-				zoom: 8 // starting zoom
+				zoom: 11 // starting zoom
 			});
 
 			map.on('style.load', function() {
@@ -2887,7 +2887,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					'layout': {},
 					'paint': {
 						'fill-color': '#088',
-						'fill-opacity': 0.8
+						'fill-opacity': 0.5
 					}
 				});
 

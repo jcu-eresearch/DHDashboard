@@ -90,21 +90,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					}
 				});
 
-				map.addLayer({
-					"id": "markers",
-					"type": "symbol",
-					"source": "markers",
-					"layout": {
-						"icon-image": "{marker-symbol}",
-						"text-field": "{title}",
-						"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-						"text-offset": [0, 0.6],
-						"text-anchor": "top"
-					},
-					"paint": {
 
-					}
-				});
 
 				map.addSource('paddocks', {
 					'type': 'geojson',
@@ -2902,6 +2888,22 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					'paint': {
 						'fill-color': '#088',
 						'fill-opacity': 0.8
+					}
+				});
+
+				map.addLayer({
+					"id": "markers",
+					"type": "symbol",
+					"source": "markers",
+					"layout": {
+						"icon-image": "{marker-symbol}",
+						"text-field": "{title}",
+						"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+						"text-offset": [0, 0.6],
+						"text-anchor": "top"
+					},
+					"paint": {
+
 					}
 				});
 			});

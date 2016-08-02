@@ -50,7 +50,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 							},
 							"properties": {
 								"title": "Digital Homestead",
-								"marker-symbol": "marker-15"
+								"marker-symbol": "campsite-15"
 							}
 						},
 							{
@@ -61,7 +61,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Spring Creek",
-									"marker-symbol": "marker-15"
+									"marker-symbol": "picnic-site-15"
 								}
 							},
 							{
@@ -72,7 +72,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Double Barrel",
-									"marker-symbol": "marker-15"
+									"marker-symbol": "picnic-site-15"
 								}
 							},
 							{
@@ -83,7 +83,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Junction",
-									"marker-symbol": "marker-15"
+									"marker-symbol": " picnic-site-15"
 								}
 							}
 						]

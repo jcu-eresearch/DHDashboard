@@ -83,7 +83,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Junction",
-									"marker-symbol": " park-15"
+									"marker-symbol": "park-15"
 								}
 							}
 						]

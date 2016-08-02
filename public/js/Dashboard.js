@@ -2990,14 +2990,23 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						continue;
 					}
 
-					if(wt<thresholdWeight) {
+
 						trace1.x.push(dt);
 						trace1.y.push(wt);
 						trace2.x.push(dt);
 						trace2.y.push(df);
 						tagDict[dt] = wt;
-					}
+
 				}
+
+				if(trace1.y && trace1.x)
+					for(var a=0; a<trace1.y.length; a++){
+						if(trace1.y[a]>thresholdWeight){
+							trace1.y.splice(a,1);
+							trace1.x.splice(a,1);
+						}
+					}
+
 				var traces=[trace1 /*, trace2*/];
 
 				if(d[0]) {

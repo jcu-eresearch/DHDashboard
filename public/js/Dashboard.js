@@ -61,7 +61,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Spring Creek",
-									"marker-symbol": "picnic-site-15"
+									"marker-symbol": "park-15"
 								}
 							},
 							{
@@ -72,7 +72,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Double Barrel",
-									"marker-symbol": "picnic-site-15"
+									"marker-symbol": "park-15"
 								}
 							},
 							{
@@ -83,7 +83,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 								},
 								"properties": {
 									"title": "Junction",
-									"marker-symbol": " picnic-site-15"
+									"marker-symbol": " park-15"
 								}
 							}
 						]
@@ -2975,7 +2975,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						df=d[i].total_weight-d[i-1].total_weight;
 
 					//duplicate readings
-					var dupSum=trace1.y[i-1], index=i, count=1;
+					var dupSum=d[i-1], index=i, count=1;
 					if(d[index].date_posted== d[index-1].date_posted)
 						while(d[index] && d[index].date_posted== d[index-1].date_posted && index<d.length && d[index]){
 							dupSum+=d[index].total_weight;

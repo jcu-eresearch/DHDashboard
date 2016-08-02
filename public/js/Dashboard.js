@@ -3298,3 +3298,14 @@ homesteadApp.directive('plotly', [
 		};
 	}
 ]);
+
+homesteadApp.directive('stopTouchEvent', function () {
+	return {
+		restrict: 'A',
+		link: function (scope, element) {
+			element.on('touchmove', function (evt) {
+				evt.stopPropagation();
+			});
+		}
+	};
+})

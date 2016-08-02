@@ -10,7 +10,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 	var thresholdWeight=500;
 
 	$scope.layout = {
-		
+
 		title: "Individual Trend",
 		yaxis: {title: "Weight (KG)"},
 		showlegend: false
@@ -3201,7 +3201,7 @@ homesteadApp.directive('plotly', [
 	function($window) {
 		return {
 			restrict: 'E',
-			template: '<div style="width:40vw" ></div>',
+			template: '<div style="width:38vw; height: 40vh" ></div>',
 			scope: {
 				plotlyData: '=',
 				plotlyLayout: '=',

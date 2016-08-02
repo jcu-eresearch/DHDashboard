@@ -2949,6 +2949,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
+				var trace1Counter=0;
 				var trace1={
 					x:[],
 					y:[],
@@ -2965,6 +2966,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					trace1["name"]=d[0].id+' weight';
 					trace1.x.push(d[0].date_posted);
 					trace1.y.push(d[0].total_weight);
+					trace1Counter++;
 					trace2["name"]=d[0].id+' change';
 					trace2.x.push(d[0].date_posted);
 					trace2.y.push(0);
@@ -2975,24 +2977,28 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						df=d[i].total_weight-d[i-1].total_weight;
 
 					//duplicate readings
-					var dupSum=d[i-1], index=i, count=1;
-					if(d[index].date_posted== d[index-1].date_posted)
-						while(d[index] && d[index].date_posted== d[index-1].date_posted && index<d.length && d[index]){
-							dupSum+=d[index].total_weight;
-							index++; count++;
+					if(trace1Counter>0) {
+						var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;
+						if (d[index].date_posted == d[index - 1].date_posted)
+							while (d[index] && d[index].date_posted == d[index - 1].date_posted && index < d.length && d[index]) {
+								dupSum += d[index].total_weight;
+								index++;
+								count++;
+							}
+						if (count > 1) {
+							wt = dupSum / count;
+							df = wt - d[i - 1].total_weight;
+							trace1.y[trace1Counter - 1] = wt;
+							trace2.y[i - 1] = df;
+							i = index - 1;
+							continue;
 						}
-					if(count>1){
-						wt=dupSum/count;
-						df=wt-d[i-1].total_weight;
-						trace1.y[i-1]=wt;
-						trace2.y[i-1]=df;
-						i=index-1;
-						continue;
 					}
 
 
 						trace1.x.push(dt);
 						trace1.y.push(wt);
+						trace1Counter++;
 						trace2.x.push(dt);
 						trace2.y.push(df);
 						tagDict[dt] = wt;

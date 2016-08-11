@@ -27,6 +27,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			//Start Transformations
 			var dataSet = apiData;
 
+
 			if(!dataSet){
 				console.log("No data available");
 				return;
@@ -5778,6 +5779,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				return [item.id];
 			});
 
+
 			$scope.tagGraphs=[];
 			var dict={};
 
@@ -5797,7 +5799,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				var tagDict={};
 
 				//remove all weights greater than the threshold weight
-				for(var a=0; d.length; a++){
+				for(var a=0; a<d.length; a++){
 					if(d[a].total_weight>thresholdWeight){
 						d.splice(a,1);
 					}
@@ -6003,7 +6005,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 		};
 
-		function renderTestData(apiData) {
+		/*function renderTestData(apiData) {
 
 
 			mapboxgl.accessToken = 'pk.eyJ1Ijoic2FpcmFrIiwiYSI6ImNpcWFkeHZvZjAxcGNmbmtremEwNmV5ajkifQ.cOseeBhCXFdDPp06el09yQ';
@@ -6088,7 +6090,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			map.addControl(new mapboxgl.Navigation());
 
-			/*var layerList = document.getElementById('menu');
+			/!*var layerList = document.getElementById('menu');
 			var inputs = layerList.getElementsByTagName('input');
 
 			function switchLayer(layer) {
@@ -6098,10 +6100,11 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			for (var i = 0; i < inputs.length; i++) {
 				inputs[i].onclick = switchLayer;
-			}*/
+			}*!/
 			//Start Transformations
 			var dataSet = apiData;
 
+			debugger;
 
 			if(!dataSet){
 				console.log("No data available");
@@ -6154,7 +6157,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				var tagDict={};
 
 				//remove all weights greater than the threshold weight
-				for(var a=0; d.length; a++){
+				for(var a=0; a<d.length; a++){
 					if(d[a].total_weight>thresholdWeight){
 						d.splice(a,1);
 					}
@@ -6212,7 +6215,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						}
 					}
 
-				var traces=[trace1 /*, trace2*/];
+				var traces=[trace1 /!*, trace2*!/];
 
 				if(d[0]) {
 					$scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
@@ -6353,12 +6356,12 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				showlegend: false
 			};
 
-			var data = [ total_weights/*, difference*/ ];
+			var data = [ total_weights/!*, difference*!/ ];
 
 			$scope.allTags.traces=data;
 			$scope.allTags.layout=layout;
 
-		};
+		};*/
 	};
 
 	$scope.showLiveData = function() {

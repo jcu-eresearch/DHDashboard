@@ -18,9 +18,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.init=function(){
 
-		//tagDataService.getAllTagData(render);
+		tagDataService.getAllTagData(render);
 
-		tagDataService.getTestData(renderTestData);
+		//tagDataService.getTestData(renderTestData);
 
 		function render(apiData) {
 

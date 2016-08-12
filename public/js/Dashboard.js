@@ -139,7 +139,14 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						trace1Counter++;
 						tagDict[dt] = wt;
 				}
-
+				if(trace1.y && trace1.x) {
+					for (var a = 0; a < trace1.y.length; a++) {
+						if (trace1.y[a] > thresholdWeight) {
+							trace1.y.splice(a, 1);
+							trace1.x.splice(a, 1);
+						}
+					}
+				}
 				var traces=[trace1];
 				if(d[0]) {
 					$scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
@@ -181,7 +188,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					herdTrendDays.relevant[d[0][0].date_posted]=false;
 				}
 				else return;
-				
+
 				var sumWeightTrend=0;
 				var countTrend=0;
 				var tagNamesForDay={};
@@ -205,8 +212,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 									var oneDay = 24*60*60*1000;
 									var firstDate = new Date(currTag.trace.x[z]);
 									var secondDate = new Date(currTag.trace.x[z-1]);
-									var diffDays = Math.round(Math.abs((
-										firstDate.getTime() - secondDate.getTime())/(oneDay)));
+									var diffDays =
+										Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
 
 									diff=diff-last;
 									if(diffDays>1)
@@ -214,8 +221,11 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 									sumWeightTrend+=diff;
 									herdTrendDays.relevant[d[0][0].date_posted]=true;
-									tagNamesForDay[d[0][0].date_posted].push({date: d[0][0].date_posted,
-										tag: e[0].id, change: diff});
+									tagNamesForDay[d[0][0].date_posted].push({
+										date: d[0][0].date_posted,
+										tag: e[0].id,
+										change: diff
+									});
 									countTrend++;
 								}
 							}

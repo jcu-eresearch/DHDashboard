@@ -5897,12 +5897,13 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			// New Code
 			var relevantWeights=[];
 			var tagDetails=[];
+			var herdTrendDays=[];
 
 
 			tagDateGroup.forEach(function(d) {
 
 				if(d[0][0]) {
-					//days.push(d[0][0].date_posted);
+					days.push(d[0][0].date_posted);
 				}
 				else
 					return;
@@ -5943,7 +5944,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 							var currTag=dict[e[0].id];
 							var diff=aveTagWeight;
-							var numDays=1;
+							var days=1;
 
 							var last;
 							if(currTag.trace.x)
@@ -5966,7 +5967,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 									sumWeightTrend+=diff;
 									tagNamesForDay[d[0][0].date_posted].push({tag: e[0].id, change: diff});
-									days.push(d[0][0].date_posted);
+									herdTrendDays.push(d[0][0].date_posted);
 									countTrend++;
 								}
 
@@ -5992,7 +5993,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			}
 
 			var total_weights = {
-				x: days,
+				x: herdTrendDays,
 				//changed
 				y: relevantWeights,
 				mode: 'lines',

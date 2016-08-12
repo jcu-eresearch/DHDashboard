@@ -5945,7 +5945,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						if(relevantTags[e[0].id]){
 							//(today -lastday)/number of days
 
-							herdTrendDays.relevant[d[0][0].date_posted]=true;
+
 							var currTag=dict[e[0].id];
 							var diff=aveTagWeight;
 							var days=1;
@@ -5970,6 +5970,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 										diff=diff/diffDays;
 
 									sumWeightTrend+=diff;
+									herdTrendDays.relevant[d[0][0].date_posted]=true;
 									tagNamesForDay[d[0][0].date_posted].push({date: d[0][0].date_posted,
 										tag: e[0].id, change: diff});
 									countTrend++;

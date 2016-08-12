@@ -5901,8 +5901,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			tagDateGroup.forEach(function(d) {
 
-				if(d[0][0])
-					days.push(d[0][0].date_posted);
+				if(d[0][0]) {
+					//days.push(d[0][0].date_posted);
+				}
 				else
 					return;
 
@@ -5964,7 +5965,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 										diff=diff/diffDays;
 
 									sumWeightTrend+=diff;
-									tagNamesForDay[d[0][0].date_posted].push(e[0].id);
+									tagNamesForDay[d[0][0].date_posted].push({tag: e[0].id, change: diff});
+									days.push(d[0][0].date_posted);
 									countTrend++;
 								}
 

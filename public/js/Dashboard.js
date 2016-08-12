@@ -5987,7 +5987,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				}
 				if(!herdTrendDays.relevant[d[0][0].date_posted]){
 					if(days[days.length-1] && days[days.length-1]==d[0][0].date_posted)
-						;//days.splice(days.length-1, 1);
+						days.splice(days.length-1, 1);
 				}
 			});
 

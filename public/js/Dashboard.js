@@ -5941,6 +5941,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 
 									last=currTag.dict[currTag.trace.x[z-1]];
+									diff=currTag.dict[currTag.trace.x[z]];
 
 									var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
 									var firstDate = new Date(currTag.trace.x[z]);

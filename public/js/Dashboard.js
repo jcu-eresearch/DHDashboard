@@ -5,9 +5,42 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.tagList=[];
 	$scope.selectedTag;
+	$scope.tagGraphs=[];
 	$scope.allTags={};
 
 	var thresholdWeight=500;
+
+	$scope.initMap=function() {
+		var map
+		map = new google.maps.Map(document.getElementById('map'), {
+			center: {lat: -19.66574, lng: 146.8462},
+			mapTypeId: 'hybrid',
+			zoom:15
+		});
+
+		map.data.loadGeoJson('data/paddocks.json');
+
+		var marker1 = new google.maps.Marker({
+			position: {lat: -19.66882, lng: 146.864},
+			map: map,
+			title: "Spring Creek"
+		});
+		var marker2 = new google.maps.Marker({
+			position: {lat: -19.657496, lng: 146.835306},
+			map: map,
+			title: "Digital Homestead"
+		});
+		var marker3 = new google.maps.Marker({
+			position: {lat: -19.66574, lng: 146.8462},
+			map: map,
+			title: "Double Barrel"
+		});
+		var marker4 = new google.maps.Marker({
+			position: {lat: -19.66872, lng: 146.8642},
+			map: map,
+			text: "Junction"
+		});
+	}
 
 	$scope.layout = {
 
@@ -21,50 +54,16 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 		tagDataService.getAllTagData(render);
 
-
 		function render(apiData) {
 
-			//Start Transformations
-			var dataSet = apiData;
+			$scope.initMap();
 
+			var dataSet = apiData;
 
 			if(!dataSet){
 				console.log("No data available");
 				return;
 			}
-
-			var map;
-			function initMap() {
-				map = new google.maps.Map(document.getElementById('map'), {
-					center: {lat: -19.66574, lng: 146.8462},
-					mapTypeId: 'hybrid',
-					zoom:15
-				});
-
-				map.data.loadGeoJson('data/paddocks.json');
-
-				var marker1 = new google.maps.Marker({
-					position: {lat: -19.66882, lng: 146.864},
-					map: map,
-					title: "Spring Creek"
-				});
-				var marker2 = new google.maps.Marker({
-					position: {lat: -19.657496, lng: 146.835306},
-					map: map,
-					title: "Digital Homestead"
-				});
-				var marker3 = new google.maps.Marker({
-					position: {lat: -19.66574, lng: 146.8462},
-					map: map,
-					title: "Double Barrel"
-				});
-				var marker4 = new google.maps.Marker({
-					position: {lat: -19.66872, lng: 146.8642},
-					map: map,
-					text: "Junction"
-				});
-			}
-			initMap();
 
 			dataSet.forEach(function(d) {
 				d.date_posted  = d.date.substring(0, d.date.length - 14);
@@ -87,9 +86,9 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				return [item.id];
 			});
 
-			$scope.tagGraphs=[];
 			var dict={};
 
+			//Individual Graphs
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
 				var trace1Counter=0;
@@ -101,89 +100,60 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						color: '#66bb6a'
 					}
 				};
-				var trace2={
-					x:[],
-					y:[],
-					mode: 'lines'
-				};
 				var tagDict={};
-
 				//remove all weights greater than the threshold weight
 				for(var a=0; a<d.length; a++){
 					if(d[a].total_weight>thresholdWeight){
 						d.splice(a,1);
 					}
 				}
-
 				if(d[0]){
 					trace1["name"]=d[0].id+' weight';
 					trace1.x.push(d[0].date_posted);
 					trace1.y.push(d[0].total_weight);
 					trace1Counter++;
-					trace2["name"]=d[0].id+' change';
-					trace2.x.push(d[0].date_posted);
-					trace2.y.push(0);
 					tagDict[d[0].date_posted]=d[0].total_weight;
 				}
 				for(var i=1; i<d.length; i++){
-					var dt=d[i].date_posted, wt=d[i].total_weight,
-						df=d[i].total_weight-d[i-1].total_weight;
-
-					//duplicate readings
+					var dt=d[i].date_posted, wt=d[i].total_weight;
+					//take average of multiple readings during one day
 					if(trace1Counter>0) {
 						var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;
 						if (d[index].date_posted == d[index - 1].date_posted)
-							while (d[index] && d[index].date_posted == d[index - 1].date_posted && index < d.length && d[index]) {
+							while (d[index] && d[index].date_posted == d[index - 1].date_posted
+								&& index < d.length && d[index]) {
 								dupSum += d[index].total_weight;
 								index++;
 								count++;
 							}
 						if (count > 1) {
 							wt = dupSum / count;
-							df = wt - d[i - 1].total_weight;
 							trace1.y[trace1Counter - 1] = wt;
 							tagDict[d[index-1].date_posted] = wt;
-							trace2.y[i - 1] = df;
 							i = index - 1;
 							continue;
 						}
 					}
-
-
 						trace1.x.push(dt);
 						trace1.y.push(wt);
 						trace1Counter++;
-						trace2.x.push(dt);
-						trace2.y.push(df);
 						tagDict[dt] = wt;
-
 				}
 
-				if(trace1.y && trace1.x)
-					for(var a=0; a<trace1.y.length; a++){
-						if(trace1.y[a]>thresholdWeight){
-							trace1.y.splice(a,1);
-							trace1.x.splice(a,1);
-						}
-					}
-
-				var traces=[trace1 /*, trace2*/];
-
+				var traces=[trace1];
 				if(d[0]) {
 					$scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
 					dict[d[0].id]={dict: tagDict, trace: trace1};
 					if(j==0)$scope.selectedTag=$scope.tagGraphs[j];
 				}
-
 			}
 
-			//New Code The Tags with 2 weights
+			//Tags with 2 weights
 			var relevantTags={};
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
-
 				if(d && d.length>1 && d[0].id!="-1") {
-					//these are the ones with multiple
+					//these are the ones with multiple weights
 					relevantTags[d[0].id]=true;
 				}
 			}
@@ -199,33 +169,21 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				}));
 			});
 
-
 			var days=[];
-			var weights=[];
-			var diffs=[];
-
-			// New Code
 			var relevantWeights=[];
 			var tagDetails=[];
 			var herdTrendDays={relevant: {}};
 
-
+			//Herd Graph
 			tagDateGroup.forEach(function(d) {
-
 				if(d[0][0]) {
 					days.push(d[0][0].date_posted);
 					herdTrendDays.relevant[d[0][0].date_posted]=false;
 				}
-				else
-					return;
-
-				var sumWeight=0;
-				var count=0;
-
-				//New Code
+				else return;
+				
 				var sumWeightTrend=0;
 				var countTrend=0;
-
 				var tagNamesForDay={};
 
 				if(d[0][0].date_posted)
@@ -233,44 +191,22 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 				d.forEach(function(e) {//e is the tag
 					if(e[0]) {
-
-						var aveTagWeight=0;
-						var readingCount=0;
-
-						//take the average of duplicates
-						e.forEach( function(f){ //when e has more than one reading that day
-							aveTagWeight+=f.total_weight;
-							readingCount++;
-						});
-						if(readingCount>1)
-							aveTagWeight=aveTagWeight/readingCount;
-
-						sumWeight += aveTagWeight;
-						count++;
-
-						//New Code
 						if(relevantTags[e[0].id]){
-							//(today -lastday)/number of days
-
-
 							var currTag=dict[e[0].id];
-							var diff=aveTagWeight;
-							var days=1;
-
+							var diff;
 							var last;
 							if(currTag.trace.x)
 							for(var z=0; z<currTag.trace.x.length; z++){
 								if(currTag.trace.x[z]==e[0].date_posted && z>0 ){
 
-
 									last=currTag.dict[currTag.trace.x[z-1]];
 									diff=currTag.dict[currTag.trace.x[z]];
 
-									var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+									var oneDay = 24*60*60*1000;
 									var firstDate = new Date(currTag.trace.x[z]);
 									var secondDate = new Date(currTag.trace.x[z-1]);
-
-									var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+									var diffDays = Math.round(Math.abs((
+										firstDate.getTime() - secondDate.getTime())/(oneDay)));
 
 									diff=diff-last;
 									if(diffDays>1)
@@ -282,18 +218,13 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 										tag: e[0].id, change: diff});
 									countTrend++;
 								}
-
 							}
-
 						}
 					}
 				});
-				if(count>0)
-					sumWeight=sumWeight/count;
-				weights.push(sumWeight);
 
 				if(countTrend>0) {
-					sumWeightTrend = sumWeightTrend / countTrend;
+					sumWeightTrend = sumWeightTrend/countTrend;
 					tagDetails.push(tagNamesForDay);
 					relevantWeights.push(sumWeightTrend);
 				}
@@ -303,14 +234,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				}
 			});
 
-			diffs.push(0);
-			for(var i=1; i<weights.length; i++){
-				diffs.push(weights[i]-weights[i-1]);
-			}
-
 			var total_weights = {
 				x: days,
-				//changed
 				y: relevantWeights,
 				mode: 'lines+markers',
 				name: "Ave Wt",
@@ -319,21 +244,13 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				}
 			};
 
-			var difference = {
-				x: days,
-				y: diffs,
-				mode: 'lines',
-				name: "Wt Change"
-			};
-
 			var layout = {
-				
 				title: "Herd Trend",
 				yaxis: {title: "Weight (KG)"},
 				showlegend: false
 			};
 
-			var data = [ total_weights/*, difference*/ ];
+			var data = [ total_weights];
 
 			$scope.allTags.traces=data;
 			$scope.allTags.layout=layout;
@@ -341,6 +258,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		};
 
 	};
+
+	$scope.init();
 
 	$scope.showLiveData = function() {
 		$scope.alert = '';
@@ -358,7 +277,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		});
 	};
 
-	$scope.init();
 });
 
 homesteadApp.controller('LiveDataCtrl', function($scope, $mdBottomSheet){});

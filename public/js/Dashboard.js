@@ -40,8 +40,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					mapTypeId: 'hybrid',
 					zoom:15
 				});
-				
-				map.data.loadGeoJson('/data/paddocks.json');
+
+				map.data.loadGeoJson('data/paddocks.json');
 
 				var marker1 = new google.maps.Marker({
 					position: {lat: -19.66882, lng: 146.864},

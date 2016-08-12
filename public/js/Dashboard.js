@@ -155,6 +155,12 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				}
 			}
 
+			$scope.tagGraphs.sort(function(a, b){
+				var keyA = a.name,
+					keyB = b.name;
+				return keyA.localeCompare(keyB);
+			});
+
 			//Tags with 2 weights
 			var relevantTags={};
 			for(var j=0; j<idGroup.length; j++){

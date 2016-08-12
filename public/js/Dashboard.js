@@ -5943,7 +5943,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 							var currTag=dict[e[0].id];
 							var diff=aveTagWeight;
-							var days=1;
+							var numDays=1;
 
 							var last;
 							if(currTag.trace.x)

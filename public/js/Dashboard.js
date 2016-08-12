@@ -5789,7 +5789,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				var trace1={
 					x:[],
 					y:[],
-					mode: 'lines'
+					mode: 'lines+markers',
+					line:{
+						color: '#66bb6a'
+					}
 				};
 				var trace2={
 					x:[],
@@ -5967,7 +5970,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 										diff=diff/diffDays;
 
 									sumWeightTrend+=diff;
-									tagNamesForDay[d[0][0].date_posted].push({tag: e[0].id, change: diff});
+									tagNamesForDay[d[0][0].date_posted].push({date: d[0][0].date_posted,
+										tag: e[0].id, change: diff});
 									countTrend++;
 								}
 
@@ -6000,8 +6004,11 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				x: days,
 				//changed
 				y: relevantWeights,
-				mode: 'lines',
-				name: "Ave Wt"
+				mode: 'lines+markers',
+				name: "Ave Wt",
+				line:{
+					color: '#66bb6a'
+				}
 			};
 
 			var difference = {

@@ -260,8 +260,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				mode: 'lines+markers',
 				name: "Ave Wt",
 				line:{
-					color: '#66bb6a'
-				}
+					color: '#66bb6a',
+					shape: 'spline'
+				},
+				type: 'scatter'
 			};
 
 			var layout = {

@@ -97,8 +97,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					y:[],
 					mode: 'lines+markers',
 					line:{
-						color: '#66bb6a'
-					}
+						color: '#66bb6a',
+						shape: 'spline'
+					},
+					type: 'scatter'
 				};
 				var tagDict={};
 				//remove all weights greater than the threshold weight

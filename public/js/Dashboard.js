@@ -44,7 +44,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.layout = {
 
-		title: "Individual Trend",
+		title: "Daily Individual Weight Trend",
 		yaxis: {title: "Weight (KG)"},
 		showlegend: false
 	};
@@ -139,6 +139,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 						trace1Counter++;
 						tagDict[dt] = wt;
 				}
+				//check the threshold again
 				if(trace1.y && trace1.x) {
 					for (var a = 0; a < trace1.y.length; a++) {
 						if (trace1.y[a] > thresholdWeight) {
@@ -155,6 +156,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				}
 			}
 
+			//sorting the tags
 			$scope.tagGraphs.sort(function(a, b){
 				var keyA = a.name,
 					keyB = b.name;
@@ -165,8 +167,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			var relevantTags={};
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
-				if(d && d.length>1 && d[0].id!="-1") {
-					//these are the ones with multiple weights
+				if(d && d.length>0 && d[0].id!="-1") {//change from 0 to 1 for multiple weights
+
 					relevantTags[d[0].id]=true;
 				}
 			}
@@ -205,17 +207,18 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				d.forEach(function(e) {//e is the tag
 					if(e[0]) {
 						if(relevantTags[e[0].id]){
+
 							var currTag=dict[e[0].id];
 							var diff;
-							var last;
+							//var last;
 							if(currTag.trace.x)
 							for(var z=0; z<currTag.trace.x.length; z++){
-								if(currTag.trace.x[z]==e[0].date_posted && z>0 ){
+								if(currTag.trace.x[z]==e[0].date_posted /*&& z>0*/ ){
 
-									last=currTag.dict[currTag.trace.x[z-1]];
+									//last=currTag.dict[currTag.trace.x[z-1]];
 									diff=currTag.dict[currTag.trace.x[z]];
 
-									var oneDay = 24*60*60*1000;
+									/*var oneDay = 24*60*60*1000;
 									var firstDate = new Date(currTag.trace.x[z]);
 									var secondDate = new Date(currTag.trace.x[z-1]);
 									var diffDays =
@@ -224,6 +227,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 									diff=diff-last;
 									if(diffDays>1)
 										diff=diff/diffDays;
+									*/
 
 									sumWeightTrend+=diff;
 									herdTrendDays.relevant[d[0][0].date_posted]=true;
@@ -261,7 +265,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			};
 
 			var layout = {
-				title: "Herd Trend",
+				title: "Daily Herd Weight Trend",
 				yaxis: {title: "Weight (KG)"},
 				showlegend: false
 			};

@@ -344,7 +344,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			$scope.allTags.traces=[total_weights];
 			$scope.allTags.layout=layout;
 
-			$scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
+			$scope.allTags.thirdsTraces=[upperThird, middleThird, lowerThird];
 			$scope.allTags.thirdsLayout=thirdsLayout;
 
 

@@ -43,7 +43,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 	}
 
 	$scope.layout = {
-
 		title: "Daily Individual Weight Trend",
 		yaxis: {title: "Weight (KG)"},
 		showlegend: false
@@ -119,7 +118,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				for(var i=1; i<d.length; i++){
 					var dt=d[i].date_posted, wt=d[i].total_weight;
 					//take average of multiple readings during one day
-					if(trace1Counter>0) {
+					if(trace1Counter>0){
 						var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;
 						if (d[index].date_posted == d[index - 1].date_posted)
 							while (d[index] && d[index].date_posted == d[index - 1].date_posted
@@ -136,10 +135,11 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 							continue;
 						}
 					}
-						trace1.x.push(dt);
-						trace1.y.push(wt);
-						trace1Counter++;
-						tagDict[dt] = wt;
+					trace1.x.push(dt);
+					trace1.y.push(wt);
+
+					trace1Counter++;
+					tagDict[dt] = wt;
 				}
 				//check the threshold again
 				if(trace1.y && trace1.x) {
@@ -170,7 +170,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
 				if(d && d.length>0 && d[0].id!="-1") {//change from 0 to 1 for multiple weights
-
 					relevantTags[d[0].id]=true;
 				}
 			}
@@ -191,6 +190,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			var tagDetails=[];
 			var herdTrendDays={relevant: {}};
 
+			debugger;
 			//Herd Graph
 			tagDateGroup.forEach(function(d) {
 				if(d[0][0]) {
@@ -207,17 +207,18 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					tagNamesForDay[d[0][0].date_posted]=[];
 
 				d.forEach(function(e) {//e is the tag
+
 					if(e[0]) {
 						if(relevantTags[e[0].id]){
 
 							var currTag=dict[e[0].id];
 							var diff;
-							var last;
+							//var last;
 							if(currTag.trace.x)
 							for(var z=0; z<currTag.trace.x.length; z++){
 								if(currTag.trace.x[z]==e[0].date_posted /*&& z>0*/ ){
 
-									last=currTag.dict[currTag.trace.x[z]];//change to z-1
+									//last=currTag.dict[currTag.trace.x[z]];//change to z-1
 									diff=currTag.dict[currTag.trace.x[z]];
 
 									/*var oneDay = 24*60*60*1000;
@@ -225,7 +226,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 									var secondDate = new Date(currTag.trace.x[z-1]);
 									var diffDays =
 										Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
-
 									diff=diff-last;
 									if(diffDays>1)
 										diff=diff/diffDays;
@@ -274,14 +274,86 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				showlegend: false
 			};
 
-			var data = [ total_weights];
+			tagDateGroup.forEach(function(d){
+				if(d[0] && d[0][0]){
 
-			$scope.allTags.traces=data;
+					$scope.averageMultipleWeightsAndFilter(d);
+				}
+			});
+
+			tagDateGroup.forEach(function(d){
+				if(d[0] && d[0][0]){
+
+					d.sort(function(a, b){
+						var keyA = a[0].weight,
+							keyB = b[0].weight;
+						if(keyA < keyB) return -1;
+						if(keyA > keyB) return 1;
+						return 0;
+					});
+				}
+			});
+
+			$scope.thirdsTraces=[[],[],[]];
+			$scope.binningByWeight(tagDateGroup, 3, $scope.thirdsTraces);
+
+			var lowerThird = {
+				x: days,
+				y: $scope.thirdsTraces[0],
+				mode: 'lines+markers',
+				name: "Ave: Lower 1/3",
+				line:{
+					color: '#FCD455',
+					shape: 'spline'
+				},
+				type: 'scatter'
+			};
+
+			var middleThird = {
+				x: days,
+				y: $scope.thirdsTraces[1],
+				mode: 'lines+markers',
+				name: "Ave: Middle 1/3",
+				line:{
+					color: '#66bb6a',
+					shape: 'spline'
+				},
+				type: 'scatter'
+			};
+
+			var upperThird = {
+				x: days,
+				y: $scope.thirdsTraces[2],
+				mode: 'lines+markers',
+				name: "Ave: Upper 1/3",
+				line:{
+					color: '#6699CC',
+					shape: 'spline'
+				},
+				type: 'scatter'
+			};
+
+			var thirdsLayout = {
+				title: "Daily Herd Weight Average: Thirds",
+				yaxis: {title: "Weight (KG)"},
+				showlegend: true
+			};
+
+			var data = [total_weights, lowerThird, middleThird, upperThird];
+
+			$scope.allTags.traces=[total_weights];
 			$scope.allTags.layout=layout;
+
+			$scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
+			$scope.allTags.thirdsLayout=thirdsLayout;
+
+
 
 		};
 
 	};
+
+
 
 	$scope.init();
 
@@ -300,6 +372,81 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			);
 		});
 	};
+
+	$scope.binningByWeight= function(data, groups, traces){
+		data.forEach(function(d){
+			if(d[0] && d[0][0] && d.length>0){
+
+				var bin=Math.floor(d.length/groups);
+
+				if(traces && traces.length>2) {
+
+					var index0=traces[0].length;
+					var index1=traces[1].length;
+					var index2=traces[2].length;
+
+					var count0=0;
+					var count1=0;
+					var count2=0;
+
+					for (var i = 0; i < d.length; i++) {
+						if (i == 0) {traces[0].push(d[i][0].weight); count0++;}
+						else if (i < bin) {traces[0][index0] += d[i][0].weight; count0++;}
+						else if (i == bin ) {traces[1].push(d[i][0].weight); count1++;}
+						else if (i < 2 * bin) {traces[1][index1] += d[i][0].weight; count1++;}
+						else if (i == 2 * bin || bin==0) {traces[2].push(d[i][0].weight); count2++;}
+						else if (i < d.length) {traces[2][index2] += d[i][0].weight; count2++;}
+					}
+
+					if(traces[0][index0] && count0>0) traces[0][index0]/=count0; else traces[0][index0]=NaN;
+					if(traces[1][index1] && count1>0) traces[1][index1]/=count1; else traces[1][index1]=NaN;
+					if(traces[2][index2] && count2>0) traces[2][index2]/=count2; else traces[2][index2]=NaN;
+				}
+			}
+		});
+	}
+
+	$scope.averageMultipleWeightsAndFilter= function(data){
+
+
+		if(data &&  data.length>0){
+			data.forEach(function(e){
+				if(e && e.length>0){
+
+					var sum=0;
+					var count=0;
+					var average=0;
+					for(var i=0; i<e.length; i++){
+						if(e[i].weight<=thresholdWeight){
+							sum+=e[i].weight;
+							count++;
+						}
+					}
+
+					if(count>0){
+						average=sum/count;
+					}
+					else{
+						//no data for this tag so remove this tag
+						average=-1;
+					}
+
+					e[0].weight=average; //total_weight is still the old one?
+					e.splice(1, e.length-1);
+				}
+			});
+
+			for(var j=0; j< data.length; j++){
+				if(data[j] && data[j].length && data[j].length>0){
+					if(data[j][0].weight==-1 || data[j][0].id=='-1'){
+						data.splice(j,1);
+						j--;
+					}
+				}
+			}
+
+		}
+	}
 
 });
 

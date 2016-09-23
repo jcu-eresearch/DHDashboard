@@ -303,7 +303,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				mode: 'lines+markers',
 				name: "Ave: Lower 1/3",
 				line:{
-					color: 'rgba(255, 65, 54, 0.4)',
+					color: 'rgba(255, 65, 54, 0.2)',
 					shape: 'spline'
 				},
 				type: 'scatter'

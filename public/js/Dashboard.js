@@ -303,7 +303,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				mode: 'lines+markers',
 				name: "Ave: Lower 1/3",
 				line:{
-					color: '#FCD455',
+					color: 'rgba(255, 65, 54, 0.4)',
 					shape: 'spline'
 				},
 				type: 'scatter'
@@ -315,7 +315,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				mode: 'lines+markers',
 				name: "Ave: Middle 1/3",
 				line:{
-					color: '#66bb6a',
+					color: 'rgba(44, 160, 101, 0.6)',
 					shape: 'spline'
 				},
 				type: 'scatter'
@@ -327,7 +327,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				mode: 'lines+markers',
 				name: "Ave: Upper 1/3",
 				line:{
-					color: '#6699CC',
+					color: 'rgb(93, 164, 214)',
 					shape: 'spline'
 				},
 				type: 'scatter'

@@ -1,0 +1,24 @@
+<div class="card-panel" flex >
+    <div class="card-content"  >
+        <md-card>
+            <div class=" graph-container">
+                <div layout="row" class="md-padding">
+                    <md-input-container class="no-padding right ">
+                        <label>Select a Tag </label>
+                        <md-select ng-model="selectedTag" >
+                            <md-option ng-repeat="tag in tagGraphs" ng-value="tag" >
+                                {{tag.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div layout="row"  >
+                    <plotly plotly-data="selectedTag.traces"
+                            plotly-layout="selectedTag.layout"
+                            plotly-width="fullWidth"
+                    ></plotly>
+                </div>
+            </div>
+        </md-card>
+    </div>
+</div>

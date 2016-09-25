@@ -1,0 +1,57 @@
+<md-content class="background">
+
+
+
+    <div class="lower" layout="row" layout-padding style="width:100%;" layout-align="stretch">
+
+        <md-content class="background " layout="column" flex="60" layout-fill layout-align="center center" >
+            <div style="height:78vh;">
+
+                <div class="card-panel" flex >
+                    <div class="card-content" >
+                        <md-card>
+                            <div class=" graph-container">
+                                <div layout="row"  >
+                                    <plotly plotly-data="allTags.thirdsTraces"
+                                            plotly-layout="allTags.thirdsLayout"
+                                    ></plotly>
+                                </div>
+                            </div>
+                        </md-card>
+                    </div>
+                </div>
+
+                <div class="card-panel" flex >
+                    <div class="card-content" >
+                        <md-card>
+                            <div class=" graph-container">
+                                <div layout="row"  >
+                                    <plotly plotly-data="allTags.traces"
+                                            plotly-layout="allTags.layout"
+                                    ></plotly>
+                                </div>
+                            </div>
+                        </md-card>
+                    </div>
+                </div>
+
+
+            </div>
+        </md-content>
+
+        <div flex="40" style="height:80vh;" >
+            <div class="card-panel"  flex>
+                <div class="card-content " >
+                    <md-card >
+
+                        <div  class="map-container" id="map" style="height:68vh; width: auto; "></div>
+
+                    </md-card>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</md-content>

@@ -141,7 +141,7 @@ homesteadApp.directive('plotly', [
 	function($window) {
 		return {
 			restrict: 'E',
-			template: '<div style="width:56vw; height: 425px" ></div>',
+			template: '<div style="width:56vw; height: 500px" ></div>',
 			scope: {
 				plotlyData: '=',
 				plotlyLayout: '=',

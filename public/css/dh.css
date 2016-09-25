@@ -1,3 +1,66 @@
 .dh-live-data {
     color: white !important;
 }
+
+
+.dark-bluish-grey {
+    background-color: #1f2532 !important;
+}
+
+.light-bluish-grey {
+    background-color: #394A59 !important;
+}
+
+
+.background  {
+ background-color: #F2F2F2;
+}
+
+.round-img{
+
+    border-radius: 35px;
+    width: 35px;
+    height: 35px;
+}
+
+.icon-white{
+    color: white !important;
+}
+
+.map-container{
+    margin: 15px;
+}
+
+.graph-container{
+    margin: 5px;
+}
+
+.logo-img{
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+}
+
+.long{
+    min-height: 20vh;
+
+}
+.logo-container{
+    min-height: 14vh;
+}
+
+.lower{
+    margin-top: 20px;
+}
+
+.floaty{
+    margin-top: 14vh;
+}
+
+.md-nav-item span {
+    color: white !important;
+}
+
+md-nav-bar md-nav-ink-bar {
+    background: white;
+}

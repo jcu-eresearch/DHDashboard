@@ -1,8 +1,43 @@
 
 var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages']);
 
+homesteadApp.config(function($mdThemingProvider) {
+
+
+	$mdThemingProvider.definePalette('amazingPaletteName', {
+		'50': 'ffebee',
+		'100': 'ffcdd2',
+		'200': 'ef9a9a',
+		'300': 'e57373',
+		'400': 'ef5350',
+		'500': 'f44336',
+		'600': 'e53935',
+		'700': 'd32f2f',
+		'800': '#1f2532', //dark bluish grey
+		'900': 'b71c1c',
+		'A100': 'ff8a80',
+		'A200': 'ff5252',
+		'A400': 'ff1744',
+		'A700': 'd50000',
+		'contrastDefaultColor': 'light',    // whether, by default, text (contrast)
+											// on this palette should be dark or light
+		'contrastDarkColors': ['50', '100', //hues which contrast should be 'dark' by default
+			'200', '300', '400', 'A100'],
+		'contrastLightColors': undefined    // could also specify this if default was 'dark'
+	});
+
+
+	$mdThemingProvider.theme('default')
+		.primaryPalette('amazingPaletteName')
+		.accentPalette('green')
+		.backgroundPalette('grey');
+});
+
+
+
 homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService) {
 
+	$scope.currentNavItem = 'page1';
 	$scope.tagList=[];
 	$scope.selectedTag;
 	$scope.tagGraphs=[];
@@ -15,10 +50,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: {lat: -19.66574, lng: 146.8462},
 			mapTypeId: 'hybrid',
-			zoom:15
+			zoom:9
 		});
 
-		map.data.loadGeoJson('data/paddocks.json');
+		//map.data.loadGeoJson('data/paddocks.json');
 
 		var marker1 = new google.maps.Marker({
 			position: {lat: -19.66882, lng: 146.864},
@@ -90,6 +125,15 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			//Individual Graphs
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
+
+				debugger;
+				if(d[0] && d[0].id=='-1') {
+					idGroup.splice(j, 1);
+					j--;
+					continue;
+
+				}
+
 				var trace1Counter=0;
 				var trace1={
 					x:[],
@@ -103,9 +147,12 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				};
 				var tagDict={};
 				//remove all weights greater than the threshold weight
+
+				debugger;
 				for(var a=0; a<d.length; a++){
-					if(d[a].total_weight>thresholdWeight){
+					if(d[a] && d[a].total_weight>thresholdWeight  ){
 						d.splice(a,1);
+						a--;
 					}
 				}
 				if(d[0]){
@@ -306,6 +353,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 					color: 'rgba(255, 65, 54, 0.2)',
 					shape: 'spline'
 				},
+				fill: "tonexty",
+				fillcolor: "rgba(255, 65, 54, 0.1)",
 				type: 'scatter'
 			};
 
@@ -315,9 +364,11 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				mode: 'lines+markers',
 				name: "Ave: Middle 1/3",
 				line:{
-					color: 'rgba(44, 160, 101, 0.4)',
+					color: 'rgba(44, 160, 101, 0.5)',
 					shape: 'spline'
 				},
+				fill: "tonexty",
+				fillcolor: "rgba(44, 160, 101, 0.4)",
 				type: 'scatter'
 			};
 
@@ -326,8 +377,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				y: $scope.thirdsTraces[2],
 				mode: 'lines+markers',
 				name: "Ave: Upper 1/3",
+				fill: "tonexty",
+				fillcolor: "rgba(93, 164, 214, 0.3)",
 				line:{
-					color: 'rgba(93, 164, 214, 0.4)',
+					color: 'rgba(93, 164, 214, 0.5)',
 					shape: 'spline'
 				},
 				type: 'scatter'
@@ -335,8 +388,12 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 			var thirdsLayout = {
 				title: "Daily Herd Weight Average: Thirds",
-				yaxis: {title: "Weight (KG)"},
-				showlegend: true
+				yaxis: {
+					title: "Weight (KG)",
+					range: [300, 500]
+				},
+				showlegend: true,
+				legend: {"orientation": "h"}
 			};
 
 			var data = [total_weights, lowerThird, middleThird, upperThird];
@@ -344,7 +401,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			$scope.allTags.traces=[total_weights];
 			$scope.allTags.layout=layout;
 
-			$scope.allTags.thirdsTraces=[upperThird, middleThird, lowerThird];
+			$scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
 			$scope.allTags.thirdsLayout=thirdsLayout;
 
 
@@ -505,7 +562,7 @@ homesteadApp.directive('plotly', [
 	function($window) {
 		return {
 			restrict: 'E',
-			template: '<div style="width:38vw; height: 40vh" ></div>',
+			template: '<div style="width:56vw; height: 70vh" ></div>',
 			scope: {
 				plotlyData: '=',
 				plotlyLayout: '=',

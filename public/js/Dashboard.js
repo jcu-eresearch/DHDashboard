@@ -126,7 +126,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			for(var j=0; j<idGroup.length; j++){
 				var d=idGroup[j];
 
-				debugger;
+
 				if(d[0] && d[0].id=='-1') {
 					idGroup.splice(j, 1);
 					j--;
@@ -148,7 +148,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 				var tagDict={};
 				//remove all weights greater than the threshold weight
 
-				debugger;
 				for(var a=0; a<d.length; a++){
 					if(d[a] && d[a].total_weight>thresholdWeight  ){
 						d.splice(a,1);
@@ -237,7 +236,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			var tagDetails=[];
 			var herdTrendDays={relevant: {}};
 
-			debugger;
+			
 			//Herd Graph
 			tagDateGroup.forEach(function(d) {
 				if(d[0][0]) {

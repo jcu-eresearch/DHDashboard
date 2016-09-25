@@ -236,7 +236,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			var tagDetails=[];
 			var herdTrendDays={relevant: {}};
 
-			
+
 			//Herd Graph
 			tagDateGroup.forEach(function(d) {
 				if(d[0][0]) {

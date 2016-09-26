@@ -46,6 +46,17 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         showlegend: false
     };
 
+    function groupBy( array , f ){
+        var groups = {};
+        array.forEach( function( o ){
+            var group = JSON.stringify( f(o) );
+            groups[group] = groups[group] || [];
+            groups[group].push( o );
+        });
+        return Object.keys(groups).map( function( group ){
+            return groups[group];
+        })
+    };
 
     $scope.init=function(){
 
@@ -290,7 +301,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             });
 
-            debugger;
+
 
             tagDateGroup.forEach(function(d){
                 if(d[0] && d[0][0]){
@@ -367,6 +378,15 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             $scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
             $scope.allTags.thirdsLayout=thirdsLayout;
+
+
+            $scope.weeks=[];
+            $scope.prepareWeeklyData(dateGroup, $scope.weeks);
+
+            $scope.weeklyTrace= $scope.prepareWeeklyTrace($scope.weeks, $scope.weeklyTrace);
+
+            debugger;
+
 
 
 
@@ -453,6 +473,150 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             }
 
         }
+    }
+
+    $scope.prepareWeeklyData=function(days, weeks){
+
+        var millis=1000*60*60*24*7;
+        var currentDate=new Date();
+        
+        if(days && days.length>0 && weeks) {
+
+            for (var i =days.length-1; i>=0; i--){
+
+                //get the day from the first element
+
+                var currentWeek={};
+                
+                if(currentDate && !isNaN(currentDate.getTime()))
+                    currentWeek={
+                        start: new Date(currentDate.getTime()-millis),
+                        aveWt:0,
+                        count: 0,
+                        data: [],
+                        idGroups: []
+                    }
+
+                
+                var compareDate=null;
+                if(days[i]  && days[i][0])
+                    compareDate= new Date(days[i][0].date);
+                
+
+                while( days[i]  && days[i][0] && compareDate && currentDate && !isNaN(compareDate.getTime()) && !isNaN(currentDate.getTime())
+                    && compareDate.getTime()>= (currentDate.getTime()-millis) && i>=0){
+                    
+                    currentWeek.data=currentWeek.data.concat(days[i]);
+                    i--;
+                    if(days[i]  && days[i][0])
+                        compareDate= new Date(days[i][0].date);
+                }
+
+
+                currentWeek.idGroups = groupBy(currentWeek.data, function(item){
+                    return [item.id];
+                });
+
+
+                debugger;
+                var weeklyAve=0; var weeklyCount=0;
+                if(currentWeek.idGroups) {
+                    for (var y = 0; y < currentWeek.idGroups.length; y++) {
+                        var tag=currentWeek.idGroups[y];
+                        if(tag && tag[0] && tag[0].id=='-1'){
+                            currentWeek.idGroups.splice(y,1);
+                            y--;
+                            continue;
+                        }
+                        var tagAve=0; var tagCount=0;
+                        tag.forEach(function (t) {
+                            if(t && t.weight<=thresholdWeight){
+                                tagAve+=t.weight; tagCount++;
+                            }
+                        });
+                        if(tagCount>0)
+                            tagAve/=tagCount;
+
+                        if(tagAve>0){
+                            weeklyAve+=tagAve;
+                            weeklyCount++;
+                        }
+
+                    }
+                    if(weeklyCount>0)
+                        weeklyAve/=weeklyCount;
+                }
+
+                debugger;
+                currentWeek.aveWt=weeklyAve;
+                currentWeek.count=weeklyCount
+
+
+                weeks.push(currentWeek);
+
+                if(currentDate && !isNaN(currentDate.getTime()))
+                    currentDate=new Date(currentDate.getTime()-millis);
+
+                i++;
+                // compare with currentDate
+
+            }
+        }
+    };
+
+    $scope.prepareWeeklyTrace=function(weeks, trace){
+
+        var x=[];
+        var y=[];
+        var z=[];
+        var text=[]
+
+        if(weeks && weeks.length>0)
+        {
+            for(var i=0; i< weeks.length; i++) {
+                if(weeks[i]) {
+                    debugger;
+
+                    if(weeks[i].aveWt<=0) continue;
+
+                    var weekStart=weeks[i].start.toISOString();
+
+                    x.push(weeks[i].aveWt);
+                    y.push(weekStart.substring(0, (weekStart.length - 14)));
+                    z.push(weeks[i].count);
+                    text.push('count: ' + weeks[i].count);
+                }
+            }
+        }
+
+        debugger;
+
+
+        var bubble = {
+            x: y,
+            y: x,
+            text: text,
+            mode: 'markers',
+            marker: {
+                size: z
+            }
+        };
+
+        var bubbleLayout = {
+            title: "Weekly Herd Weight Average",
+            yaxis: {
+                title: "Weight (KG)"
+            }
+        };
+
+        trace={
+            traces: [bubble],
+            layout: bubbleLayout
+        };
+
+        return trace;
+
+
     }
 
 });

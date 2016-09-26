@@ -569,7 +569,9 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         var x=[];
         var y=[];
         var z=[];
-        var text=[]
+        var text=[];
+        var color=[];
+        var opacity=[];
 
         if(weeks && weeks.length>0)
         {
@@ -585,6 +587,21 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     y.push(weekStart.substring(0, (weekStart.length - 14)));
                     z.push(weeks[i].count);
                     text.push('count: ' + weeks[i].count);
+
+                    //rgba(93, 164, 214, 0.5) blue
+                    // gba(255, 65, 54, 0.1) red pink
+                    if(x.length==1){
+                        color.push('rgba(93, 164, 214)');
+                        opacity.push(0.5);
+                    }
+                    else if(x.length>1 && x[x.length-1]<x[x.length-2]){
+                        color.push('rgba(255, 65, 54)');
+                        opacity.push(0.1);
+                    }
+                    else{
+                        color.push('rgba(93, 164, 214)');
+                        opacity.push(0.5);
+                    }
                 }
             }
         }
@@ -596,6 +613,8 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             x: y,
             y: x,
             text: text,
+            color: color,
+            opacity: opacity,
             mode: 'markers',
             marker: {
                 size: z

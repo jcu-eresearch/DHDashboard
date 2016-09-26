@@ -616,9 +616,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             mode: 'markers',
             marker: {
-                size: z,
-                color: color,
-                opacity: opacity,
+                size: z
             }
         };
 

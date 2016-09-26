@@ -1,5 +1,5 @@
 
-var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute']);
+var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider']);
 
 homesteadApp.config(function($mdThemingProvider) {
 
@@ -82,6 +82,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 			);
 		});
 	};
+
 
 });
 
@@ -226,6 +227,10 @@ homesteadApp.directive('plotly', [
 		};
 	}
 ]);
+
+
+
+
 
 homesteadApp.directive('stopTouchEvent', function () {
 	return {

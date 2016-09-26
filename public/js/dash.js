@@ -290,6 +290,8 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             });
 
+            debugger;
+
             tagDateGroup.forEach(function(d){
                 if(d[0] && d[0][0]){
 

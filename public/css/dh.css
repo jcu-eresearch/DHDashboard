@@ -16,6 +16,7 @@
  background-color: #F2F2F2;
 }
 
+
 .round-img{
 
     border-radius: 35px;
@@ -106,4 +107,8 @@ md-nav-bar md-nav-ink-bar {
 .slider-padding{
     margin-left: 20px;
     margin-right: 20px;
+}
+
+md-checkbox .md-icon {
+    background-color: white;
 }

@@ -59,7 +59,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.currentNavItem='dash';
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
-		debugger;
 		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1)
 			$scope.currentNavItem = current.$$route.originalPath.substring(1);
 		else
@@ -142,7 +141,7 @@ homesteadApp.directive('plotly', [
 	function($window) {
 		return {
 			restrict: 'E',
-			template: '<div style="width:56vw; height: 500px" ></div>',
+			template: '<div style="width:56vw; height: 500px" ><div ng-show="true" layout="column" style="height:100%" flex layout-align="center center"><md-progress-circular md-mode="indeterminate"  class="md-accent" ></md-progress-circular></div></div>',
 			scope: {
 				plotlyData: '=',
 				plotlyLayout: '=',
@@ -151,11 +150,13 @@ homesteadApp.directive('plotly', [
 				plotlyWidth: '='
 			},
 			link: function(scope, element) {
+				scope.activated=true;
 				var graph = element[0].children[0];
 				var initialized = false;
 
 				function onUpdate() {
 
+					scope.activated=false;
 					//No data yet, or clearing out old data
 					if (!(scope.plotlyData)) {
 						if (initialized) {

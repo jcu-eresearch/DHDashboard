@@ -141,7 +141,7 @@ homesteadApp.directive('plotly', [
 	function($window) {
 		return {
 			restrict: 'E',
-			template: '<div style="width:56vw; height: 500px" ><div ng-show="true" layout="column" style="height:100%" flex layout-align="center center"><md-progress-circular md-mode="indeterminate"  class="md-accent" ></md-progress-circular></div></div>',
+			template: '<div style="width:56vw; height: 500px" ><div id="loader" ng-if="activated" layout="column" style="height:100%" flex layout-align="center center"><md-progress-circular md-mode="indeterminate"  class="md-accent" ></md-progress-circular></div></div>',
 			scope: {
 				plotlyData: '=',
 				plotlyLayout: '=',
@@ -150,13 +150,14 @@ homesteadApp.directive('plotly', [
 				plotlyWidth: '='
 			},
 			link: function(scope, element) {
+
 				scope.activated=true;
 				var graph = element[0].children[0];
 				var initialized = false;
 
 				function onUpdate() {
 
-					scope.activated=false;
+
 					//No data yet, or clearing out old data
 					if (!(scope.plotlyData)) {
 						if (initialized) {
@@ -180,6 +181,8 @@ homesteadApp.directive('plotly', [
 					graph.on('plotly_click', function(event, data) {
 						Plotly.relayout(graph, 'annotations[0]', 'remove');
 					});
+					scope.activated=false;
+
 				}
 
 				onUpdate();

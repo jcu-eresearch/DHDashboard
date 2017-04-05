@@ -1,21 +1,44 @@
-# node-dc-mongo
-<h2>Source code for the project demonstrating data visualization using d3.js, dc.js, node.js and mongodb<h2><br/>
+# Digital Homestead
+This project provides a dashboard for the Digital Homestead project.
+Dependencies include node.js, bower, and MongoDB.
 
-For the full post please visit: <br/>
-<h2>https://anmolkoul.wordpress.com/2015/06/05/interactive-data-visualization-using-d3-js-dc-js-nodejs-and-mongodb</h2>
+## Instillation
+Execute the following steps to run:
 
-Required Components:<br/>
-D3.js<br/>
-Dc.js<br/>
-Node.js<br/>
-Crossfilter.js<br/>
-Jquery<br/>
-MongoDB<br/>
+    git clone https://github.com/jcu-eresearch/DHDashboard.git
+    cd DHDashboard
+    npm install
+    bower install
 
-Steps for successful execution:<br/>
-1. Install MongoDB <br/>
-2.Insert the data into mongoDB as given in the blog<br/>
-3.Install Nodejs and NPM<br/>
-4. Navigate to the node-dc-mongo directory using command prompt and run npm install, this will install the dependencies<br/>
-5. Navigate to the node-dc-mongo directory using command prompt and run npm start<br/>
-6. In your browser go to localhost:8080/index.html<br/>
+## Register Receivers or Stations to recieve data from
+Help for the addStation.js utility:
+  
+    # node bin/addStation.js --help
+       
+    Usage: addStation [options]
+    
+    Add and remove allowed station and receivers to Digital Homestead Database
+    
+    Options:
+    
+    -h, --help                        output usage information
+    -V, --version                     output the version number
+    -s, --station [station]           Add Station
+    -r, --reciever [reciever]         Add Reciever
+    -S, --remove-station [station]    Remove Station
+    -R, --remove-reciever [reciever]  Remove Reciever
+
+### Receivers
+To register station `211` execute:
+
+    # node bin/addStation.js -r 211 
+
+### Stations
+To register station `110171` execute:
+
+    # node bin/addStation.js -s 110171
+
+## Run Server
+To launch the Digital Homestead Dashboard execute:
+
+    # node server.js

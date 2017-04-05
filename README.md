@@ -29,7 +29,7 @@ Help for the addStation.js utility:
     -R, --remove-reciever [reciever]  Remove Reciever
 
 ### Receivers
-To register station `211` execute:
+To register reciever `211` execute:
 
     # node bin/addStation.js -r 211 
 

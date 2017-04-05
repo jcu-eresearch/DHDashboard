@@ -1,7 +1,8 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var weightSchema = new Schema({
+
+var weight_reading = new Schema({
     id: String,
     weight: Number,
     rssi: String,
@@ -10,6 +11,15 @@ var weightSchema = new Schema({
     receiver: Number,
     date: Date,
     ts: Number
+});
+
+var weightSchema = new Schema({
+    _id: { type: String, index: true },
+    // bucket: String,
+    weights: [
+        weight_reading
+    ]
+
 });
 
 // module.exports = weightSchema;

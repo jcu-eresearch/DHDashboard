@@ -2,15 +2,18 @@ var binstruct = require('binstruct');
 var Decimal = require('decimal.js');
 var mongoose = require('mongoose');
 var moment = require("moment");
+var locks = require('locks');
+var Promise = require('promise');
 var Weight = require("./models/WeightsSchema");
 var Status = require("./models/StatusSchema");
 var Stations = require("./models/StationsSchema");
 
 require('buffertools').extend();
 
+var lockMaplock = locks.createMutex();
+var lockMap = {};
 
 Decimal.config({precision: 64, rounding: 4});
-// var url = 'mongodb://localhost:27017/digitalhomestead';
 
 function unpack(message) {
     buffer = new Buffer(message, 'hex');
@@ -25,8 +28,32 @@ function unpack(message) {
     }
 }
 
+function create_bucket(bucket, cb)
+{
+    console.log("Creating Bucket:", bucket);
+    Weight.find({"_id": bucket}, {_id:1}, function(err, buckets){
+        if(err)
+        {
+            return cb(err, buckets);
+        }
+
+        if(buckets.length > 0)
+        {
+            return cb(err, buckets);
+        }
+
+        var ins = Weight({
+            _id: bucket,
+            weights: []
+        });
+        ins.save(cb);
+    });
+}
+
+
 function insert_weight(connectionsubject, message, unpacked_data) {
-    var ins = Weight({
+    var bucket = moment(message.time * 1000).format("YYYY_MM");
+    var reading = {
         id: unpacked_data.id,
         weight: unpacked_data.weight,
         rssi: message.rssi,
@@ -35,16 +62,39 @@ function insert_weight(connectionsubject, message, unpacked_data) {
         receiver: message.receiver,
         date: moment(message.time * 1000),
         ts: message.time
+    };
+
+    lockMaplock.lock(function () {
+        var bucketLock;
+        if(!(buffer in lockMap))
+        {
+            lockMap[buffer] = locks.createMutex();
+        }
+        bucketLock = lockMap[buffer];
+        lockMaplock.unlock();
+        bucketLock.lock(function(){
+            create_bucket(bucket, function(err, buckets){
+                console.log("Inserting: ", reading);
+                Weight.update(
+                    {"_id": bucket},
+                    {
+                        "$push": {
+                            "weights":{
+                                "$each":[reading],
+                                // "$sort": {"$ts": 1}
+                            }
+                        }
+                    },
+                    function(err, insert){
+                        console.log(insert);
+                        bucketLock.unlock();
+                    }
+                );
+
+            });
+        });
     });
 
-    ins.save(function (err, data) {
-        if (err) {
-            console.log(err)
-        }
-        else {
-            console.log('Saved : ', data);
-        }
-    });
 }
 
 function unpack_status(status_message) {
@@ -133,6 +183,29 @@ function taggle(connectionsubject) {
     }
 }
 
+
+function ingest_history(pubnub, taggle_ingest)
+{
+
+    return new Promise(function (fulfill, reject){
+    pubnub.history({
+        channel : 'jcu.180181',
+        callback : function(m){
+            for(message in m[0])
+            {
+                // taggle_ingest(m[0][message]);
+                // console.log(m[0][message]);
+                // console.log("==========================");
+
+            }
+            fulfill(m[0].length);
+        },
+        count : 100000, // 100 is the default
+        reverse : false // false is the default
+    });
+    });
+}
+
 function init(connectionsubject) {
     // console.log(connectionsubject);
     var pubnub = require("pubnub")({
@@ -142,24 +215,32 @@ function init(connectionsubject) {
     });
 
     var t = taggle(connectionsubject);
-    // pubnub.history({
-    //     channel : 'jcu.180181',
-    //     callback : function(m){
-    //         for(message in m[0])
-    //         {
-    //             t(m[0][message]);
-    //             // console.log("==========================");
-    //         }
-    //
-    //     },
-    //     count : 100000, // 100 is the default
-    //     reverse : false // false is the default
-    // });
+    var hist_p = ingest_history(pubnub, t);
+    hist_p.done(
+        function (res) {
+            console.log("Historical Entries: ", res);
+            // pubnub.history({
+            //     channel : 'jcu.180181',
+            //     callback : function(m){
+            //         for(message in m[0])
+            //         {
+            //             t(m[0][message]);
+            //             // console.log("==========================");
+            //         }
+            //
+            //     },
+            //     count : 100000, // 100 is the default
+            //     reverse : false // false is the default
+            // });
 
-    pubnub.subscribe({
-        channel: "jcu.180181",
-        callback: t
-    });
+            pubnub.subscribe({
+                channel: "jcu.180181",
+                callback: t
+            });
+        }
+    );
+
+
 }
 
-module.exports = {'init':init, 'taggle':taggle};
+module.exports = {'init':init, 'taggle':taggle, 'unpack':unpack, 'insert_weight':insert_weight};

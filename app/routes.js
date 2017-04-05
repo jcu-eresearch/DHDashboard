@@ -2,6 +2,8 @@ var Subjects = require('./models/SubjectViews');
 var Weight = require('./models/WeightsSchema');
 var Stations = require("./models/StationsSchema");
 var Status = require("./models/StatusSchema");
+var sanitize = require('mongo-sanitize');
+
 
 module.exports = function (app) {
 
@@ -37,6 +39,69 @@ module.exports = function (app) {
         });
     });
 
+    app.get('/api/buckets', function (req, res) {
+
+        Weight.find({}, "_id").exec(function (err, weights) {
+            var r = [];
+            for(var i = 0; i < weights.length; i++)
+            {
+                r.push(weights[i]["_id"]);
+            }
+            res.json(r)
+        });
+
+    });
+
+    app.get('/api/weights/:bucket', function (req, res) {
+        var request_etag = req.header('if-none-match');
+        var bucket = sanitize(req.params['bucket']);
+        console.log(request_etag);
+        Weight.aggregate([
+            {$match:{"_id": bucket}},
+            {
+                $project:{ts: "$weights.ts"}
+            },
+            {
+                $unwind : '$ts'
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    max: {$max: '$ts'},
+                    count: {$sum: 1}
+
+                }
+            }
+        ], function(err, results){
+            console.log(results);
+            if(results && results.length != 0)
+            {
+                var result = results[0];
+                var response_etag = 'W/"'+result["_id"]+"_"+result["max"]+"_"+result["count"]+'"';
+                console.log(response_etag);
+                res.setHeader("ETag", response_etag);
+                if(request_etag != response_etag) {
+                    Weight.find({}, {_id: 0, __v: 0})
+                        .where({"_id": bucket})
+                        .sort({ts: 'asc'}).exec(function (err, weights) {
+                        res.json(weights)
+                    });
+                }else
+                {
+                    res.status(304);
+                    res.end();
+                }
+            }
+            else
+            {
+                res.json([])
+            }
+        });
+
+
+    });
+
+
     app.get('/api/stations', function (req, res) {
         Stations.find({}, {_id: 0, __v: 0}).exec(function (err, stations) {
             // console.log(weights);
@@ -52,9 +117,10 @@ module.exports = function (app) {
     });
 
     app.get('/api/status/station/:station', function (req, res) {
+        var station = sanitize(req.params['station']);
         Status.find({}, {_id: 0, __v: 0})
             .where({
-                "tag_id":req.params['station'],
+                "tag_id": station,
                 "message_type":"STATUS",
                 "message":"PERIODIC"
             })
@@ -63,7 +129,7 @@ module.exports = function (app) {
             .exec(
                 function (err, stations) {
                     res.json({"millis":new Date().getTime() -  (stations[0]['ts'] * 1000),
-                    "station":req.params['station']})
+                    "station": station})
                 }
             );
     });

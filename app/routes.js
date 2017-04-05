@@ -101,11 +101,38 @@ module.exports = function (app) {
 
     });
 
+    app.get('/api/weights/:bucket/:ts', function (req, res) {
+        var bucket = sanitize(req.params['bucket']);
+        var ts = sanitize(req.params['ts']);
+        console.log(bucket, ts);
+        Weight.aggregate([
+            {$match:{"_id":bucket}},
+            {
+                $project: {
+                    weights: {
+                        $filter: {
+                            input: '$weights',
+                            as: 'item',
+                            cond: {$gt: ['$$item.ts', parseInt(ts)]}
+                        }
+                    }
+                }
+            },
+        ], function(error, result){
+            if(error)
+            {
+                res.status(500);
+                res.end();
+            }
+            res.json(result[0]['weights'])
+        });
+
+    });
 
     app.get('/api/stations', function (req, res) {
         Stations.find({}, {_id: 0, __v: 0}).exec(function (err, stations) {
             // console.log(weights);
-            res.json(stations)
+            res.json(stations);
         });
     });
 

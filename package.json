@@ -9,6 +9,7 @@
     "commander": "^2.9.0",
     "decimal.js": "git://github.com/MikeMcl/decimal.js",
     "express": "~4.5.1",
+    "locks": "^0.2.2",
     "method-override": "~2.0.2",
     "moment": "^2.14.1",
     "mongo-sanitize": "^1.0.0",

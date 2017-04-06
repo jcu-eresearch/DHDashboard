@@ -49,7 +49,7 @@ function ingest(parsedJSON) {
 
     for (i = 0; i < parsedJSON.length; i++) {
         var bucket = moment(parsedJSON[i].ts * 1000).format("YYYY_MM");
-        if (!buckets.includes(bucket)) {
+        if (buckets.indexOf(bucket) == -1) {
             buckets.push(bucket);
         }
     }

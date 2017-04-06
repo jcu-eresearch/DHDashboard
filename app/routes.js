@@ -2,7 +2,10 @@ var Subjects = require('./models/SubjectViews');
 var Weight = require('./models/WeightsSchema');
 var Stations = require("./models/StationsSchema");
 var Status = require("./models/StatusSchema");
+var Location = require("./models/LocationSchema");
 var sanitize = require('mongo-sanitize');
+
+var ETAG_VERSION = 1;
 
 
 module.exports = function (app) {
@@ -77,7 +80,7 @@ module.exports = function (app) {
             if(results && results.length != 0)
             {
                 var result = results[0];
-                var response_etag = 'W/"'+result["_id"]+"_"+result["max"]+"_"+result["count"]+'"';
+                var response_etag = 'W/"'+ETAG_VERSION+"_"+result["_id"]+"_"+result["max"]+"_"+result["count"]+'"';
                 console.log(response_etag);
                 res.setHeader("ETag", response_etag);
                 if(request_etag != response_etag) {
@@ -127,6 +130,92 @@ module.exports = function (app) {
             res.json(result[0]['weights'])
         });
 
+    });
+
+    app.get('/api/locations', function (req, res) {
+        var animal = sanitize(req.params['animal']);
+        Location.find({}, {_id:1}, function(error, data){
+            if(error){
+                res.status(500);
+                res.end();
+            }else
+            {
+                var result = [];
+                for(var i in data)
+                {
+                    result.push(parseInt(data[i]['_id'].split("_")[2]));
+                }
+                res.json(result);
+            }
+
+        });
+    });
+
+    app.get('/api/locations/:animal', function (req, res) {
+        var animal = sanitize(req.params['animal']);
+        Location.find({_id: {$regex:"[0-9]*_[0-9]*_"+animal}}, {_id:1}, function(error, data){
+            if(error){
+                res.status(500);
+                res.end();
+            }else
+            {
+                var result = [];
+                for(var i in data)
+                {
+                    result.push(data[i]['_id']);
+                }
+                res.json(result);
+
+            }
+
+        });
+    });
+
+    app.get('/api/locations/bucket/:bucket', function (req, res) {
+        var request_etag = req.header('if-none-match');
+        var bucket = sanitize(req.params['bucket']);
+
+        Location.aggregate([
+            {$match:{"_id": bucket}},
+            {
+                $project:{ts: "$locations.ts"}
+            },
+            {
+                $unwind : '$ts'
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    max: {$max: '$ts'},
+                    count: {$sum: 1}
+
+                }
+            }
+        ], function(error, results){
+            if(results && results.length != 0)
+            {
+                var result = results[0];
+                var response_etag = 'W/"'+ETAG_VERSION+"_"+result["_id"]+"_"+result["max"]+"_"+result["count"]+'"';
+                console.log(response_etag);
+                res.setHeader("ETag", response_etag);
+                if(request_etag != response_etag) {
+                    Location.find({}, {_id: 0, __v: 0, "locations._id":0, "locations._date":0, "locations.date":0})
+                        .where({"_id": bucket})
+                        .sort({ts: 'asc'}).exec(function (err, weights) {
+                        res.json(weights)
+                    });
+                }else
+                {
+                    res.status(304);
+                    res.end();
+                }
+            }
+            else
+            {
+                res.json([])
+            }
+
+        });
     });
 
     app.get('/api/stations', function (req, res) {

@@ -1,4 +1,3 @@
-var Subjects = require('./models/SubjectViews');
 var Weight = require('./models/WeightsSchema');
 var Stations = require("./models/StationsSchema");
 var Status = require("./models/StatusSchema");
@@ -10,31 +9,6 @@ var ETAG_VERSION = 1;
 
 module.exports = function (app) {
 
-    // server routes ===========================================================
-    // handle things like api calls
-    // authentication routes
-    // sample api route
-    app.get('/api/data', function (req, res) {
-        // use mongoose to get all nerds in the database
-        Subjects.find({}, {
-            '_id': 0,
-            'school_state': 1,
-            'resource_type': 1,
-            'poverty_level': 1,
-            'date_posted': 1,
-            'total_donations': 1,
-            'funding_status': 1,
-            'grade_level': 1
-        }, function (err, subjectDetails) {
-            // if there is an error retrieving, send the error.
-            // nothing after res.send(err) will execute
-            if (err)
-                res.send(err);
-            res.json(subjectDetails); // return all nerds in JSON format
-        });
-    });
-
-
     app.get('/api/weights', function (req, res) {
         Weight.find({}, {_id: 0, __v: 0}).sort({ts: 'asc'}).exec(function (err, weights) {
             // console.log(weights);
@@ -42,7 +16,7 @@ module.exports = function (app) {
         });
     });
 
-    app.get('/api/buckets', function (req, res) {
+    app.get('/api/weights/buckets', function (req, res) {
 
         Weight.find({}, "_id").exec(function (err, weights) {
             var r = [];
@@ -84,7 +58,7 @@ module.exports = function (app) {
                 console.log(response_etag);
                 res.setHeader("ETag", response_etag);
                 if(request_etag != response_etag) {
-                    Weight.find({}, {_id: 0, __v: 0})
+                    Weight.find({}, {_id: 0, __v: 0, "weights._id":0})
                         .where({"_id": bucket})
                         .sort({ts: 'asc'}).exec(function (err, weights) {
                         res.json(weights)
@@ -124,10 +98,23 @@ module.exports = function (app) {
         ], function(error, result){
             if(error)
             {
+                console.log(error);
                 res.status(500);
                 res.end();
+            }else if(result && result.length >= 1)
+            {
+                var data = result[0]['weights'];
+                for(var i = 0; i < data.length; i++)
+                {
+                    delete data[i]['_id'];
+                }
+                res.json(data);
+                // res.json(result[0]['weights'])
+            }else
+            {
+                res.json([])
             }
-            res.json(result[0]['weights'])
+
         });
 
     });

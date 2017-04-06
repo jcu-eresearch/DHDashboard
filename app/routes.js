@@ -132,6 +132,7 @@ module.exports = function (app) {
 
     });
 
+    //Return the list of animal IDs
     app.get('/api/locations', function (req, res) {
         var animal = sanitize(req.params['animal']);
         Location.find({}, {_id:1}, function(error, data){
@@ -151,6 +152,7 @@ module.exports = function (app) {
         });
     });
 
+    //Return the list of buckets for a given animal ID
     app.get('/api/locations/:animal', function (req, res) {
         var animal = sanitize(req.params['animal']);
         Location.find({_id: {$regex:"[0-9]*_[0-9]*_"+animal}}, {_id:1}, function(error, data){
@@ -171,6 +173,7 @@ module.exports = function (app) {
         });
     });
 
+    //Return the data for a givel bucket
     app.get('/api/locations/bucket/:bucket', function (req, res) {
         var request_etag = req.header('if-none-match');
         var bucket = sanitize(req.params['bucket']);

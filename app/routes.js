@@ -104,6 +104,7 @@ module.exports = function (app) {
             }else if(result && result.length >= 1)
             {
                 var data = result[0]['weights'];
+                data.sort(function(a, b){return a.ts - b.ts;});
                 for(var i = 0; i < data.length; i++)
                 {
                     delete data[i]['_id'];
@@ -160,7 +161,7 @@ module.exports = function (app) {
         });
     });
 
-    //Return the data for a givel bucket
+    //Return the data for a given bucket
     app.get('/api/locations/bucket/:bucket', function (req, res) {
         var request_etag = req.header('if-none-match');
         var bucket = sanitize(req.params['bucket']);
@@ -191,8 +192,9 @@ module.exports = function (app) {
                 if(request_etag != response_etag) {
                     Location.find({}, {_id: 0, __v: 0, "locations._id":0, "locations._date":0, "locations.date":0})
                         .where({"_id": bucket})
-                        .sort({ts: 'asc'}).exec(function (err, weights) {
-                        res.json(weights)
+                        .sort({ts: 'asc'}).exec(function (err, locations) {
+                        locations.sort(function(a, b){return a.ts - b.ts;});
+                        res.json(locations)
                     });
                 }else
                 {

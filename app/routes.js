@@ -10,7 +10,7 @@ var ETAG_VERSION = 1;
 module.exports = function (app) {
 
     app.get('/api/weights', function (req, res) {
-        Weight.find({}, {_id: 0, __v: 0}).sort({ts: 'asc'}).exec(function (err, weights) {
+        Weight.find({}, {__v: 0}).sort({ts: 'asc'}).exec(function (err, weights) {
             // console.log(weights);
             res.json(weights)
         });

@@ -17,6 +17,7 @@
     "mongoose": "~3.8.0",
     "promise": "^7.1.1",
     "pubnub": "~3.15.1",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "stats-analysis": "^2.0.0"
   }
 }

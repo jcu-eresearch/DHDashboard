@@ -82,7 +82,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		});
 	};
 
-
 });
 
 
@@ -98,21 +97,39 @@ function tagDataService($http) {
 	return service;
 
 	function getAllTagData(callback) {
-		var uri = "api/weights";
+		debugger;
+
+		var uri = "api/weights/buckets";
 
 		$http.get(uri)
-			.then(getAllTagDataSuccess, getAllTagDataError);
+			.then(getBucketsSuccess, getBucketsError);
 
-		function getAllTagDataSuccess(resp) {
+		function getBucketsSuccess(buckets) {
+			debugger;
 
-			if (callback && resp.data) {
+			if(buckets && buckets.data && buckets.data.length>0){
+				buckets.data.forEach(function(bucket){
+					var bucketUri = "api/weights/" + bucket;
 
-				callback(resp.data);
+					$http.get(bucketUri)
+						.then(getBucketSuccess, getBucketError);
+				});
 			}
+			//if (callback && resp.data) {
+			//	callback(resp.data);
+			//}
 		}
 
-		function getAllTagDataError() {
+		function getBucketSuccess(data){
+			debugger;
+		}
+
+		function getBucketError(){
 			callback({success: false, message: 'Unable to fetch tag data'});
+		}
+
+		function getBucketsError() {
+			callback({success: false, message: 'Unable to fetch buckets'});
 		}
 	}
 

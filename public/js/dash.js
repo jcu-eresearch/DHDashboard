@@ -606,9 +606,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             }
         }
 
-        debugger;
-
-
         var bubble = {
             x: y,
             y: x,

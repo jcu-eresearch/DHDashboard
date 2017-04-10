@@ -55,6 +55,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
 
         function render(apiData) {
 
+            debugger;
 
             var dataSet = apiData;
 

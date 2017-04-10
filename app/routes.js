@@ -78,6 +78,64 @@ module.exports = function (app) {
 
     });
 
+    app.get('/api/weights/id/:id', function (req, res) {
+        var id = sanitize(req.params['id']);
+        Weight.aggregate([
+            {$unwind: "$weights"},
+            {$match: {"weights.id": id}},
+            {$project:{
+                "bucket": "$_id",
+                "id": "$weights.id",
+                "weight":"$weights.weight",
+                "rssi":"$weights.rssi",
+                "tag_id":"$weights.tag_id",
+                "sequence":"$weights.sequence",
+                "receiver":"$weights.receiver",
+                "date":"$weights.date",
+                "ts":"$weights.ts",
+            }},
+            {$sort: {"ts" :1}}
+        ], function(error, results){
+            if(error)
+            {
+                res.json([]);
+            }else
+            {
+                res.json(results);
+            }
+        });
+    });
+
+    app.get('/api/weights/id/:bucket/:id', function (req, res) {
+        var bucket = sanitize(req.params['bucket']);
+        var id = sanitize(req.params['id']);
+        Weight.aggregate([
+            {$match:{"_id":bucket}},
+            {$unwind: "$weights"},
+            {$match: {"weights.id": id}},
+            {$project:{
+                "bucket": "$_id",
+                "id": "$weights.id",
+                "weight":"$weights.weight",
+                "rssi":"$weights.rssi",
+                "tag_id":"$weights.tag_id",
+                "sequence":"$weights.sequence",
+                "receiver":"$weights.receiver",
+                "date":"$weights.date",
+                "ts":"$weights.ts",
+            }},
+            {$sort: {"ts" :1}}
+        ], function(error, results){
+            if(error)
+            {
+                res.json([]);
+            }else
+            {
+                res.json(results);
+            }
+        });
+    });
+
     app.get('/api/weights/:bucket/:ts', function (req, res) {
         var bucket = sanitize(req.params['bucket']);
         var ts = sanitize(req.params['ts']);

@@ -72,7 +72,7 @@ module.exports = function (app) {
                 console.log(response_etag);
                 res.setHeader("ETag", response_etag);
                 if(request_etag != response_etag) {
-                    Weight.find({}, {_id: 0, __v: 0, "weights._id":0})
+                    Weight.findOne({}, {_id: 0, __v: 0, "weights._id":0})
                         .where({"_id": bucket})
                         .sort({ts: 'asc'}).exec(function (err, weights) {
                         res.json(weights)

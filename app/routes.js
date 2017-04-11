@@ -3,6 +3,7 @@ var Stations = require("./models/StationsSchema");
 var Status = require("./models/StatusSchema");
 var Location = require("./models/LocationSchema");
 var sanitize = require('mongo-sanitize');
+var moment = require("moment");
 
 var ETAG_VERSION = 1;
 
@@ -300,6 +301,31 @@ module.exports = function (app) {
         });
     });
 
+    app.get('/api/status/heartbeat', function (req, res) {
+        Status.aggregate([
+                {$match:{"message_type":"STATUS", "message":"PERIODIC"}},
+            {$group:{"_id":"$tag_id", "last_heartbeat":{$max:"$ts"}}},
+            {$project:{"_id":0, "tag_id": "$_id", "last_heartbeat":"$last_heartbeat"}}
+            ], function(error, result){
+                    if(error) {
+                        console.log(error);
+                        res.status(500);
+                        res.end();
+                    }else
+                    {
+                        var currentTime = moment();
+                        for(i in result){
+                            var rt = moment(result[i].last_heartbeat * 1000);
+                            result[i].last_heartbeat = Math.floor((currentTime - rt)/1000);
+                        }
+                        res.json(result);
+                        res.end();
+                    }
+            }
+        );
+    });
+
+
     app.get('/api/status/station/:station', function (req, res) {
         var station = sanitize(req.params['station']);
         Status.find({}, {_id: 0, __v: 0})
@@ -318,8 +344,18 @@ module.exports = function (app) {
             );
     });
 
+
+
     // frontend routes =========================================================
-    app.get('*', function (req, res) {
+    app.get('/', function (req, res) {
         res.sendfile('./public/index.html');
+    });
+
+    app.get('*', function (req, res) {
+        res.writeHead(302, {
+            'Location': '/'
+        });
+        res.end();
+
     });
 };

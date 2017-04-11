@@ -29,6 +29,20 @@ module.exports = function (app) {
 
     });
 
+    app.get('/api/weights/ids', function (req, res) {
+
+        Weight.distinct("weights.id", function (error, ids) {
+            if(error)
+            {
+                console.log(error);
+                res.status(500);
+                res.end();
+            }
+            res.json(ids)
+        });
+
+    });
+
     app.get('/api/weights/:bucket', function (req, res) {
         var request_etag = req.header('if-none-match');
         var bucket = sanitize(req.params['bucket']);
@@ -98,7 +112,9 @@ module.exports = function (app) {
         ], function(error, results){
             if(error)
             {
-                res.json([]);
+                console.log(error);
+                res.status(500);
+                res.end();
             }else
             {
                 res.json(results);
@@ -128,7 +144,9 @@ module.exports = function (app) {
         ], function(error, results){
             if(error)
             {
-                res.json([]);
+                console.log(error);
+                res.status(500);
+                res.end();
             }else
             {
                 res.json(results);

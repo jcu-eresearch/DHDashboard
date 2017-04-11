@@ -10,7 +10,8 @@ var weight_reading = new Schema({
     sequence: Number,
     receiver: Number,
     date: Date,
-    ts: Number
+    ts: Number,
+    outlier: Boolean
 });
 
 var weightSchema = new Schema({

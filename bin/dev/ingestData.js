@@ -21,7 +21,6 @@ function ins(ins_data, cb) {
 
         var bucket = moment(ins_data.ts * 1000).format("YYYY_MM");
         ins_data.qa = null;
-        console.log(ins_data);
         Weight.update(
             {"_id": bucket},
             {

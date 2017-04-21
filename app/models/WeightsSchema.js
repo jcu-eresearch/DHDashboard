@@ -11,7 +11,8 @@ var weight_reading = new Schema({
     receiver: Number,
     date: Date,
     ts: Number,
-    outlier: Boolean
+    outlier: Boolean,
+    qa: String
 });
 
 var weightSchema = new Schema({

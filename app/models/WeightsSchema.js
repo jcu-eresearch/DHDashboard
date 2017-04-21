@@ -2,7 +2,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var weight_reading = new Schema({
+var weight_reading = require("./WeightReadingSchema").schema;
+
+/*var weight_reading = new Schema({
     id: String,
     weight: Number,
     rssi: String,
@@ -16,7 +18,7 @@ var weight_reading = new Schema({
     qa_outlier_type: String,
     qa_adjusted_value: Number
 
-});
+});*/
 
 var weightSchema = new Schema({
     _id: { type: String, index: true },

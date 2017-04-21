@@ -12,7 +12,10 @@ var weight_reading = new Schema({
     date: Date,
     ts: Number,
     outlier: Boolean,
-    qa: String
+    qa_flag: String,
+    qa_outlier_type: String,
+    qa_adjusted_value: Number
+
 });
 
 var weightSchema = new Schema({

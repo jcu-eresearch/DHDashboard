@@ -20,7 +20,7 @@ var mutex = locks.createMutex();
 function ins(ins_data, cb) {
 
         var bucket = moment(ins_data.ts * 1000).format("YYYY_MM");
-        ins_data.qa = null;
+        ins_data.qa_flag = null;
         Weight.update(
             {"_id": bucket},
             {

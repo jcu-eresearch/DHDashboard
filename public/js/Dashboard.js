@@ -84,7 +84,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 });
 
-
 homesteadApp.controller('LiveDataCtrl', function($scope, $mdBottomSheet){});
 
 homesteadApp.factory('tagDataService', tagDataService);
@@ -120,8 +119,10 @@ function tagDataService($http) {
 			//}
 		}
 
-		function getBucketSuccess(data){
+		function getBucketSuccess(dataSet){
 			debugger;
+			if(dataSet && dataSet.data && dataSet.data.weights && dataSet.data.weights)
+				formatDatePosted(dataSet.data.weights);
 		}
 
 		function getBucketError(){
@@ -131,6 +132,116 @@ function tagDataService($http) {
 		function getBucketsError() {
 			callback({success: false, message: 'Unable to fetch buckets'});
 		}
+
+		/** utility function for grouping data by different fields **/
+		function groupBy( array , f ){
+			var groups = {};
+			array.forEach( function( o ){
+				var group = JSON.stringify( f(o) );
+				groups[group] = groups[group] || [];
+				groups[group].push( o );
+			});
+			return Object.keys(groups).map( function( group ){
+				return groups[group];
+			})
+		}
+
+		/** add a field called datePosted which is the day that the record was posted **/
+		function formatDatePosted(dataSet){
+			debugger;
+			dataSet.forEach(function (d){
+				d.datePosted = d.date.substring(0, d.date.length - 14);
+				d.totalWeight = +d["weight"];
+			});
+		}
+
+		/** group the data by id **/
+		function groupById(dataSet){
+			var idGroup = groupBy(dataSet, function(item){
+				return [item.id];
+			});
+			return idGroup;
+		}
+
+		/** Configure the individual traces for the tags **/
+		function configureTagTraces(dataSet){
+		}
+
+		/** check and remove the -1 tag **/
+		function checkTagId(records, record, index){
+			if(record && record[0] && record[0].id=='-1') {
+				records.splice(index, 1);
+				return true;
+			}
+			return false;
+		}
+
+		/** remove all weights greater than the threshold weight **/
+		function removeAboveThreshold (record, thresholdWeight){
+			if(record && record.length>0) {
+				for (var i = 0; i < record.length; i++) {
+					if (record[i] && record[i].total_weight > thresholdWeight) {
+						record.splice(i, 1);
+						i--;
+					}
+				}
+			}
+		}
+
+		/** Initialize the trace for a tag **/
+		function initTrace(record, trace, traceCounter, tagDict){
+			if(record && record.length>0 && record[0]){
+				trace["name"]=record[0].id+' weight';
+				if(trace && trace.x && trace.y) {
+					trace.x.push(record[0].date_posted);
+					trace.y.push(record[0].total_weight);
+					traceCounter++;
+
+					tagDict[record[0].date_posted] = record[0].total_weight;
+				}
+			}
+			return traceCounter;
+		}
+
+		/** take the average of multiple readings during one day **/
+		function averageForDay (record, trace, traceCounter, tagDict){
+			for(var i=1; i<record.length; i++){
+				var dt=record[i].date_posted, wt=record[i].total_weight;
+				//take average of multiple readings during one day
+				if(traceCounter>0){
+					var dupSum = trace.y[traceCounter - 1], index = i, count = 1;
+					if (record[index].date_posted == record[index - 1].date_posted)
+						while (record[index] && record[index].date_posted == record[index - 1].date_posted
+						&& index < record.length && record[index]) {
+							dupSum += record[index].total_weight;
+							index++;
+							count++;
+						}
+					if (count > 1) {
+						wt = dupSum / count;
+						trace.y[traceCounter - 1] = wt;
+						tagDict[record[index-1].date_posted] = wt;
+						i = index - 1;
+						continue;
+					}
+				}
+				trace.x.push(dt);
+				trace.y.push(wt);
+
+				traceCounter++;
+				tagDict[dt] = wt;
+			}
+		}
+
+		/** Configure Tag Graphs **/
+		function configureTagGraphs(record, traces, trace, layout, dict, tagDict, tagGraphs){
+			if(record && record.length>0 && record[0]){
+				tagGraphs.push({name:record[0].id, traces: traces, layout: layout});
+				dict[record[0].id]={dict: tagDict, trace: trace};
+			}
+			//set up a preselected tag
+		}
+
 	}
 
 	function getTestData(callback) {
@@ -153,6 +264,7 @@ function tagDataService($http) {
 	}
 }
 
+
 homesteadApp.directive('plotly', [
 	'$window',
 	function($window) {
@@ -173,7 +285,6 @@ homesteadApp.directive('plotly', [
 				var initialized = false;
 
 				function onUpdate() {
-
 
 					//No data yet, or clearing out old data
 					if (!(scope.plotlyData)) {

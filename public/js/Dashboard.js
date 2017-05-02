@@ -106,23 +106,72 @@ function tagDataService($http) {
 		function getBucketsSuccess(buckets) {
 			debugger;
 
+
 			if(buckets && buckets.data && buckets.data.length>0){
 				buckets.data.forEach(function(bucket){
 					var bucketUri = "api/weights/" + bucket;
-
 					$http.get(bucketUri)
 						.then(getBucketSuccess, getBucketError);
 				});
 			}
 			//if (callback && resp.data) {
-			//	callback(resp.data);
+			//	callback(tagData);
 			//}
 		}
 
 		function getBucketSuccess(dataSet){
 			debugger;
-			if(dataSet && dataSet.data && dataSet.data.weights && dataSet.data.weights)
-				formatDatePosted(dataSet.data.weights);
+			if(dataSet && dataSet.data && dataSet.data.weights && dataSet.data.weights) {
+                formatDatePosted(dataSet.data.weights);
+                idGroup = groupById(dataSet.data.weights);
+                debugger;
+
+                var traceCounter=0;
+
+                var trace={
+                    x:[],
+                    y:[],
+                    mode: 'lines+markers',
+                    line:{
+                        color: '#66bb6a',
+                        shape: 'spline'
+                    },
+                    type: 'scatter'
+                };
+
+                var outlierTrace={
+                    x:[],
+                    y:[],
+                    mode: 'lines+markers',
+                    line:{
+                        color: '#66bb6a',
+                        shape: 'spline'
+                    },
+                    type: 'scatter'
+                };
+
+                var tagDict={};
+
+                for(var j=0; j<idGroup.length; j++) {
+                    var d = idGroup[j];
+
+                    // remove the -1 tag
+                    if(d[0] && d[0].id=='-1'){
+                        removeTag(idGroup, j);
+                        j--;
+					}
+
+					//Initialize the trace
+                    if(d[0]){
+                        trace["name"]=d[0].id+' weight';
+                        trace.x.push(d[0].datePosted);
+                        trace.y.push(d[0].weight);
+                        traceCounter++;
+                        tagDict[d[0].datePosted]=d[0].weight;
+                    }
+                    averageForDay(d, trace, outlierTrace, traceCounter, tagDict); //previously d and trace1
+                }
+            }
 		}
 
 		function getBucketError(){
@@ -150,9 +199,10 @@ function tagDataService($http) {
 		function formatDatePosted(dataSet){
 			debugger;
 			dataSet.forEach(function (d){
-				d.datePosted = d.date.substring(0, d.date.length - 14);
-				d.totalWeight = +d["weight"];
+				d.datePosted = d.date.substring(0, d.date.length - 14);// previously date_posted and total_weight
+
 			});
+			debugger;
 		}
 
 		/** group the data by id **/
@@ -196,37 +246,79 @@ function tagDataService($http) {
 					trace.x.push(record[0].date_posted);
 					trace.y.push(record[0].total_weight);
 					traceCounter++;
-
 					tagDict[record[0].date_posted] = record[0].total_weight;
 				}
 			}
 			return traceCounter;
 		}
 
+		/** remove a tag from the dataset **/
+		function removeTag(group, index){
+            var d=group[index];
+            group.splice(index, 1);
+		}
+
 		/** take the average of multiple readings during one day **/
-		function averageForDay (record, trace, traceCounter, tagDict){
+		function averageForDay (record, trace, outlierTrace, traceCounter, tagDict){
 			for(var i=1; i<record.length; i++){
-				var dt=record[i].date_posted, wt=record[i].total_weight;
-				//take average of multiple readings during one day
+
+				var dt=record[i].datePosted, wt=record[i].weight; originalWt=record[i].weight;
+
+				//above or below the threshold weight
+				if(record[i].qa_flag=="INVALID"){
+                    outlierTrace.x.push(dt);
+                    outlierTrace.y.push(originalWeight);
+					continue;
+				}
+
+				//adjusting for outliers
+				else if(record[i].qa_flag=="OUTLIER"){
+					if(record[i].qa_value>0)
+						wt=wt-record[i].qa_value;
+					else
+                        wt=wt+record[i].qa_value;
+				}
+
+				//take average of multiple readings during one day-- only for dash not for the detailed weights
 				if(traceCounter>0){
 					var dupSum = trace.y[traceCounter - 1], index = i, count = 1;
-					if (record[index].date_posted == record[index - 1].date_posted)
-						while (record[index] && record[index].date_posted == record[index - 1].date_posted
+					if (record[index].datePosted == record[index - 1].datePosted)
+						while (record[index] && record[index].datePosted == record[index - 1].datePosted
 						&& index < record.length && record[index]) {
-							dupSum += record[index].total_weight;
-							index++;
-							count++;
+							if(record[index].qa_flag=="VALID") {
+
+                                dupSum += record[index].weight;
+                                index++;
+                                count++;
+                            }
+                            else if(record[index].qa_flag=="OUTLIER") {
+
+								var adjustedWeight=record[index].weight;
+
+                                //adjusting for outliers
+                                if(record[index].qa_value>0)
+                                    adjustedWeight=adjustedWeight-record[index].qa_value;
+                                else
+                                    adjustedWeight=adjustedWeight+record[index].qa_value;
+
+                                dupSum += adjustedWeight;
+                                index++;
+                                count++;
+                            }
 						}
 					if (count > 1) {
 						wt = dupSum / count;
 						trace.y[traceCounter - 1] = wt;
-						tagDict[record[index-1].date_posted] = wt;
+						tagDict[record[index-1].datePosted] = wt;
 						i = index - 1;
 						continue;
 					}
 				}
 				trace.x.push(dt);
 				trace.y.push(wt);
+
+                outlierTrace.x.push(dt);
+                outlierTrace.y.push(originalWeight);
 
 				traceCounter++;
 				tagDict[dt] = wt;
@@ -310,7 +402,6 @@ homesteadApp.directive('plotly', [
 						Plotly.relayout(graph, 'annotations[0]', 'remove');
 					});
 					scope.activated=false;
-
 				}
 
 				onUpdate();

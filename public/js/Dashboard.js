@@ -103,6 +103,7 @@ function tagDataService($http) {
         var selectedTag;
         var allTags={};
         var weeklyTrace;
+        var dict={};
 
 		var layout = {
 			title: "Daily Individual Weight Trend",
@@ -122,7 +123,7 @@ function tagDataService($http) {
 						.then(getBucketSuccess, getBucketError);
 				});
 			}
-			if (callback && resp.data) {
+			if (callback) {
 
 			    var processedWeights={
 			      allTags: allTags,
@@ -188,14 +189,15 @@ function tagDataService($http) {
 					var traces=[trace];
 					if(d[0]) {
 						tagGraphs.push({name:d[0].id, traces: traces, layout: layout});
-						dict[d[0].id]={dict: tagDict, trace: trace1};
+						dict[d[0].id]={dict: tagDict, trace: trace};
 						if(j==0)selectedTag=tagGraphs[j];
 					}
 					debugger;
                 }
 
                 sortTagGraphs(tagGraphs);
-                var relevantWeights= prepareHerdGraph(tagDateGroup);
+                var days=[];
+                var relevantWeights= prepareHerdGraph(tagDateGroup, relevantTags, days);
 
 
 
@@ -240,7 +242,7 @@ function tagDataService($http) {
 
                 var lowerThird = {
                     x: days,
-                    y: $scope.thirdsTraces[0],
+                    y: thirdsTraces[0],
                     mode: 'lines+markers',
                     name: "Ave: Lower 1/3",
                     line:{
@@ -254,7 +256,7 @@ function tagDataService($http) {
 
                 var middleThird = {
                     x: days,
-                    y: $scope.thirdsTraces[1],
+                    y: thirdsTraces[1],
                     mode: 'lines+markers',
                     name: "Ave: Middle 1/3",
                     line:{
@@ -268,7 +270,7 @@ function tagDataService($http) {
 
                 var upperThird = {
                     x: days,
-                    y: $scope.thirdsTraces[2],
+                    y: thirdsTraces[2],
                     mode: 'lines+markers',
                     name: "Ave: Upper 1/3",
                     fill: "tonexty",
@@ -301,15 +303,15 @@ function tagDataService($http) {
                 weeks=[];
                 prepareWeeklyData(dateGroup, weeks);
 
-                weeklyTrace= $scope.prepareWeeklyTrace(weeks, weeklyTrace);
+                weeklyTrace= prepareWeeklyTrace(weeks, weeklyTrace);
 
             }
 		}
 
 
-		function prepareHerdGraph(tagDateGroup){
+		function prepareHerdGraph(tagDateGroup, relevantTags, days){
 
-            var days=[];
+
             var relevantWeights=[];
             var tagDetails=[];
             var herdTrendDays={relevant: {}};
@@ -583,10 +585,10 @@ function tagDataService($http) {
                         var count=0;
                         var average=0;
                         for(var i=0; i<e.length; i++){
-                            if(e[i].weight<=thresholdWeight){
-                                sum+=e[i].weight;
-                                count++;
-                            }
+
+                            sum+=e[i].weight;
+                            count++;
+
                         }
                         if(count>0) average=sum/count;
                         else average=-1;
@@ -644,7 +646,7 @@ function tagDataService($http) {
                             }
                             var tagAve=0; var tagCount=0;
                             tag.forEach(function (t) {
-                                if(t && t.weight<=thresholdWeight){
+                                if(t){
                                     tagAve+=t.weight; tagCount++;
                                 }
                             });

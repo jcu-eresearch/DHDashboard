@@ -100,6 +100,9 @@ function tagDataService($http) {
 		var uri = "api/weights/buckets";
 
 		var tagGraphs=[];
+        var selectedTag;
+        var allTags={};
+        var weeklyTrace;
 
 		var layout = {
 			title: "Daily Individual Weight Trend",
@@ -119,9 +122,15 @@ function tagDataService($http) {
 						.then(getBucketSuccess, getBucketError);
 				});
 			}
-			//if (callback && resp.data) {
-			//	callback(tagData);
-			//}
+			if (callback && resp.data) {
+
+			    var processedWeights={
+			      allTags: allTags,
+                  weeklyTrace: weeklyTrace,
+                  selectedTag: selectedTag
+                };
+				callback(processedWeights);
+			}
 		}
 
 
@@ -147,6 +156,7 @@ function tagDataService($http) {
                 var dateGroup = groupByDate(dataSet.data.weights);
                 var tagDateGroup=groupByTag(dateGroup);
                 var relevantTags={};
+
 
                 debugger;
 
@@ -179,7 +189,7 @@ function tagDataService($http) {
 					if(d[0]) {
 						tagGraphs.push({name:d[0].id, traces: traces, layout: layout});
 						dict[d[0].id]={dict: tagDict, trace: trace1};
-						//if(j==0)selectedTag=tagGraphs[j]; // should be transferred to dash
+						if(j==0)selectedTag=tagGraphs[j];
 					}
 					debugger;
                 }
@@ -187,26 +197,9 @@ function tagDataService($http) {
                 sortTagGraphs(tagGraphs);
                 var relevantWeights= prepareHerdGraph(tagDateGroup);
 
+
+
                 var totalWeights = {
-                    x: days,
-                    y: relevantWeights,
-                    mode: 'lines+markers',
-                    name: "Ave Wt",
-                    line:{
-                        color: '#66bb6a',
-                        shape: 'spline'
-                    },
-                    type: 'scatter'
-                };
-
-                var layout = {
-                    title: "Daily Herd Weight Trend",
-                    yaxis: {title: "Weight (KG)"},
-                    showlegend: false
-                };
-
-
-                var total_weights = {
                     x: days,
                     y: relevantWeights,
                     mode: 'lines+markers',
@@ -243,7 +236,7 @@ function tagDataService($http) {
                 });
 
                 var thirdsTraces=[[],[],[]];
-                var binningByWeight(tagDateGroup, 3, $scope.thirdsTraces);
+                binningByWeight(tagDateGroup, 3, thirdsTraces);
 
                 var lowerThird = {
                     x: days,
@@ -297,10 +290,10 @@ function tagDataService($http) {
                     legend: {"orientation": "h"}
                 };
 
-                var data = [total_weights, lowerThird, middleThird, upperThird];
+                var data = [totalWeights, lowerThird, middleThird, upperThird];
 
-                var allTags={};
-                allTags.traces=[total_weights];
+
+                allTags.traces=[totalWeights];
                 allTags.layout=layout;
 
                 allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
@@ -308,7 +301,7 @@ function tagDataService($http) {
                 weeks=[];
                 prepareWeeklyData(dateGroup, weeks);
 
-                var weeklyTrace= $scope.prepareWeeklyTrace(weeks, weeklyTrace);
+                weeklyTrace= $scope.prepareWeeklyTrace(weeks, weeklyTrace);
 
             }
 		}

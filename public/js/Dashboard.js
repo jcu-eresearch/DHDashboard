@@ -97,15 +97,20 @@ function tagDataService($http) {
 
 	function getAllTagData(callback) {
 		debugger;
-
 		var uri = "api/weights/buckets";
+
+		var tagGraphs=[];
+
+		var layout = {
+			title: "Daily Individual Weight Trend",
+			yaxis: {title: "Weight (KG)"},
+			showlegend: false
+		};
 
 		$http.get(uri)
 			.then(getBucketsSuccess, getBucketsError);
 
 		function getBucketsSuccess(buckets) {
-			debugger;
-
 
 			if(buckets && buckets.data && buckets.data.length>0){
 				buckets.data.forEach(function(bucket){
@@ -170,6 +175,15 @@ function tagDataService($http) {
                         tagDict[d[0].datePosted]=d[0].weight;
                     }
                     averageForDay(d, trace, outlierTrace, traceCounter, tagDict); //previously d and trace1
+
+					var traces=[trace];
+					if(d[0]) {
+						tagGraphs.push({name:d[0].id, traces: traces, layout: layout});
+						dict[d[0].id]={dict: tagDict, trace: trace1};
+						//if(j==0)selectedTag=tagGraphs[j]; // should be transferred to dash
+					}
+
+					debugger;
                 }
             }
 		}
@@ -262,7 +276,7 @@ function tagDataService($http) {
 		function averageForDay (record, trace, outlierTrace, traceCounter, tagDict){
 			for(var i=1; i<record.length; i++){
 
-				var dt=record[i].datePosted, wt=record[i].weight; originalWt=record[i].weight;
+				var dt=record[i].datePosted, wt=record[i].weight, originalWeight=record[i].weight;
 
 				//above or below the threshold weight
 				if(record[i].qa_flag=="INVALID"){
@@ -305,6 +319,12 @@ function tagDataService($http) {
                                 index++;
                                 count++;
                             }
+							else{
+
+								dupSum += record[index].weight;
+								index++;
+								count++;
+							}
 						}
 					if (count > 1) {
 						wt = dupSum / count;

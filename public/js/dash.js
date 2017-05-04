@@ -301,8 +301,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             });
 
-
-
             tagDateGroup.forEach(function(d){
                 if(d[0] && d[0][0]){
 
@@ -384,11 +382,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             $scope.prepareWeeklyData(dateGroup, $scope.weeks);
 
             $scope.weeklyTrace= $scope.prepareWeeklyTrace($scope.weeks, $scope.weeklyTrace);
-
-            debugger;
-
-
-
+            
 
         };
 

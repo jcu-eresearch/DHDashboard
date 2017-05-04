@@ -185,7 +185,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 return keyA.localeCompare(keyB);
             });
 
-            //Tags with 2 weights
+            //Tags with 1 or more weights weights
             var relevantTags={};
             for(var j=0; j<idGroup.length; j++){
                 var d=idGroup[j];
@@ -218,39 +218,21 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     herdTrendDays.relevant[d[0][0].date_posted]=false;
                 }
                 else return;
-
                 var sumWeightTrend=0;
                 var countTrend=0;
                 var tagNamesForDay={};
-
                 if(d[0][0].date_posted)
                     tagNamesForDay[d[0][0].date_posted]=[];
-
                 d.forEach(function(e) {//e is the tag
-
                     if(e[0]) {
                         if(relevantTags[e[0].id]){
-
                             var currTag=dict[e[0].id];
                             var diff;
                             //var last;
                             if(currTag.trace.x)
                                 for(var z=0; z<currTag.trace.x.length; z++){
                                     if(currTag.trace.x[z]==e[0].date_posted /*&& z>0*/ ){
-
-                                        //last=currTag.dict[currTag.trace.x[z]];//change to z-1
                                         diff=currTag.dict[currTag.trace.x[z]];
-
-                                        /*var oneDay = 24*60*60*1000;
-                                         var firstDate = new Date(currTag.trace.x[z]);
-                                         var secondDate = new Date(currTag.trace.x[z-1]);
-                                         var diffDays =
-                                         Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
-                                         diff=diff-last;
-                                         if(diffDays>1)
-                                         diff=diff/diffDays;
-                                         */
-
                                         sumWeightTrend+=diff;
                                         herdTrendDays.relevant[d[0][0].date_posted]=true;
                                         tagNamesForDay[d[0][0].date_posted].push({
@@ -264,7 +246,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         }
                     }
                 });
-
                 if(countTrend>0) {
                     sumWeightTrend = sumWeightTrend/countTrend;
                     tagDetails.push(tagNamesForDay);
@@ -397,19 +378,14 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
     $scope.binningByWeight= function(data, groups, traces){
         data.forEach(function(d){
             if(d[0] && d[0][0] && d.length>0){
-
                 var bin=Math.floor(d.length/groups);
-
                 if(traces && traces.length>2) {
-
                     var index0=traces[0].length;
                     var index1=traces[1].length;
                     var index2=traces[2].length;
-
                     var count0=0;
                     var count1=0;
                     var count2=0;
-
                     for (var i = 0; i < d.length; i++) {
                         if (i == 0) {traces[0].push(d[i][0].weight); count0++;}
                         else if (i < bin) {traces[0][index0] += d[i][0].weight; count0++;}
@@ -418,7 +394,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         else if (i == 2 * bin || bin==0) {traces[2].push(d[i][0].weight); count2++;}
                         else if (i < d.length) {traces[2][index2] += d[i][0].weight; count2++;}
                     }
-
                     if(traces[0][index0] && count0>0) traces[0][index0]/=count0; else traces[0][index0]=NaN;
                     if(traces[1][index1] && count1>0) traces[1][index1]/=count1; else traces[1][index1]=NaN;
                     if(traces[2][index2] && count2>0) traces[2][index2]/=count2; else traces[2][index2]=NaN;
@@ -428,12 +403,9 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
     }
 
     $scope.averageMultipleWeightsAndFilter= function(data){
-
-
         if(data &&  data.length>0){
             data.forEach(function(e){
                 if(e && e.length>0){
-
                     var sum=0;
                     var count=0;
                     var average=0;
@@ -443,20 +415,12 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                             count++;
                         }
                     }
-
-                    if(count>0){
-                        average=sum/count;
-                    }
-                    else{
-                        //no data for this tag so remove this tag
-                        average=-1;
-                    }
-
+                    if(count>0) average=sum/count;
+                    else average=-1;
                     e[0].weight=average; //total_weight is still the old one?
                     e.splice(1, e.length-1);
                 }
             });
-
             for(var j=0; j< data.length; j++){
                 if(data[j] && data[j].length && data[j].length>0){
                     if(data[j][0].weight==-1 || data[j][0].id=='-1'){
@@ -467,21 +431,14 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             }
 
         }
-    }
+    };
 
     $scope.prepareWeeklyData=function(days, weeks){
-
         var millis=1000*60*60*24*7;
         var currentDate=new Date();
-        
         if(days && days.length>0 && weeks) {
-
             for (var i =days.length-1; i>=0; i--){
-
-                //get the day from the first element
-
                 var currentWeek={};
-                
                 if(currentDate && !isNaN(currentDate.getTime()))
                     currentWeek={
                         start: new Date(currentDate.getTime()-millis),
@@ -489,30 +446,20 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         count: 0,
                         data: [],
                         idGroups: []
-                    }
-
-                
+                    };
                 var compareDate=null;
                 if(days[i]  && days[i][0])
                     compareDate= new Date(days[i][0].date);
-                
-
                 while( days[i]  && days[i][0] && compareDate && currentDate && !isNaN(compareDate.getTime()) && !isNaN(currentDate.getTime())
                     && compareDate.getTime()>= (currentDate.getTime()-millis) && i>=0){
-                    
                     currentWeek.data=currentWeek.data.concat(days[i]);
                     i--;
                     if(days[i]  && days[i][0])
                         compareDate= new Date(days[i][0].date);
                 }
-
-
                 currentWeek.idGroups = groupBy(currentWeek.data, function(item){
                     return [item.id];
                 });
-
-
-                debugger;
                 var weeklyAve=0; var weeklyCount=0;
                 if(currentWeek.idGroups) {
                     for (var y = 0; y < currentWeek.idGroups.length; y++) {
@@ -540,26 +487,18 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     if(weeklyCount>0)
                         weeklyAve/=weeklyCount;
                 }
-
-                debugger;
                 currentWeek.aveWt=weeklyAve;
                 currentWeek.count=weeklyCount
-
-
                 weeks.push(currentWeek);
-
                 if(currentDate && !isNaN(currentDate.getTime()))
                     currentDate=new Date(currentDate.getTime()-millis);
-
                 i++;
                 // compare with currentDate
-
             }
         }
     };
 
     $scope.prepareWeeklyTrace=function(weeks, trace){
-
         var x=[];
         var y=[];
         var z=[];
@@ -567,16 +506,12 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         var color=[];
         var opacity=[];
 
-        if(weeks && weeks.length>0)
-        {
+        if(weeks && weeks.length>0){
             for(var i=0; i< weeks.length; i++) {
                 if(weeks[i]) {
                     debugger;
-
                     if(weeks[i].aveWt<=0) continue;
-
                     var weekStart=weeks[i].start.toISOString();
-
                     x.push(weeks[i].aveWt);
                     y.push(weekStart.substring(0, (weekStart.length - 14)));
                     z.push(weeks[i].count);
@@ -599,7 +534,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             }
         }
-
         var bubble = {
             x: y,
             y: x,
@@ -610,22 +544,17 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 size: z
             }
         };
-
         var bubbleLayout = {
             title: "Weekly Herd Weight Average",
             yaxis: {
                 title: "Weight (KG)"
             }
         };
-
         trace={
             traces: [bubble],
             layout: bubbleLayout
         };
-
         return trace;
-
-
     }
 
 });

@@ -96,7 +96,7 @@ function tagDataService($http) {
 	return service;
 
 	function getAllTagData(callback) {
-		debugger;
+
 		var uri = "api/weights/buckets";
 
 		var tagGraphs=[];
@@ -149,8 +149,9 @@ function tagDataService($http) {
 		}
 
 		function getBucketSuccess(dataSet){
-			debugger;
 			if(dataSet && dataSet.data && dataSet.data.weights && dataSet.data.weights) {
+
+			    debugger;
                 formatDatePosted(dataSet.data.weights);
 
                 var idGroup = groupById(dataSet.data.weights);
@@ -159,14 +160,14 @@ function tagDataService($http) {
                 var relevantTags={};
 
 
-                debugger;
-
                 var traceCounter=0;
                 var trace=configureTrace('#66bb6a');
                 var outlierTrace=configureTrace('#66bb6a');
                 var tagDict={};
 
                 for(var j=0; j<idGroup.length; j++) {
+
+
                     var d = idGroup[j];
                     if(d && d.length>0 && d[0].id!="-1") {//change from 0 to 1 for multiple weights
                         relevantTags[d[0].id]=true;
@@ -192,8 +193,11 @@ function tagDataService($http) {
 						dict[d[0].id]={dict: tagDict, trace: trace};
 						if(j==0)selectedTag=tagGraphs[j];
 					}
-					debugger;
+
+
                 }
+
+                debugger;
 
                 sortTagGraphs(tagGraphs);
                 var days=[];
@@ -399,12 +403,10 @@ function tagDataService($http) {
 
 		/** add a field called datePosted which is the day that the record was posted **/
 		function formatDatePosted(dataSet){
-			debugger;
 			dataSet.forEach(function (d){
 				d.datePosted = d.date.substring(0, d.date.length - 14);// previously date_posted and total_weight
 
 			});
-			debugger;
 		}
 
 		/** group the data by id **/
@@ -483,6 +485,8 @@ function tagDataService($http) {
 
 				var dt=record[i].datePosted, wt=record[i].weight, originalWeight=record[i].weight;
 
+
+
 				//above or below the threshold weight
 				if(record[i].qa_flag=="INVALID"){
                     outlierTrace.x.push(dt);
@@ -492,10 +496,13 @@ function tagDataService($http) {
 
 				//adjusting for outliers
 				else if(record[i].qa_flag=="OUTLIER"){
-					if(record[i].qa_value>0)
-						wt=wt-record[i].qa_value;
+
+				    var val =parseInt(record[i].qa_value);
+
+					if(val>0)
+						wt=wt+val;
 					else
-                        wt=wt+record[i].qa_value;
+                        wt=wt-val;
 				}
 
 				//take average of multiple readings during one day-- only for dash not for the detailed weights
@@ -684,7 +691,6 @@ function tagDataService($http) {
             if(weeks && weeks.length>0){
                 for(var i=0; i< weeks.length; i++) {
                     if(weeks[i]) {
-                        debugger;
                         if(weeks[i].aveWt<=0) continue;
                         var weekStart=weeks[i].start.toISOString();
                         x.push(weeks[i].aveWt);

@@ -88,7 +88,7 @@ homesteadApp.controller('LiveDataCtrl', function($scope, $mdBottomSheet){});
 
 homesteadApp.factory('tagDataService', tagDataService);
 
-function tagDataService($http) {
+function tagDataService($http, $q) {
 	var service = {
 		getAllTagData: getAllTagData,
 		getTestData: getTestData
@@ -117,20 +117,42 @@ function tagDataService($http) {
 		function getBucketsSuccess(buckets) {
 
 			if(buckets && buckets.data && buckets.data.length>0){
-				buckets.data.forEach(function(bucket){
-					var bucketUri = "api/weights/" + bucket;
-					$http.get(bucketUri)
-						.then(getBucketSuccess, getBucketError);
-				});
-			}
-			if (callback) {
 
-			    var processedWeights={
-			      allTags: allTags,
-                  weeklyTrace: weeklyTrace,
-                  selectedTag: selectedTag
-                };
-				callback(processedWeights);
+				var fetchBuckets=[];
+				buckets.data.forEach(function(bucket){
+
+					
+
+					var bucketUri = "api/weights/" + bucket;
+
+					fetchBuckets.push($http.get(bucketUri));
+					//$http.get(bucketUri)
+					//	.then(getBucketSuccessConcat, getBucketError);
+
+
+				});
+
+				$q.all(fetchBuckets).then(getBucketSuccessConcat, getBucketError)
+
+
+			}
+
+		}
+
+		function getBucketSuccessConcat(dataset){
+
+			var results=[];
+			if(dataset && dataset.length>0){
+
+				dataset.forEach(function(d){
+					if(d && d.data && d.data.weights)
+					results=results.concat(d.data.weights)
+				});
+
+				
+				if(callback){
+					callback(results);
+				}
 			}
 		}
 
@@ -151,7 +173,7 @@ function tagDataService($http) {
 		function getBucketSuccess(dataSet){
 			if(dataSet && dataSet.data && dataSet.data.weights && dataSet.data.weights) {
 
-			    debugger;
+			    
                 formatDatePosted(dataSet.data.weights);
 
                 var idGroup = groupById(dataSet.data.weights);
@@ -161,8 +183,6 @@ function tagDataService($http) {
 
 
                 var traceCounter=0;
-                var trace=configureTrace('#66bb6a');
-                var outlierTrace=configureTrace('#66bb6a');
                 var tagDict={};
 
                 for(var j=0; j<idGroup.length; j++) {
@@ -178,6 +198,9 @@ function tagDataService($http) {
                         j--;
 					}
 					//Initialize the trace
+					var trace=configureTrace('#66bb6a');
+					var outlierTrace=configureTrace('#66bb6a');
+					
                     if(d[0]){
                         trace["name"]=d[0].id+' weight';
                         trace.x.push(d[0].datePosted);
@@ -197,9 +220,22 @@ function tagDataService($http) {
 
                 }
 
-                debugger;
+                
 
                 sortTagGraphs(tagGraphs);
+
+				if (callback) {
+
+					
+					var processedWeights={
+						tagGraphs: tagGraphs,
+						allTags: allTags,
+						weeklyTrace: weeklyTrace,
+						selectedTag: selectedTag
+					};
+					callback(processedWeights);
+				}
+/*
                 var days=[];
                 var relevantWeights= prepareHerdGraph(tagDateGroup, relevantTags, days);
 
@@ -308,6 +344,7 @@ function tagDataService($http) {
                 prepareWeeklyData(dateGroup, weeks);
 
                 weeklyTrace= prepareWeeklyTrace(weeks, weeklyTrace);
+*/
 
             }
 		}

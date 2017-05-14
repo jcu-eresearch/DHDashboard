@@ -8,7 +8,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
     $scope.allTags={};
     $scope.fullWidth="100";
 
-    var thresholdWeight=500;
+    var thresholdWeight=600;
 
     $scope.initMap=function() {
         var map
@@ -54,9 +54,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
         tagDataService.getAllTagData(render);
 
         function render(apiData) {
-            $scope.allTags=apiData.allTags;
 
-         /*   debugger;
 
             var dataSet = apiData;
 
@@ -228,12 +226,12 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                             //var last;
                             if(currTag.trace.x)
                                 for(var z=0; z<currTag.trace.x.length; z++){
-                                    if(currTag.trace.x[z]==e[0].date_posted /!*&& z>0*!/ ){
+                                    if(currTag.trace.x[z]==e[0].date_posted && z>0 ){
 
                                         //last=currTag.dict[currTag.trace.x[z]];//change to z-1
                                         diff=currTag.dict[currTag.trace.x[z]];
 
-                                        /!*var oneDay = 24*60*60*1000;
+                                         var oneDay = 24*60*60*1000;
                                          var firstDate = new Date(currTag.trace.x[z]);
                                          var secondDate = new Date(currTag.trace.x[z-1]);
                                          var diffDays =
@@ -241,7 +239,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                                          diff=diff-last;
                                          if(diffDays>1)
                                          diff=diff/diffDays;
-                                         *!/
+
 
                                         sumWeightTrend+=diff;
                                         herdTrendDays.relevant[d[0][0].date_posted]=true;
@@ -369,7 +367,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
             $scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
             $scope.allTags.thirdsLayout=thirdsLayout;
 
-*/
+
 
         };
 

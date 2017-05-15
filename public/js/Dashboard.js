@@ -783,22 +783,60 @@ function tagDataService($http, $q) {
         var uri = "api/locations";
 
         var locationData=[];
+        var fetchLocations=[];
 
         $http.get(uri)
             .then(getLocationsSuccess, getLocationsError);
 
         function getLocationsSuccess(dataset){
+
+
+
             var results=[];
-            if(dataset && dataset.length>0){
-                dataset.forEach(function(d){
-                    if(d){
+            if(dataset && dataset.data.length>0){
+                dataset.data.forEach(function(d){
 
                         var locationUri = "api/locations/data/" + d;
+                        fetchLocations.push($http.get(locationUri));
 
-
-                    }
                 });
+
+                $q.all(fetchLocations).then(getLocationDataSuccess, getLocationDataError)
+
             }
+
+            function getLocationDataSuccess(data){
+
+                var movementData=[];
+
+                if(data && data.length>0){
+                    data.forEach(function(animal){
+                        if(animal && animal.data && animal.data.length>0){
+                            animal.data.forEach(function(track){
+                                if(track && track.locations && track.locations.length>0){
+                                    track.locations.forEach(function(point){
+                                        if(point && point.lat && point.long){
+                                            movementData.push(point);
+                                        }
+                                    })
+                                }
+
+                            })
+                        }
+                    });
+                }
+
+
+                if(callback){
+                    callback(movementData);
+                }
+            }
+
+            function getLocationDataError(){
+                console.log("Error in getting location data");
+            }
+
+
         }
 
         function getLocationsError(){

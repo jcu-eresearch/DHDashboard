@@ -3,6 +3,7 @@
 homesteadApp.controller('mapController', function($scope, tagDataService, $rootScope, $timeout) {
 
     imgOverlay.prototype = new google.maps.OverlayView();
+    var heatmap;
 
     function imgOverlay(bounds, image, map) {
         this.bounds_ = bounds;
@@ -94,6 +95,8 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
     });
 
     $scope.initMap=function() {
+
+
         var map
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: -19.66350, lng: 146.85200},
@@ -140,6 +143,30 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
             map: map,
             text: "Junction"
         });
+
+        tagDataService.getLocationData(renderMovementData);
+
+        function renderMovementData(movementData){
+
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: getPoints(),
+                map: map
+            });
+
+            function getPoints() {
+                var points=[];
+
+                if(movementData && movementData.length>0){
+                    movementData.forEach(function(point){
+                        points.push(new google.maps.LatLng(point.lat, point.long));
+                    });
+                }
+
+                return points;
+            }
+
+        }
+
     }
 
     $timeout(function(){$scope.initMap();});
@@ -159,6 +186,9 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         sliderWeights: [200, 500],
         sliderWeightsChanges: [-5, 5]
     };
+
+
+
 
 
 });

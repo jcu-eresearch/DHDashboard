@@ -242,12 +242,12 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
 
                             var currTag=dict[e[0].id];
                             var diff;
-                            //var last;
+                            var last;
                             if(currTag.trace.x)
                                 for(var z=0; z<currTag.trace.x.length; z++){
                                     if(currTag.trace.x[z]==e[0].date_posted && z>0 ){
 
-                                        //last=currTag.dict[currTag.trace.x[z]];//change to z-1
+                                        last=currTag.dict[currTag.trace.x[z]];//change to z-1
                                         diff=currTag.dict[currTag.trace.x[z]];
 
                                          var oneDay = 24*60*60*1000;

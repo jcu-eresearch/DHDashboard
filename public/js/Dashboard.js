@@ -140,16 +140,26 @@ function tagDataService($http, $q) {
 				});
 
 				$q.all(fetchBuckets).then(getBucketSuccessConcat, getBucketError)
-
-
 			}
 
 		}
 
 		function getBucketSuccessConcat(dataset){
 
+
+
 			var results=[];
 			if(dataset && dataset.length>0){
+
+                function compare(a,b) {
+                    if(a && a.config && a.config.url && b && b.config && b.config.url) {
+                        var keyA = a.config.url,
+                            keyB = b.config.url;
+                        return keyA.localeCompare(keyB);
+                    }
+                }
+
+                dataset.sort(compare);
 
 				dataset.forEach(function(d){
 					if(d && d.data && d.data.weights)

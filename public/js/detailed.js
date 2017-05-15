@@ -104,8 +104,8 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                     y:[],
                     mode: 'lines+markers',
                     line:{
-                        color: '#66bb6a',
-                        shape: 'spline'
+                        color: '#66bb6a'//,
+                        //shape: 'spline'
                     },
                     type: 'scatter'
                 };
@@ -116,8 +116,8 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                     y:[],
                     mode: 'markers',
                     line:{
-                        color: '#e15b5b',
-                        shape: 'spline'
+                        color: '#e98686'//,
+                        //shape: 'spline'
                     },
                     type: 'scatter'
                 };
@@ -126,7 +126,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                 //remove all weights greater than the threshold weight
 
                 for(var a=0; a<d.length; a++){
-                    if(d[a] && d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER"  ){
+                    if(d[a] && d[a].qa_flag && ( d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" ) ){
 
                         trace2.x.push(d[a].date_posted);
                         trace2.y.push(d[a].total_weight);

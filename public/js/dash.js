@@ -160,7 +160,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
                 for(var a=0; a<d.length; a++){
 
-                    if(d[a] && (d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )){
+                    if(d[a] && d[a].qa_flag && ( d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" ) ){
                         d.splice(a,1);
                         a--;
                     }

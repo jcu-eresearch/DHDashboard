@@ -91,7 +91,8 @@ homesteadApp.factory('tagDataService', tagDataService);
 function tagDataService($http, $q) {
 	var service = {
 		getAllTagData: getAllTagData,
-		getTestData: getTestData
+		getTestData: getTestData,
+        getLocationData: getLocationData
 	};
 	return service;
 
@@ -776,6 +777,35 @@ function tagDataService($http, $q) {
         }
 
 	}
+
+	function getLocationData(callback){
+
+        var uri = "api/locations";
+
+        var locationData=[];
+
+        $http.get(uri)
+            .then(getLocationsSuccess, getLocationsError);
+
+        function getLocationsSuccess(dataset){
+            var results=[];
+            if(dataset && dataset.length>0){
+                dataset.forEach(function(d){
+                    if(d){
+
+                        var locationUri = "api/locations/data/" + d;
+
+
+                    }
+                });
+            }
+        }
+
+        function getLocationsError(){
+            console.log("Error in getting Locations")
+        }
+
+    }
 
 	function getTestData(callback) {
 		var uri = "api/data";

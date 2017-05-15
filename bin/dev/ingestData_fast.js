@@ -51,6 +51,10 @@ function save_bucket(data, cb)
 
 function ingest(parsedJSON) {
 
+    parsedJSON.sort(function(a,b){
+        return a.ts - b.ts;
+    });
+
     var buckets = {};
 
     for (i = 0; i < parsedJSON.length; i++) {

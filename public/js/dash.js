@@ -159,7 +159,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 //remove all weights greater than the threshold weight
 
                 for(var a=0; a<d.length; a++){
-                    debugger;
+
                     if(d[a] && (d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )){
                         d.splice(a,1);
                         a--;

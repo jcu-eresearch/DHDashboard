@@ -256,7 +256,6 @@ module.exports = function (app) {
                     _id: '$_id',
                     max: {$max: '$ts'},
                     count: {$sum: 1}
-
                 }
             }
         ], function(error, results){
@@ -282,6 +281,27 @@ module.exports = function (app) {
             else
             {
                 res.json([])
+            }
+
+        });
+    });
+
+    //Return the location data for a given animal
+    app.get('/api/locations/data/:animal', function (req, res) {
+        var request_etag = req.header('if-none-match');
+        var animal = sanitize(req.params['animal']);
+
+        Location.find(
+            {"animal_id": animal}
+        , function(error, results){
+            if(error){
+                res.status(500);
+                res.end();
+            }else
+            {
+
+                res.json(results);
+
             }
 
         });

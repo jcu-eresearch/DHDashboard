@@ -112,3 +112,7 @@ md-nav-bar md-nav-ink-bar {
 md-checkbox .md-icon {
     background-color: white;
 }
+
+.alerted {
+    color: red;
+}

@@ -77,7 +77,7 @@
 	<md-nav-bar md-selected-nav-item="currentNavItem" nav-bar-aria-label="navigation links" >
 		<md-nav-item  md-nav-href="#/" name="dash">Dashboard</md-nav-item>
 		<md-nav-item md-nav-href="#map" name="map" >Map View</md-nav-item>
-		<md-nav-item md-nav-href="#detailed" name="detailed">Detailed View</md-nav-item>
+		<md-nav-item md-nav-href="#detailed" name="detailed">Detailed View  <md-icon ng-show="alerts" ng-style="{color: 'red' , 'font-size':  '16px' }"> error </md-icon></md-nav-item>
 
 	</md-nav-bar>
 	<md-button class="md-fab md-fab-top-right floaty" aria-label="Live Data" ng-click="showLiveData()" ng-show="currentNavItem=='dash'">

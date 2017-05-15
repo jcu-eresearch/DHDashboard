@@ -7,6 +7,12 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
     $scope.tagGraphs=[];
     $scope.allTags={};
     $scope.fullWidth="100";
+    $scope.alerts=false;
+    $scope.today=new Date();
+    $scope.yesterday= new Date($scope.today-1000*60*60*24)
+    $scope.today=$scope.today.toISOString().substring(0,10);
+    $scope.yesterday=$scope.yesterday.toISOString().substring(0,10);
+    $scope.alertedTags=[];
 
     var thresholdWeight=600;
 
@@ -62,6 +68,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                 console.log("No data available");
                 return;
             }
+
 
             dataSet.forEach(function(d) {
                 d.date_posted  = d.date.substring(0, d.date.length - 14);
@@ -125,6 +132,10 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                 var tagDict={};
                 //remove all weights greater than the threshold weight
 
+                var outlierYesterday=false;
+                var outlierToday=false;
+                var alerted=false;
+
                 for(var a=0; a<d.length; a++){
                     if(d[a] && d[a].qa_flag && ( d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" ) ){
 
@@ -132,10 +143,15 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                         trace2.y.push(d[a].total_weight);
                         trace2Counter++;
 
+                        if(d[a].date_posted==$scope.yesterday) outlierYesterday=true;
+                        if(d[a].date_poster==$scope.today) outlierToday=true;
+
                         d.splice(a,1);
                         a--;
                     }
                 }
+
+
                 if(d[0]){
                     trace1["name"]='Weight';
                     trace2["name"]='Outlier';
@@ -143,6 +159,18 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                     trace1.y.push(d[0].total_weight);
                     trace1Counter++;
                     tagDict[d[0].date_posted]=d[0].total_weight;
+
+                    if(outlierToday && outlierYesterday){
+                    //if(true){
+                        $scope.alertedTags.push(d[0].id);
+                        alerted=true;
+                        $scope.alerts=true;
+
+                        $scope.$emit('alerts', $scope.alertedTags);
+
+                    }
+
+
                 }
                 for(var i=1; i<d.length; i++){
                     var dt=d[i].date_posted, wt=d[i].total_weight;
@@ -181,7 +209,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                 }
                 var traces=[trace1, trace2];
                 if(d[0]) {
-                    $scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
+                    $scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout, alerted: alerted});
                     dict[d[0].id]={dict: tagDict, trace: trace1};
                     if(j==0)$scope.selectedTag=$scope.tagGraphs[j];
                 }

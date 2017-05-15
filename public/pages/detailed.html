@@ -6,8 +6,9 @@
                     <md-input-container class="no-padding right ">
                         <label>Select a Tag </label>
                         <md-select ng-model="selectedTag" >
-                            <md-option ng-repeat="tag in tagGraphs" ng-value="tag" >
+                            <md-option ng-repeat="tag in tagGraphs" ng-value="tag"   >
                                 {{tag.name}}
+                                <md-icon ng-show=" tag.alerted" ng-style="{color: 'red' , 'font-size':  '16px' }"> error </md-icon>
                             </md-option>
                         </md-select>
                     </md-input-container>

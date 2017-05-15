@@ -5,20 +5,20 @@ homesteadApp.config(function($mdThemingProvider) {
 
 
 	$mdThemingProvider.definePalette('amazingPaletteName', {
-		'50': 'ffebee',
-		'100': 'ffcdd2',
-		'200': 'ef9a9a',
-		'300': 'e57373',
-		'400': 'ef5350',
-		'500': 'f44336',
-		'600': 'e53935',
-		'700': 'd32f2f',
+		'50': '#ffebee',
+		'100': '#ffcdd2',
+		'200': '#ef9a9a',
+		'300': '#e57373',
+		'400': '#66bb6a',
+		'500': '#66bb6a',
+		'600': '#66bb6a',
+		'700': '#66bb6a',
 		'800': '#1f2532', //dark bluish grey
-		'900': 'b71c1c',
-		'A100': 'ff8a80',
-		'A200': 'ff5252',
-		'A400': 'ff1744',
-		'A700': 'd50000',
+		'900': '#66bb6a',
+		'A100': '#66bb6a',
+		'A200': '#66bb6a',
+		'A400': '#66bb6a',
+		'A700': '#66bb6a',
 		'contrastDefaultColor': 'light',    // whether, by default, text (contrast)
 											// on this palette should be dark or light
 		'contrastDarkColors': ['50', '100', //hues which contrast should be 'dark' by default
@@ -56,6 +56,12 @@ homesteadApp.config(function($routeProvider) {
 });
 
 homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope) {
+
+	$scope.alerts=false;
+
+    $scope.$on('alerts', function (event, data) {
+       $scope.alerts=true;
+    });
 
 	$scope.currentNavItem='dash';
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {

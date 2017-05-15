@@ -1,5 +1,7 @@
 {
-  "name": "starter-node-angular",
+  "name": "DigitalHomestead",
+  "license":"Apache-2.0",
+  "repository": "https://github.com/jcu-eresearch/DHDashboard",
   "main": "server.js",
   "version": "1.0.1",
   "dependencies": {

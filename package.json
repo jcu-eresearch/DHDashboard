@@ -6,6 +6,7 @@
     "async": "^2.3.0",
     "binstruct": "~0.2.0",
     "body-parser": "~1.4.2",
+    "bson": "^1.0.4",
     "buffertools": "git://github.com/bnoordhuis/node-buffertools",
     "commander": "^2.9.0",
     "decimal.js": "git://github.com/MikeMcl/decimal.js",

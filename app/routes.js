@@ -4,11 +4,15 @@ var Status = require("./models/StatusSchema");
 var Location = require("./models/LocationSchema");
 var sanitize = require('mongo-sanitize');
 var moment = require("moment");
+var fs = require('fs');
+
+// console.log(fs);
+
 
 var ETAG_VERSION = 1;
 
 
-module.exports = function (app) {
+module.exports = function (app, enable_static, static_dir, static_path) {
 
     app.get('/api/weights', function (req, res) {
         Weight.find({}, {__v: 0}).sort({ts: 'asc'}).exec(function (err, weights) {
@@ -69,19 +73,32 @@ module.exports = function (app) {
             if(results && results.length != 0)
             {
                 var result = results[0];
-                var response_etag = 'W/"'+ETAG_VERSION+"_"+result["_id"]+"_"+result["max"]+"_"+result["count"]+'"';
-                console.log(response_etag);
-                res.setHeader("ETag", response_etag);
-                if(request_etag != response_etag) {
-                    Weight.findOne({}, {_id: 0, __v: 0, "weights._id":0})
-                        .where({"_id": bucket})
-                        .sort({ts: 'asc'}).exec(function (err, weights) {
-                        res.json(weights)
-                    });
-                }else
+                var jon_file_name = result["_id"] + "_" + result["max"] + "_" + result["count"]+".jsonz";
+                var json_static_file = static_dir +"/"+ jon_file_name;
+                console.log(json_static_file);
+                if(fs.existsSync(json_static_file) && enable_static)
                 {
-                    res.status(304);
+                    var redirect_url = static_path+"/"+jon_file_name;
+                    console.log("Sending Redirect: "+redirect_url);
+                    res.writeHead(302, {
+                        'Location': static_path+"/"+json_static_file,
+                        //add other headers here...
+                    });
                     res.end();
+                }else {
+                    var response_etag = 'W/"' + ETAG_VERSION + "_" + result["_id"] + "_" + result["max"] + "_" + result["count"] + '"';
+                    console.log(response_etag);
+                    res.setHeader("ETag", response_etag);
+                    if (request_etag != response_etag) {
+                        Weight.findOne({}, {_id: 0, __v: 0, "weights._id": 0})
+                            .where({"_id": bucket})
+                            .sort({ts: 'asc'}).exec(function (err, weights) {
+                            res.json(weights)
+                        });
+                    } else {
+                        res.status(304);
+                        res.end();
+                    }
                 }
             }
             else
@@ -89,8 +106,6 @@ module.exports = function (app) {
                 res.json([])
             }
         });
-
-
     });
 
     app.get('/api/weights/id/:id', function (req, res) {

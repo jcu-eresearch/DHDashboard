@@ -36,7 +36,7 @@ if(!fs.existsSync(static_dir)){
     console.log("Creating Directory: "+static_dir);
     fs.mkdirSync(static_dir);
 }
-static_dir=fs.realpathSync("static");
+static_dir=fs.realpathSync(static_dir);
 
 function create_static_file(bucket, cb)
 {

@@ -81,7 +81,7 @@ module.exports = function (app, enable_static, static_dir, static_path) {
                     var redirect_url = static_path+"/"+jon_file_name;
                     console.log("Sending Redirect: "+redirect_url);
                     res.writeHead(302, {
-                        'Location': static_path+"/"+json_static_file,
+                        'Location': redirect_url,
                         //add other headers here...
                     });
                     res.end();

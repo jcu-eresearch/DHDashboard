@@ -69,11 +69,12 @@ function create_static_file(bucket, cb)
             if(!fs.existsSync(data_out)){
                 Weight.findOne({"id":{"$ne": -1}}, {_id: 0, __v: 0, "weights._id":0})
                     .where({"_id": bucket})
-                    .sort({ts: 'asc'}).exec(function (err, weights) {
+                    .exec(function (err, weights) {
                     if(err)
                     {
                         cb(err);
                     }
+                    weights.weights.sort(function(a,b){return a.ts - b.ts});
                     var buf = new Readable();
                     buf.push(JSON.stringify(weights));
                     buf.push(null);

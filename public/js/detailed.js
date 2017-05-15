@@ -109,17 +109,36 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                     },
                     type: 'scatter'
                 };
+
+                var trace2Counter=0;
+                var trace2={
+                    x:[],
+                    y:[],
+                    mode: 'markers',
+                    line:{
+                        color: 'red',
+                        shape: 'spline'
+                    },
+                    type: 'scatter'
+                };
+
                 var tagDict={};
                 //remove all weights greater than the threshold weight
 
                 for(var a=0; a<d.length; a++){
-                    if(d[a] && d[a].total_weight>thresholdWeight  ){
+                    if(d[a] && d[a].total_weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER"  ){
+
+                        trace2.x.push(d[a].date_posted);
+                        trace2.y.push(d[a].total_weight);
+                        trace2Counter++;
+
                         d.splice(a,1);
                         a--;
                     }
                 }
                 if(d[0]){
                     trace1["name"]=d[0].id+' weight';
+                    trace2["name"]=d[0].id+' outlier';
                     trace1.x.push(d[0].date_posted);
                     trace1.y.push(d[0].total_weight);
                     trace1Counter++;
@@ -160,7 +179,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                         }
                     }
                 }
-                var traces=[trace1];
+                var traces=[trace1, trace2];
                 if(d[0]) {
                     $scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
                     dict[d[0].id]={dict: tagDict, trace: trace1};

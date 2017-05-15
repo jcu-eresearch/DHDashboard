@@ -65,10 +65,12 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
     $scope.paddocksOverlay;
     $scope.topologyOverlay;
     $scope.map;
+    $scope.heatmapOverlay;
 
     $scope.soil=true;
     $scope.topology=false;
     $scope.paddocks=false;
+    $scope.heatmap=true;
 
     $scope.$watch('soil', function(newVal, oldVal) {
         if(newVal)
@@ -93,6 +95,56 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
                     $scope.map.data.remove(feature);
             });
     });
+
+    $scope.$watch('heatmap', function(newVal, oldVal) {
+            $scope.heatmapOverlay.setMap( $scope.heatmapOverlay.getMap() ? null : $scope.map);
+    });
+
+    $scope.$watch('gradient', function(newVal, oldVal) {
+        changeGradient();
+    });
+
+    $scope.$watch('radius', function(newVal, oldVal) {
+        changeRadius();
+    });
+
+    $scope.$watch('opacity', function(newVal, oldVal) {
+        changeOpacity();
+    });
+
+
+    function changeGradient() {
+        var gradient = [
+            'rgba(0, 255, 255, 0)',
+            'rgba(0, 255, 255, 1)',
+            'rgba(0, 191, 255, 1)',
+            'rgba(0, 127, 255, 1)',
+            'rgba(0, 63, 255, 1)',
+            'rgba(0, 0, 255, 1)',
+            'rgba(0, 0, 223, 1)',
+            'rgba(0, 0, 191, 1)',
+            'rgba(0, 0, 159, 1)',
+            'rgba(0, 0, 127, 1)',
+            'rgba(63, 0, 91, 1)',
+            'rgba(127, 0, 63, 1)',
+            'rgba(191, 0, 31, 1)',
+            'rgba(255, 0, 0, 1)'
+        ]
+        $scope.heatmapOverlay.set('gradient',  $scope.heatmapOverlay.get('gradient') ? null : gradient);
+    }
+
+    function changeRadius() {
+        $scope.heatmapOverlay.set('radius',  $scope.heatmapOverlay.get('radius') ? null : 20);
+    }
+
+    function changeOpacity() {
+        $scope.heatmapOverlay.set('opacity',  $scope.heatmapOverlay.get('opacity') ? null : 0.2);
+    }
+
+
+
+
+
 
     $scope.initMap=function() {
 
@@ -165,7 +217,11 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
                 return points;
             }
 
+            $scope.heatmapOverlay=heatmap;
+
         }
+
+
 
     }
 

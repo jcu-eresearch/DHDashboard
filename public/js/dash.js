@@ -166,7 +166,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     }
                 }
                 if(d[0]){
-                    trace1["name"]=d[0].id+' weight';
+                    trace1["name"]=d[0].id+' Weight';
                     trace1.x.push(d[0].date_posted);
                     trace1.y.push(d[0].total_weight);
                     trace1Counter++;

@@ -116,7 +116,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                     y:[],
                     mode: 'markers',
                     line:{
-                        color: 'red',
+                        color: '#e15b5b',
                         shape: 'spline'
                     },
                     type: 'scatter'
@@ -137,8 +137,8 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                     }
                 }
                 if(d[0]){
-                    trace1["name"]=d[0].id+' weight';
-                    trace2["name"]=d[0].id+' outlier';
+                    trace1["name"]='Weight';
+                    trace2["name"]='Outlier';
                     trace1.x.push(d[0].date_posted);
                     trace1.y.push(d[0].total_weight);
                     trace1Counter++;

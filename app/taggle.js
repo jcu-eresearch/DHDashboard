@@ -102,7 +102,6 @@ function unpack_status(status_message) {
 
     if (buffer[3] == 0xFF) {
         //Error messages
-
         //Parse Errors
         if (buffer[2] == 0x01) {
             if (buffer[0] == 0x00) {

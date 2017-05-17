@@ -11,7 +11,7 @@ library(utils)
 
 
 #connect to mongo
-weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost")
+weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost:33335")
 
 #get the distinct tags for the animals
 distinctIds<-weights$distinct("weights.id")

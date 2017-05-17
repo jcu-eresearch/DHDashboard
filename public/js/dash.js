@@ -5,8 +5,9 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
     $scope.selectedTag;
     $scope.tagGraphs=[];
     $scope.allTags={};
-
     var thresholdWeight=600;
+
+
 
     $scope.initMap=function() {
         var map
@@ -88,20 +89,8 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         }
 
         function render(apiData) {
-
             if(!apiData) return;
-
-            /*$scope.weeklyTrace=apiData.weeklyTrace;
-            $scope.allTags=apiData.allTags;
-            
-            $scope.selectedTag=apiData.selectedTag;
-            
-            appendToTagGraphs(apiData.tagGraphs);*/
-
-            
-
             $scope.initMap();
-
             var dataSet = apiData;
 
             if(!dataSet){
@@ -110,7 +99,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             }
 
             dataSet.forEach(function(d) {
-                d.date_posted  = d.date.substring(0, d.date.length - 14);
+                d.date_posted= moment(d.date).local().format("YYYY-MM-DD");
                 d.total_weight = +d["weight"];
             });
 
@@ -268,7 +257,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                             //var last;
                             if(currTag.trace.x)
                                 for(var z=0; z<currTag.trace.x.length; z++){
-                                    if(currTag.trace.x[z]==e[0].date_posted && z>0 ){
+                                    if(currTag.trace.x[z]==e[0].date_posted && z>0 && e[0].qa_flag && e[0].qa_flag=="VALID") {
                                         diff=currTag.dict[currTag.trace.x[z]];
                                         sumWeightTrend+=diff;
                                         herdTrendDays.relevant[d[0][0].date_posted]=true;
@@ -405,12 +394,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         };
 
     };
-
-
-
     $scope.init();
-
-   
     
     $scope.binningByWeight= function(data, groups, traces){
         data.forEach(function(d){

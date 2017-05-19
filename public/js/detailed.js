@@ -2,7 +2,6 @@
 
 homesteadApp.controller('detailedController', function($scope, tagDataService) {
 
-
     $scope.currentNavItem = 'page1';
     $scope.tagList=[];
     $scope.selectedTag;
@@ -18,22 +17,17 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
 
     var thresholdWeight=600;
 
-
-
     $scope.layout = {
         title: "Daily Individual Weight Trend",
         yaxis: {title: "Weight (KG)"},
         showlegend: false
     };
 
-
     $scope.init=function(){
-
 
         tagDataService.getAllTagData(render);
 
         function render(apiData) {
-
 
             var dataSet = apiData;
 
@@ -42,11 +36,8 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                 return;
             }
 
-
             dataSet.forEach(function(d) {
-
                 d.date_posted= moment(d.date).local().format("YYYY-MM-DD");
-
                 d.total_weight = +d["weight"];
             });
 
@@ -72,12 +63,10 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
             for(var j=0; j<idGroup.length; j++){
                 var d=idGroup[j];
 
-
                 if(d[0] && d[0].id=='-1') {
                     idGroup.splice(j, 1);
                     j--;
                     continue;
-
                 }
 
                 var trace1Counter=0;

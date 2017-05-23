@@ -83,7 +83,6 @@ function create_static_file(bucket, cb)
                             cb();
                         });
                     });
-
             }else
             {
                 console.log("Skipping");

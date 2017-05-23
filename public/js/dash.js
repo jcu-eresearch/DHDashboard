@@ -82,6 +82,9 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             var tagDict={};
             var relevantTags={};
 
+            var dailyAverage=[];
+
+
             if(!dataSet){
                 console.log("No data available");
                 return;
@@ -92,12 +95,20 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 return [item.id];
             });
 
-            //Individual Graphs
+            var firstDay=dataSet[0].date.substr(0,10);
+
+
+            var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
+            var range=[];
+            while(itr.hasNext()){
+                range.push((itr.next().toDate()).toISOString().substr(0,10));
+            }
+            console.log(range);
+
+            //Iterate over al the ids and generate the individual graph for each animal
             for(var j=0; j<idGroup.length; j++){
 
                 var d=idGroup[j];
-
-
                 var trace1Counter=0;
                 var trace1={
                     x:[],
@@ -110,6 +121,20 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     type: 'scatter'
                 };
 
+
+
+                //remove all weights greater than the threshold weight
+                for(var a=0; a<d.length; a++){
+                    // fix the date
+                    if(d[a].date && d[a].date.substr)
+                        d[a].datePosted=d[a].date.substr(0,10); //moment(d[a].date).local().format("YYYY-MM-DD");
+                    // filter out weights
+                    if(d[a] && d[a].qa_flag && ( d[a].weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" ) ){
+                        d.splice(a,1);
+                        a--;
+                    }
+                }
+
                 if(d[0]){
                     trace1["name"]=d[0].id+' Weight';
                     trace1.x.push(d[0].datePosted);
@@ -118,22 +143,14 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     tagDict[d[0].datePosted]=d[0].weight;
                 }
 
-                //remove all weights greater than the threshold weight
-                for(var a=0; a<d.length; a++){
-                    // fix the date
-                    a.datePosted= moment(a.date).local().format("YYYY-MM-DD");
-                    // filter out weights
-                    if(d[a] && d[a].qa_flag && ( d[a].weight>thresholdWeight || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" ) ){
-                        d.splice(a,1);
-                        a--;
-                    }
-                }
 
                 if(d[0] && d[0].id=='-1') {
                     idGroup.splice(j, 1);
                     j--;
                     continue;
                 }
+
+                debugger;
 
                 for(var i=1; i<d.length; i++){
                     var dt=d[i].datePosted, wt=d[i].weight;
@@ -149,14 +166,33 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                             }
                         if (count > 1) {
                             wt = dupSum / count;
+
                             trace1.y[trace1Counter - 1] = wt;
                             tagDict[d[index-1].datePosted] = wt;
+
+                            if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>0){
+                                dailyAverage[dt][dailyAverage[dt].length-1]=wt;
+                            }
+                            else{
+                                dailyAverage[dt]=[];
+                                dailyAverage[dt].push(wt);
+                            }
+
                             i = index - 1;
                             continue;
                         }
                     }
                     trace1.x.push(dt);
                     trace1.y.push(wt);
+
+                    if(dailyAverage[dt]){
+                        dailyAverage[dt].push(wt)
+                    }
+                    else{
+                        dailyAverage[dt]=[];
+                        dailyAverage[dt].push(wt);
+                    }
+
 
                     trace1Counter++;
                     tagDict[dt] = wt;
@@ -172,178 +208,11 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 if(d && d.length>0 ) {//change from 0 to 1 for multiple weights
                     relevantTags[d[0].id]=true;
                 }
+
             }
 
-            var dateGroup = groupBy(dataSet, function(item){
-                return [item.datePosted];
-            });
+            debugger;
 
-            var tagDateGroup=[];
-            dateGroup.forEach(function(d) {
-                tagDateGroup.push(groupBy(d, function(item){
-                    return [item.id];
-                }));
-            });
-
-
-
-            var days=[];
-            var relevantWeights=[];
-            var tagDetails=[];
-            var herdTrendDays={relevant: {}};
-
-            //Herd Graph
-            tagDateGroup.forEach(function(d) {
-                if(d[0][0]) {
-                    days.push(d[0][0].datePosted);
-                    herdTrendDays.relevant[d[0][0].datePosted]=false;
-                }
-                else return;
-                var sumWeightTrend=0;
-                var countTrend=0;
-                var tagNamesForDay={};
-                if(d[0][0].datePosted)
-                    tagNamesForDay[d[0][0].datePosted]=[];
-                d.forEach(function(e) {//e is the tag
-                    if(e[0]) {
-                        if(relevantTags[e[0].id]){
-                            var currTag=dict[e[0].id];
-                            var diff;
-                            //var last;
-                            if(currTag.trace.x)
-                                for(var z=0; z<currTag.trace.x.length; z++){
-                                    if(currTag.trace.x[z]==e[0].datePosted && z>0 ) {
-                                        diff=currTag.dict[currTag.trace.x[z]];
-                                        sumWeightTrend+=diff;
-                                        herdTrendDays.relevant[d[0][0].datePosted]=true;
-                                        tagNamesForDay[d[0][0].datePosted].push({
-                                            date: d[0][0].datePosted,
-                                            tag: e[0].id,
-                                            change: diff
-                                        });
-                                        countTrend++;
-                                    }
-                                }
-                        }
-                    }
-                });
-                if(countTrend>0) {
-                    sumWeightTrend = sumWeightTrend/countTrend;
-                    tagDetails.push(tagNamesForDay);
-                    relevantWeights.push(sumWeightTrend);
-                }
-                if(!herdTrendDays.relevant[d[0][0].datePosted]){
-                    if(days[days.length-1] && days[days.length-1]==d[0][0].datePosted)
-                        days.splice(days.length-1, 1);
-                }
-            });
-
-            var total_weights = {
-                x: days,
-                y: relevantWeights,
-                mode: 'lines+markers',
-                name: "Ave Wt",
-                line:{
-                    color: '#66bb6a',
-                    shape: 'spline'
-                },
-                type: 'scatter'
-            };
-
-            var layout = {
-                title: "Daily Herd Weight Trend",
-                yaxis: {title: "Weight (KG)"},
-                showlegend: false
-            };
-
-            tagDateGroup.forEach(function(d){
-                if(d[0] && d[0][0]){
-
-                    $scope.averageMultipleWeightsAndFilter(d);
-                }
-            });
-
-            tagDateGroup.forEach(function(d){
-                if(d[0] && d[0][0]){
-
-                    d.sort(function(a, b){
-                        var keyA = a[0].weight,
-                            keyB = b[0].weight;
-                        if(keyA < keyB) return -1;
-                        if(keyA > keyB) return 1;
-                        return 0;
-                    });
-                }
-            });
-
-            $scope.thirdsTraces=[[],[],[]];
-            $scope.binningByWeight(tagDateGroup, 3, $scope.thirdsTraces);
-
-            var lowerThird = {
-                x: days,
-                y: $scope.thirdsTraces[0],
-                mode: 'lines+markers',
-                name: "Ave: Lower 1/3",
-                line:{
-                    color: 'rgba(255, 65, 54, 0.2)',
-                    shape: 'spline'
-                },
-                fill: "tonexty",
-                fillcolor: "rgba(255, 65, 54, 0.1)",
-                type: 'scatter'
-            };
-
-            var middleThird = {
-                x: days,
-                y: $scope.thirdsTraces[1],
-                mode: 'lines+markers',
-                name: "Ave: Middle 1/3",
-                line:{
-                    color: 'rgba(44, 160, 101, 0.5)',
-                    shape: 'spline'
-                },
-                fill: "tonexty",
-                fillcolor: "rgba(44, 160, 101, 0.4)",
-                type: 'scatter'
-            };
-
-            var upperThird = {
-                x: days,
-                y: $scope.thirdsTraces[2],
-                mode: 'lines+markers',
-                name: "Ave: Upper 1/3",
-                fill: "tonexty",
-                fillcolor: "rgba(93, 164, 214, 0.3)",
-                line:{
-                    color: 'rgba(93, 164, 214, 0.5)',
-                    shape: 'spline'
-                },
-                type: 'scatter'
-            };
-
-            var thirdsLayout = {
-                title: "Daily Herd Weight Average: Thirds",
-                yaxis: {
-                    title: "Weight (KG)",
-                    range: [300, 600]
-                },
-                showlegend: true,
-                legend: {"orientation": "h"}
-            };
-
-            var data = [total_weights, lowerThird, middleThird, upperThird];
-
-            $scope.allTags.traces=[total_weights];
-            $scope.allTags.layout=layout;
-
-            $scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
-            $scope.allTags.thirdsLayout=thirdsLayout;
-
-
-            $scope.weeks=[];
-            $scope.prepareWeeklyData(dateGroup, $scope.weeks);
-
-            $scope.weeklyTrace= $scope.prepareWeeklyTrace($scope.weeks, $scope.weeklyTrace);
 
 
         }

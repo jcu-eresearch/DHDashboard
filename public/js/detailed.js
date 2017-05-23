@@ -133,9 +133,8 @@ homesteadApp.controller('detailedController', function($scope, tagDataService) {
                         $scope.$emit('alerts', $scope.alertedTags);
 
                     }
-
-
                 }
+
                 for(var i=1; i<d.length; i++){
                     var dt=d[i].date_posted, wt=d[i].total_weight;
                     //take average of multiple readings during one day

@@ -125,6 +125,7 @@ function tagDataService($http, $q) {
 		function getBucketSuccessConcat(dataset){
 
 			var results=[];
+
 			if(dataset && dataset.length>0){
 
                 function compare(a,b) {
@@ -136,6 +137,8 @@ function tagDataService($http, $q) {
                 }
 
                 dataset.sort(compare);
+
+
 
 				dataset.forEach(function(d){
 					if(d && d.data && d.data.weights)

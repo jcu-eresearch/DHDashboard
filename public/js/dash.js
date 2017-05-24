@@ -60,6 +60,8 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
     $scope.init=function(){
 
         var tagGraphs=[];
+        var dailyIds={};
+        var weeklyIds={};
 
         tagDataService.getAllTagData(render);
 
@@ -76,13 +78,21 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             })
         }
 
+        function weeklyHash(date){
+            var curr = new Date(date); // get current date
+            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+
+            var firstday = new Date(curr.setDate(first)).toUTCString();
+
+            return firstday
+        }
+
         function analyseData(dataSet){
 
             var dict={};
             var tagDict={};
             var relevantTags={};
-
-            var dailyAverage=[];
+            var dailyAverage={};
 
 
             if(!dataSet){
@@ -103,7 +113,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             while(itr.hasNext()){
                 range.push((itr.next().toDate()).toISOString().substr(0,10));
             }
-            console.log(range);
 
             //Iterate over al the ids and generate the individual graph for each animal
             for(var j=0; j<idGroup.length; j++){
@@ -143,14 +152,11 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     tagDict[d[0].datePosted]=d[0].weight;
                 }
 
-
                 if(d[0] && d[0].id=='-1') {
                     idGroup.splice(j, 1);
                     j--;
                     continue;
                 }
-
-                debugger;
 
                 for(var i=1; i<d.length; i++){
                     var dt=d[i].datePosted, wt=d[i].weight;
@@ -171,11 +177,11 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                             tagDict[d[index-1].datePosted] = wt;
 
                             if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>0){
-                                dailyAverage[dt][dailyAverage[dt].length-1]=wt;
+                                dailyAverage[dt][dailyAverage[dt].length-1]={weight: wt, id: d[0].id};
                             }
                             else{
                                 dailyAverage[dt]=[];
-                                dailyAverage[dt].push(wt);
+                                dailyAverage[dt].push({weight: wt, id: d[0].id});
                             }
 
                             i = index - 1;
@@ -185,15 +191,30 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     trace1.x.push(dt);
                     trace1.y.push(wt);
 
-                    if(dailyAverage[dt]){
-                        dailyAverage[dt].push(wt)
+                    if(dailyIds[dt]){
+                        dailyIds[dt][d[0].id]=1;
+                    }
+                    else {
+                        dailyIds[dt]={};
+                        dailyIds[dt][d[0].id]=1;
+                    }
+
+                    if(weeklyIds[weeklyHash(dt)]){
+                        weeklyIds[weeklyHash(dt)][d[0].id]=1;
+                    }
+                    else {
+                        weeklyIds[weeklyHash(dt)]={};
+                        weeklyIds[weeklyHash(dt)][d[0].id]=1;
+                    }
+
+
+                    if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>=0){
+                        dailyAverage[dt].push({weight: wt, id: d[0].id})
                     }
                     else{
                         dailyAverage[dt]=[];
-                        dailyAverage[dt].push(wt);
+                        dailyAverage[dt].push({weight: wt, id: d[0].id});
                     }
-
-
                     trace1Counter++;
                     tagDict[dt] = wt;
                 }
@@ -211,10 +232,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             }
 
-            debugger;
-
-
-
+            //debugger;
         }
 
         function render(apiData) {

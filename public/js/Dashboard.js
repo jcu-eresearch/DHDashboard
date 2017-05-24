@@ -26,7 +26,6 @@ homesteadApp.config(function($mdThemingProvider) {
 		'contrastLightColors': undefined    // could also specify this if default was 'dark'
 	});
 
-
 	$mdThemingProvider.theme('default')
 		.primaryPalette('amazingPaletteName')
 		.accentPalette('green')
@@ -35,7 +34,6 @@ homesteadApp.config(function($mdThemingProvider) {
 
 homesteadApp.config(function($routeProvider) {
 	$routeProvider
-
 	// route for the home page
 		.when('/', {
 			templateUrl : 'pages/dash.html',
@@ -119,7 +117,6 @@ function tagDataService($http, $q) {
 
 				$q.all(fetchBuckets).then(getBucketSuccessConcat, getBucketError)
 			}
-
 		}
 
 		function getBucketSuccessConcat(dataset){
@@ -138,14 +135,11 @@ function tagDataService($http, $q) {
 
                 dataset.sort(compare);
 
-
-
 				dataset.forEach(function(d){
 					if(d && d.data && d.data.weights)
 					results=results.concat(d.data.weights)
 				});
 
-				
 				if(callback){
 					callback(results);
 				}
@@ -170,7 +164,6 @@ function tagDataService($http, $q) {
 
         var uri = "api/locations";
 
-
         var fetchLocations=[];
 
         $http.get(uri)
@@ -180,14 +173,10 @@ function tagDataService($http, $q) {
 
             if(dataset && dataset.data.length>0){
                 dataset.data.forEach(function(d){
-
                         var locationUri = "api/locations/data/" + d;
                         fetchLocations.push($http.get(locationUri));
-
                 });
-
                 $q.all(fetchLocations).then(getLocationDataSuccess, getLocationDataError)
-
             }
 
             function getLocationDataSuccess(data){
@@ -210,7 +199,6 @@ function tagDataService($http, $q) {
                         }
                     });
                 }
-
 
                 if(callback){
                     callback(movementData);

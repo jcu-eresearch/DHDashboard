@@ -63,7 +63,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         var dailyIds={};
         var weeklyIds={};
 
-        tagDataService.getAllTagData(analyseData);
+        tagDataService.getAllTagData(render);
 
         /** utility function for grouping data by different fields **/
         function groupBy( array , f ){

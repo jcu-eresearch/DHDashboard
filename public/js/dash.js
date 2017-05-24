@@ -63,7 +63,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         var dailyIds={};
         var weeklyIds={};
 
-        tagDataService.getAllTagData(render);
+        tagDataService.getAllTagData(analyseData);
 
         /** utility function for grouping data by different fields **/
         function groupBy( array , f ){
@@ -82,7 +82,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             var curr = new Date(date); // get current date
             var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
 
-            var firstday = new Date(curr.setDate(first)).toUTCString();
+            var firstday = new Date(curr.setDate(first)).toISOString().substr(0,10);
 
             return firstday
         }
@@ -232,7 +232,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             }
 
-            //debugger;
+            debugger;
         }
 
         function render(apiData) {

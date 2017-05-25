@@ -94,7 +94,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             var relevantTags={};
             var dailyAverage={};
 
-
             if(!dataSet){
                 console.log("No data available");
                 return;
@@ -107,9 +106,9 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             var firstDay=dataSet[0].date.substr(0,10);
 
-
             var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
             var range=[];
+
             while(itr.hasNext()){
                 range.push((itr.next().toDate()).toISOString().substr(0,10));
             }
@@ -130,8 +129,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     type: 'scatter'
                 };
 
-
-
                 //remove all weights greater than the threshold weight
                 for(var a=0; a<d.length; a++){
                     // fix the date
@@ -144,19 +141,46 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     }
                 }
 
+                if(d[0] && d[0].id=='-1') {
+                    idGroup.splice(j, 1);
+                    j--;
+                    continue;
+                }
+
+
+
                 if(d[0]){
                     trace1["name"]=d[0].id+' Weight';
                     trace1.x.push(d[0].datePosted);
                     trace1.y.push(d[0].weight);
                     trace1Counter++;
                     tagDict[d[0].datePosted]=d[0].weight;
+
+                    if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
+                        dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id});
+                    }
+                    else{
+                        dailyAverage[d[0].datePosted]=[];
+                        dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id});
+                    }
+
+                    if(dailyIds[d[0].datePosted]){
+                        dailyIds[d[0].datePosted][d[0].id]=1;
+                    }
+                    else {
+                        dailyIds[d[0].datePosted]={};
+                        dailyIds[d[0].datePosted][d[0].id]=1;
+                    }
+
+                    if(weeklyIds[weeklyHash(d[0].datePosted)]){
+                        weeklyIds[weeklyHash(d[0].datePosted)][d[0].id]=1;
+                    }
+                    else {
+                        weeklyIds[weeklyHash(d[0].datePosted)]={};
+                        weeklyIds[weeklyHash(d[0].datePosted)][d[0].id]=1;
+                    }
                 }
 
-                if(d[0] && d[0].id=='-1') {
-                    idGroup.splice(j, 1);
-                    j--;
-                    continue;
-                }
 
                 for(var i=1; i<d.length; i++){
                     var dt=d[i].datePosted, wt=d[i].weight;
@@ -183,6 +207,24 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                                 dailyAverage[dt]=[];
                                 dailyAverage[dt].push({weight: wt, id: d[0].id});
                             }
+
+
+                            if(dailyIds[dt]){
+                                dailyIds[dt][d[0].id]=1;
+                            }
+                            else {
+                                dailyIds[dt]={};
+                                dailyIds[dt][d[0].id]=1;
+                            }
+
+                            if(weeklyIds[weeklyHash(dt)]){
+                                weeklyIds[weeklyHash(dt)][d[0].id]=1;
+                            }
+                            else {
+                                weeklyIds[weeklyHash(dt)]={};
+                                weeklyIds[weeklyHash(dt)][d[0].id]=1;
+                            }
+
 
                             i = index - 1;
                             continue;
@@ -234,7 +276,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             debugger;
         }
-
         function render(apiData) {
             if(!apiData) return;
             $scope.initMap();
@@ -540,7 +581,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             
 
         };
-
     };
     $scope.init();
     
@@ -598,7 +638,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     }
                 }
             }
-
         }
     };
 

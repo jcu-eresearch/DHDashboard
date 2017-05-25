@@ -114,7 +114,6 @@ function tagDataService($http, $q) {
 					var bucketUri = "api/weights/" + bucket;
 					fetchBuckets.push($http.get(bucketUri));
 				});
-
 				$q.all(fetchBuckets).then(getBucketSuccessConcat, getBucketError)
 			}
 		}

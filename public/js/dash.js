@@ -296,7 +296,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
                         //Prepare thirds graphs
                         var bin=Math.floor(dailyAverage[day].length/3);
-                        if(dailyAverage[day] && dailyAverage[day].length>2) {
+                        if(dailyAverage[day]) {
                             var index0=thirdsTraces[0].length;
                             var index1=thirdsTraces[1].length;
                             var index2=thirdsTraces[2].length;

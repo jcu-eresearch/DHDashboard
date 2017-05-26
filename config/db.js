@@ -1,4 +1,4 @@
 module.exports = {
-	urlSubjectViews: 'mongodb://localhost:33335/digitalhomestead',
+	urlSubjectViews: 'mongodb://localhost:27017/digitalhomestead',
 
 };

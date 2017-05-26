@@ -94,6 +94,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             var tagDict={};
             var relevantTags={};
             var dailyAverage={};
+            var weeklyAverage={};
 
             if(!dataSet){
                 console.log("No data available");
@@ -290,6 +291,14 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         if(dailyAverage[day][dailyAverage[day].length-1]) {
                             var aveWeight = dailyAverage[day][dailyAverage[day].length - 1].sum / dailyAverage[day].length;
                             dailyAverageWeights.push(aveWeight);
+
+                            if(weeklyAverage[weeklyHash(day)] && weeklyAverage[weeklyHash(day)].weights ){
+                                weeklyAverage[weeklyHash(day)].weights=weeklyAverage[weeklyHash(day)].weights+aveWeight;
+                                (weeklyAverage[weeklyHash(day)].days)++;
+                            }
+                            else{
+                                weeklyAverage[weeklyHash(day)]={weights: aveWeight, days: 1};
+                            }
                         }
                         //also sort while iterating
                         dailyAverage[day].sort(compare);
@@ -316,6 +325,12 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                             if(thirdsTraces[2][index2] && count2>0) thirdsTraces[2][index2]/=count2; else thirdsTraces[2][index2]=NaN;
                         }
                     }
+                }
+            }
+
+            for (var week in weeklyAverage) {
+                if (weeklyAverage.hasOwnProperty(week) && weeklyAverage[week].days && weeklyAverage[week].days>0) {
+                    if(weeklyAverage[week])weeklyAverage[week].weights/=weeklyAverage[week].days;
                 }
             }
 

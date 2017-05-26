@@ -87,6 +87,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             return firstday
         }
 
+        /** Perform analysis on the weight data**/
         function analyseData(dataSet){
 
             var dict={};
@@ -147,8 +148,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     continue;
                 }
 
-
-
                 if(d[0]){
                     trace1["name"]=d[0].id+' Weight';
                     trace1.x.push(d[0].datePosted);
@@ -157,13 +156,15 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     tagDict[d[0].datePosted]=d[0].weight;
 
                     if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
-                        dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id});
+                        var sum=d[0].weight;
+                        if(dailyAverage[d[0].datePosted].length>=1)
+                            sum=d[0].weight + dailyAverage[d[0].datePosted][ dailyAverage[d[0].datePosted].length-1].sum;
+                        dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum : sum});
                     }
                     else{
                         dailyAverage[d[0].datePosted]=[];
-                        dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id});
+                        dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum:  d[0].weight});
                     }
-
                     if(dailyIds[d[0].datePosted]){
                         dailyIds[d[0].datePosted][d[0].id]=1;
                     }
@@ -171,7 +172,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         dailyIds[d[0].datePosted]={};
                         dailyIds[d[0].datePosted][d[0].id]=1;
                     }
-
                     if(weeklyIds[weeklyHash(d[0].datePosted)]){
                         weeklyIds[weeklyHash(d[0].datePosted)][d[0].id]=1;
                     }
@@ -181,10 +181,9 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     }
                 }
 
-
+                //take average of multiple readings during one day
                 for(var i=1; i<d.length; i++){
                     var dt=d[i].datePosted, wt=d[i].weight;
-                    //take average of multiple readings during one day
                     if(trace1Counter>0){
                         var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;
                         if (d[index].datePosted == d[index - 1].datePosted)
@@ -196,19 +195,18 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                             }
                         if (count > 1) {
                             wt = dupSum / count;
-
                             trace1.y[trace1Counter - 1] = wt;
                             tagDict[d[index-1].datePosted] = wt;
-
                             if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>0){
-                                dailyAverage[dt][dailyAverage[dt].length-1]={weight: wt, id: d[0].id};
+                                var sum=wt;
+                                if(dailyAverage[dt].length>=2)
+                                    sum=wt + dailyAverage[dt][ dailyAverage[dt].length-2].sum;
+                                dailyAverage[dt][dailyAverage[dt].length-1]={weight: wt, id: d[0].id, sum : sum};
                             }
                             else{
                                 dailyAverage[dt]=[];
-                                dailyAverage[dt].push({weight: wt, id: d[0].id});
+                                dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt});
                             }
-
-
                             if(dailyIds[dt]){
                                 dailyIds[dt][d[0].id]=1;
                             }
@@ -216,7 +214,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                                 dailyIds[dt]={};
                                 dailyIds[dt][d[0].id]=1;
                             }
-
                             if(weeklyIds[weeklyHash(dt)]){
                                 weeklyIds[weeklyHash(dt)][d[0].id]=1;
                             }
@@ -224,15 +221,13 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                                 weeklyIds[weeklyHash(dt)]={};
                                 weeklyIds[weeklyHash(dt)][d[0].id]=1;
                             }
-
-
                             i = index - 1;
                             continue;
                         }
                     }
+
                     trace1.x.push(dt);
                     trace1.y.push(wt);
-
                     if(dailyIds[dt]){
                         dailyIds[dt][d[0].id]=1;
                     }
@@ -249,13 +244,15 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         weeklyIds[weeklyHash(dt)][d[0].id]=1;
                     }
 
-
                     if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>=0){
-                        dailyAverage[dt].push({weight: wt, id: d[0].id})
+                        var sum=wt;
+                        if(dailyAverage[dt].length>=1)
+                            sum=wt + dailyAverage[dt][ dailyAverage[dt].length-1].sum;
+                        dailyAverage[dt].push({weight: wt, id: d[0].id, sum: sum})
                     }
                     else{
                         dailyAverage[dt]=[];
-                        dailyAverage[dt].push({weight: wt, id: d[0].id});
+                        dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt});
                     }
                     trace1Counter++;
                     tagDict[dt] = wt;
@@ -274,8 +271,57 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
             }
 
+
+            function compare(a,b) {
+                if(a && a.weight && b && b.weight ){
+                    return a.weight - b.weight;
+                }
+            }
+
+
+            /** This is for the daily and weekly average graphs**/
+            var dailyAverageDays=[];
+            var dailyAverageWeights=[];
+            var thirdsTraces=[[],[],[]];
+            for (var day in dailyAverage) {
+                if (dailyAverage.hasOwnProperty(day)) {
+                    if(dailyAverage[day] && dailyAverage[day].length>0){
+                        dailyAverageDays.push(day);
+                        if(dailyAverage[day][dailyAverage[day].length-1]) {
+                            var aveWeight = dailyAverage[day][dailyAverage[day].length - 1].sum / dailyAverage[day].length;
+                            dailyAverageWeights.push(aveWeight);
+                        }
+                        //also sort while iterating
+                        dailyAverage[day].sort(compare);
+
+                        //Prepare thirds graphs
+                        var bin=Math.floor(dailyAverage[day].length/3);
+                        if(dailyAverage[day] && dailyAverage[day].length>2) {
+                            var index0=thirdsTraces[0].length;
+                            var index1=thirdsTraces[1].length;
+                            var index2=thirdsTraces[2].length;
+                            var count0=0;
+                            var count1=0;
+                            var count2=0;
+                            for (var i = 0; i < dailyAverage[day].length; i++) {
+                                if (i == 0) {thirdsTraces[0].push(dailyAverage[day][i].weight); count0++;}
+                                else if (i < bin) {thirdsTraces[0][index0] += dailyAverage[day][i].weight; count0++;}
+                                else if (i == bin ) {thirdsTraces[1].push(dailyAverage[day][i].weight); count1++;}
+                                else if (i < 2 * bin) {thirdsTraces[1][index1] += dailyAverage[day][i].weight; count1++;}
+                                else if (i == 2 * bin || bin==0) {thirdsTraces[2].push(dailyAverage[day][i].weight); count2++;}
+                                else if (i < d.length) {thirdsTraces[2][index2] += dailyAverage[day][i].weight; count2++;}
+                            }
+                            if(thirdsTraces[0][index0] && count0>0) thirdsTraces[0][index0]/=count0; else thirdsTraces[0][index0]=NaN;
+                            if(thirdsTraces[1][index1] && count1>0) thirdsTraces[1][index1]/=count1; else thirdsTraces[1][index1]=NaN;
+                            if(thirdsTraces[2][index2] && count2>0) thirdsTraces[2][index2]/=count2; else thirdsTraces[2][index2]=NaN;
+                        }
+                    }
+                }
+            }
+
             debugger;
         }
+
         function render(apiData) {
             if(!apiData) return;
             $scope.initMap();

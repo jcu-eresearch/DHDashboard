@@ -96,9 +96,27 @@ function tagDataService($http, $q) {
 	var service = {
 		getAllTagData: getAllTagData,
 		getTestData: getTestData,
-        getLocationData: getLocationData
+        getLocationData: getLocationData,
+        getStaticFile: getStaticFile
 	};
 	return service;
+
+
+    function getStaticFile(callback) {
+
+        $http.get('/dh/staticFileTest.json').success(getStaticSuccess,getStaticError);
+
+        function getStaticSuccess(results){
+
+            if(callback){
+                callback(results);
+            }
+
+        }
+
+        function getStaticError(){
+        }
+    }
 
 	function getAllTagData(callback) {
 

@@ -60,7 +60,17 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         var dailyIds={};
         var weeklyIds={};
 
-        tagDataService.getAllTagData(analyseData);
+        //tagDataService.getStaticFile(renderData);
+        tagDataService.getAllTagData(renderData);
+
+        function renderData(data){
+            $scope.initMap();
+            $scope.weeklyTrace=data.weeklyTrace;
+            $scope.allTags=data;
+            $scope.tagGraphs=data.tagGraphs;
+
+        }
+
 
         /** utility function for grouping data by different fields **/
         function groupBy( array , f ){
@@ -344,7 +354,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             }
 
-
             var bubble = {
                 x: sortedWeeks,
                 y: sortedWeekWeights,
@@ -436,7 +445,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 showlegend: true,
                 legend: {"orientation": "h"}
             };
-
 
             $scope.allTags.traces=[totalWeights];
             $scope.allTags.layout=layout;

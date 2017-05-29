@@ -60,8 +60,8 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         var dailyIds={};
         var weeklyIds={};
 
-        //tagDataService.getStaticFile(renderData);
-        tagDataService.getAllTagData(renderData);
+        tagDataService.getStaticFile(renderData);
+        //tagDataService.getAllTagData(analyseData);
 
         function renderData(data){
             $scope.initMap();

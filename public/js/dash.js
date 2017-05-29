@@ -15,8 +15,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             zoom:9
         });
 
-        //map.data.loadGeoJson('data/paddocks.json');
-
         var marker1 = new google.maps.Marker({
             position: {lat: -19.66882, lng: 146.864},
             map: map,
@@ -37,7 +35,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             map: map,
             text: "Junction"
         });
-    }
+    };
 
     $scope.layout = {
         title: "Daily Individual Weight Trend",
@@ -59,11 +57,10 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
 
     $scope.init=function(){
 
-        var tagGraphs=[];
         var dailyIds={};
         var weeklyIds={};
 
-        tagDataService.getAllTagData(render);
+        tagDataService.getAllTagData(analyseData);
 
         /** utility function for grouping data by different fields **/
         function groupBy( array , f ){
@@ -81,15 +78,12 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
         function weeklyHash(date){
             var curr = new Date(date); // get current date
             var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-
-            var firstday = new Date(curr.setDate(first)).toISOString().substr(0,10);
-
-            return firstday
+            return new Date(curr.setDate(first)).toISOString().substr(0,10);
         }
 
         /** Perform analysis on the weight data**/
         function analyseData(dataSet){
-
+            $scope.initMap();
             var dict={};
             var tagDict={};
             var relevantTags={};
@@ -100,14 +94,12 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 console.log("No data available");
                 return;
             }
-
             // Group the data by id
             var idGroup = groupBy(dataSet, function(item){
                 return [item.id];
             });
 
             var firstDay=dataSet[0].date.substr(0,10);
-
             var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
             var range=[];
 
@@ -115,7 +107,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 range.push((itr.next().toDate()).toISOString().substr(0,10));
             }
 
-            //Iterate over al the ids and generate the individual graph for each animal
+            /** Iterate over all the ids and generate the individual graph for each animal **/
             for(var j=0; j<idGroup.length; j++){
 
                 var d=idGroup[j];
@@ -130,7 +122,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     },
                     type: 'scatter'
                 };
-
                 //remove all weights greater than the threshold weight
                 for(var a=0; a<d.length; a++){
                     // fix the date
@@ -155,7 +146,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     trace1.y.push(d[0].weight);
                     trace1Counter++;
                     tagDict[d[0].datePosted]=d[0].weight;
-
                     if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
                         var sum=d[0].weight;
                         if(dailyAverage[d[0].datePosted].length>=1)
@@ -236,7 +226,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         dailyIds[dt]={};
                         dailyIds[dt][d[0].id]=1;
                     }
-
                     if(weeklyIds[weeklyHash(dt)]){
                         weeklyIds[weeklyHash(dt)][d[0].id]=1;
                     }
@@ -244,7 +233,6 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                         weeklyIds[weeklyHash(dt)]={};
                         weeklyIds[weeklyHash(dt)][d[0].id]=1;
                     }
-
                     if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>=0){
                         var sum=wt;
                         if(dailyAverage[dt].length>=1)
@@ -258,20 +246,16 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                     trace1Counter++;
                     tagDict[dt] = wt;
                 }
-
                 var traces=[trace1];
                 if(d[0]) {
                     $scope.tagGraphs.push({name:d[0].id, traces: traces, layout: $scope.layout});
                     dict[d[0].id]={dict: tagDict, trace: trace1};
                     if(j==0)$scope.selectedTag=$scope.tagGraphs[j];
                 }
-
                 if(d && d.length>0 ) {//change from 0 to 1 for multiple weights
                     relevantTags[d[0].id]=true;
                 }
-
             }
-
 
             function compare(a,b) {
                 if(a && a.weight && b && b.weight ){
@@ -279,12 +263,21 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             }
 
+            var sortedDays=[];
+            for (var day in dailyAverage){
+                if (dailyAverage.hasOwnProperty(day)) {
+                    sortedDays.push(day);
+                }
+            }
+            sortedDays.sort();
 
             /** This is for the daily and weekly average graphs**/
             var dailyAverageDays=[];
             var dailyAverageWeights=[];
             var thirdsTraces=[[],[],[]];
-            for (var day in dailyAverage) {
+            for (var counter=0; counter<sortedDays.length; counter++) {
+
+                var day=sortedDays[counter];
                 if (dailyAverage.hasOwnProperty(day)) {
                     if(dailyAverage[day] && dailyAverage[day].length>0){
                         dailyAverageDays.push(day);
@@ -328,16 +321,130 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
                 }
             }
 
-            for (var week in weeklyAverage) {
+            var sortedWeeks=[];
+            for (var aWeek in weeklyAverage) {
+                sortedWeeks.push(aWeek);
+            }
+
+            sortedWeeks.sort();
+            var sortedWeekWeights=[];
+            var sortedWeekCounts=[];
+            var text=[];
+
+            for (var k=0; k<sortedWeeks.length; k++) {
+                var week=sortedWeeks[k];
                 if (weeklyAverage.hasOwnProperty(week) && weeklyAverage[week].days && weeklyAverage[week].days>0) {
-                    if(weeklyAverage[week])weeklyAverage[week].weights/=weeklyAverage[week].days;
+                    if(weeklyAverage[week]){
+                        weeklyAverage[week].weights/=weeklyAverage[week].days;
+                        sortedWeekWeights.push(weeklyAverage[week].weights);
+                        var weeklyIdCount=Object.keys(weeklyIds[week]).length;
+                        sortedWeekCounts.push(weeklyIdCount);
+                        text.push('count: ' + weeklyIdCount);
+                    }
                 }
             }
 
-            debugger;
+
+            var bubble = {
+                x: sortedWeeks,
+                y: sortedWeekWeights,
+                text: text,
+                mode: 'markers',
+                marker: {
+                    size: sortedWeekCounts
+                }
+            };
+            var bubbleLayout = {
+                title: "Weekly Herd Weight Average",
+                yaxis: {
+                    title: "Weight (KG)"
+                }
+            };
+            $scope.weeklyTrace={
+                traces: [bubble],
+                layout: bubbleLayout
+            };
+
+            var totalWeights = {
+                x: dailyAverageDays,
+                y: dailyAverageWeights,
+                mode: 'lines+markers',
+                name: "Ave Wt",
+                line:{
+                    color: '#66bb6a',
+                    shape: 'spline'
+                },
+                type: 'scatter'
+            };
+
+            var layout = {
+                title: "Daily Herd Weight Trend",
+                yaxis: {title: "Weight (KG)"},
+                showlegend: false
+            };
+
+            $scope.thirdsTraces=thirdsTraces;
+
+            var lowerThird = {
+                x: dailyAverageDays,
+                y: $scope.thirdsTraces[0],
+                mode: 'lines+markers',
+                name: "Ave: Lower 1/3",
+                line:{
+                    color: 'rgba(255, 65, 54, 0.2)',
+                    shape: 'spline'
+                },
+                fill: "tonexty",
+                fillcolor: "rgba(255, 65, 54, 0.1)",
+                type: 'scatter'
+            };
+
+            var middleThird = {
+                x: dailyAverageDays,
+                y: $scope.thirdsTraces[1],
+                mode: 'lines+markers',
+                name: "Ave: Middle 1/3",
+                line:{
+                    color: 'rgba(44, 160, 101, 0.5)',
+                    shape: 'spline'
+                },
+                fill: "tonexty",
+                fillcolor: "rgba(44, 160, 101, 0.4)",
+                type: 'scatter'
+            };
+
+            var upperThird = {
+                x: dailyAverageDays,
+                y: $scope.thirdsTraces[2],
+                mode: 'lines+markers',
+                name: "Ave: Upper 1/3",
+                fill: "tonexty",
+                fillcolor: "rgba(93, 164, 214, 0.3)",
+                line:{
+                    color: 'rgba(93, 164, 214, 0.5)',
+                    shape: 'spline'
+                },
+                type: 'scatter'
+            };
+
+            var thirdsLayout = {
+                title: "Daily Herd Weight Average: Thirds",
+                yaxis: {
+                    title: "Weight (KG)",
+                    range: [300, 600]
+                },
+                showlegend: true,
+                legend: {"orientation": "h"}
+            };
+
+
+            $scope.allTags.traces=[totalWeights];
+            $scope.allTags.layout=layout;
+            $scope.allTags.thirdsTraces=[lowerThird, middleThird, upperThird];
+            $scope.allTags.thirdsLayout=thirdsLayout;
         }
 
-        function render(apiData) {
+  /*      function render(apiData) {
             if(!apiData) return;
             $scope.initMap();
             var dataSet = apiData;
@@ -641,7 +748,7 @@ homesteadApp.controller('dashController', function($scope, tagDataService) {
             $scope.weeklyTrace= $scope.prepareWeeklyTrace($scope.weeks, $scope.weeklyTrace);
             
 
-        };
+        };*/
     };
     $scope.init();
     

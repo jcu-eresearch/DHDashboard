@@ -533,6 +533,7 @@ Weight.find({}).exec(function (err, weights){
                         var stream = buf.pipe(zlib.createGzip({level:9})).pipe(out);
                         stream.on("finish", function(){
                             console.log("finish");
+                            process.exit(0);
                         });
 
             }else

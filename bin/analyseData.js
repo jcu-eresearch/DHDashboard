@@ -66,7 +66,7 @@ function create_static_file(bucket, cb)
             var json_out = result["_id"]+"_"+result["max"]+"_"+result["count"]+'.jsonz';
             var data_out = static_dir+"/"+json_out;
             console.log(json_out);
-            if(!fs.existsSync(data_out)){
+            // if(!fs.existsSync(data_out)){
                 Weight.findOne({"id":{"$ne": -1}}, {_id: 0, __v: 0, "weights._id":0})
                     .where({"_id": bucket})
                     .exec(function (err, weights) {
@@ -84,11 +84,11 @@ function create_static_file(bucket, cb)
                             cb();
                         });
                     });
-            }else
-            {
-                console.log("Skipping");
-                cb();
-            }
+            // }else
+            // {
+            //     console.log("Skipping");
+            //     cb();
+            // }
         }
         else
         {

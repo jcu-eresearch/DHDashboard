@@ -524,7 +524,7 @@ Weight.find({}).exec(function (err, weights){
             var json_out = 'staticFileTest.jsonz';
             var data_out = static_dir+"/"+json_out;
             console.log(json_out);
-            if(!fs.existsSync(data_out)){
+            // if(!fs.existsSync(data_out)){
 
                         var buf = new Readable();
                         buf.push(JSON.stringify(results));
@@ -536,9 +536,9 @@ Weight.find({}).exec(function (err, weights){
                             process.exit(0);
                         });
 
-            }else
-            {   console.log("Skipping");
-            }
+            // }else
+            // {   console.log("Skipping");
+            // }
         }
         else
         {

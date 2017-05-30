@@ -96,7 +96,7 @@ function tagDataService($http, $q) {
 	var service = {
 		//getAllTagData: getAllTagData,
 		//getTestData: getTestData,
-        //getLocationData: getLocationData,
+        getLocationData: getLocationData,
         getStaticFile: getStaticFile
 	};
 	return service;
@@ -162,7 +162,7 @@ function tagDataService($http, $q) {
 			callback({success: false, message: 'Unable to fetch buckets'});
 		}
 
-	}
+	}*/
 
 	function getLocationData(callback){
 
@@ -222,7 +222,7 @@ function tagDataService($http, $q) {
 
     }
 
-	function getTestData(callback) {
+	/*function getTestData(callback) {
 		var uri = "api/data";
 
 		$http.get(uri)

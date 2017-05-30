@@ -34,7 +34,6 @@ homesteadApp.config(function($mdThemingProvider) {
 
 homesteadApp.config(function($routeProvider) {
 	$routeProvider
-	// route for the home page
 		.when('/', {
 			templateUrl : 'pages/dash.html',
 			controller  : 'dashController'
@@ -93,31 +92,29 @@ homesteadApp.controller('LiveDataCtrl', function($scope, $mdBottomSheet){});
 homesteadApp.factory('tagDataService', tagDataService);
 
 function tagDataService($http, $q) {
+
 	var service = {
-		getAllTagData: getAllTagData,
-		getTestData: getTestData,
-        getLocationData: getLocationData,
+		//getAllTagData: getAllTagData,
+		//getTestData: getTestData,
+        //getLocationData: getLocationData,
         getStaticFile: getStaticFile
 	};
 	return service;
 
-
     function getStaticFile(callback) {
-
         $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
-
             if(callback){
                 callback(results);
             }
-
         }
-
         function getStaticError(){
+        	console.log("Error getting the data");
         }
     }
-
+/*
 	function getAllTagData(callback) {
 
 		var uri = "api/weights/buckets";
@@ -242,8 +239,27 @@ function tagDataService($http, $q) {
 		function getAllTagDataError() {
 			callback({success: false, message: 'Unable to fetch tag data'});
 		}
-	}
+	}*/
 }
+
+
+homesteadApp.factory('detailedTagDataService', function() {
+    var tagData = null;
+
+    var addTagData = function(newObj) {
+        tagData=newObj;
+    };
+
+    var getTagData = function(){
+        return tagData;
+    };
+
+    return {
+        addTagData: addTagData,
+        getTagData: getTagData
+    };
+
+});
 
 
 homesteadApp.directive('plotly', [
@@ -340,8 +356,6 @@ homesteadApp.directive('plotly', [
 	}
 ]);
 
-
-
 homesteadApp.directive('plotlyDetailed', [
     '$window',
     function($window) {
@@ -435,7 +449,6 @@ homesteadApp.directive('plotlyDetailed', [
         };
     }
 ]);
-
 
 homesteadApp.directive('stopTouchEvent', function () {
 	return {

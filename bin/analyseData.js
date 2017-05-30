@@ -144,6 +144,12 @@ Weight.find({}).exec(function (err, weights){
         var dailyAverage={};
         var weeklyAverage={};
         var tagGraphs=[];
+        var alertedTags=[];
+
+        var today=new Date();
+        var yesterday= new Date(today-1000*60*60*24)
+        today=today.toISOString().substring(0,10);
+        yesterday=yesterday.toISOString().substring(0,10);
 
         var layout = {
             title: "Daily Individual Weight Trend",
@@ -180,18 +186,43 @@ Weight.find({}).exec(function (err, weights){
                 y:[],
                 mode: 'lines+markers',
                 line:{
-                    color: '#66bb6a',
-                    shape: 'spline'
+                    color: '#66bb6a'
                 },
                 type: 'scatter'
             };
+
+            var trace2Counter=0;
+            var trace2={
+                x:[],
+                y:[],
+                mode: 'markers',
+                line:{
+                    color: '#e98686'
+                },
+                type: 'scatter'
+            };
+
+            var outlierYesterday=false;
+            var outlierToday=false;
+            var alerted=false;
+
+
             //remove all weights greater than the threshold weight
             for(var a=0; a<d.length; a++){
                 // fix the date
                 if(d[a].date && d[a].date.toISOString().substr)
                     d[a].datePosted=d[a].date.toISOString().substr(0,10); //moment(d[a].date).local().format("YYYY-MM-DD");
                 // filter out weights
+
                 if(d[a] && d[a].qa_flag && ( d[a].weight>600 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" ) ){
+
+                    trace2.x.push(d[a].datePosted);
+                    trace2.y.push(d[a].weight);
+                    trace2Counter++;
+
+                    if(d[a].datePosted==yesterday) outlierYesterday=true;
+                    if(d[a].datePosted==today) outlierToday=true;
+
                     d.splice(a,1);
                     a--;
                 }
@@ -205,6 +236,7 @@ Weight.find({}).exec(function (err, weights){
 
             if(d[0]){
                 trace1["name"]=d[0].id+' Weight';
+                trace2["name"]='Outlier';
                 trace1.x.push(d[0].datePosted);
                 trace1.y.push(d[0].weight);
                 trace1Counter++;
@@ -232,6 +264,11 @@ Weight.find({}).exec(function (err, weights){
                 else {
                     weeklyIds[weeklyHash(d[0].datePosted)]={};
                     weeklyIds[weeklyHash(d[0].datePosted)][d[0].id]=1;
+                }
+
+                if(outlierToday && outlierYesterday){
+                    alertedTags.push(d[0].id);
+                    alerted=true;
                 }
             }
 
@@ -309,16 +346,24 @@ Weight.find({}).exec(function (err, weights){
                 trace1Counter++;
                 tagDict[dt] = wt;
             }
-            var traces=[trace1];
+            var traces=[trace1, trace2];
             if(d[0]) {
-                tagGraphs.push({name:d[0].id, traces: traces, layout: layout});
+                tagGraphs.push({name:d[0].id, traces: traces, layout: layout, alerted: alerted});
                 dict[d[0].id]={dict: tagDict, trace: trace1};
-                if(j==0)selectedTag=tagGraphs[j];
+
             }
             if(d && d.length>0 ) {//change from 0 to 1 for multiple weights
                 relevantTags[d[0].id]=true;
             }
         }
+
+
+
+        tagGraphs.sort(function(a, b){
+            var keyA = a.name,
+                keyB = b.name;
+            return keyA.localeCompare(keyB);
+        });
 
         function compare(a,b) {
             if(a && a.weight && b && b.weight ){
@@ -511,6 +556,7 @@ Weight.find({}).exec(function (err, weights){
         };
 
         allTags.tagGraphs=tagGraphs;
+        allTags.alertedTags=alertedTags;
 
         createStaticFile(allTags);
 

@@ -9,19 +9,45 @@ const zlib = require('zlib');
 var Readable = require('stream').Readable;
 
 
+
 program
     .version('0.0.1')
     .description("Generate the DigitalHomestead's static compressed data files.")
     .usage('[options]')
     .option('-o, --output_dir [output_dir]', 'The Directory to write the data files to.')
+    .option('-u, --username [username]', 'The Plotly Username.')
+    .option('-a, --api_key [api_key]', 'The Plotly API Key.')
     .parse(process.argv);
 
 console.log(program.output_dir);
+console.log('');
 
-if (!process.argv.slice(2).length) {
+if(!program.username)
+{
+    console.log('Plotly Username required.');
+    console.log('');
     program.outputHelp();
     process.exit(1);
 }
+
+if(!program.api_key)
+{
+    console.log('Plotly API Key required.');
+    console.log('');
+    program.outputHelp();
+    process.exit(1);
+}
+
+if(!program.output_dir)
+{
+    console.log('Output Directory required.');
+    console.log('');
+    program.outputHelp();
+    process.exit(1);
+}
+
+var plotly = require('plotly');
+plotly(program.username, program.api_key);
 
 connectionsubject = mongoose.createConnection(db.urlSubjectViews);
 

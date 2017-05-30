@@ -214,7 +214,7 @@ Weight.find({}).exec(function (err, weights){
                     d[a].datePosted=d[a].date.toISOString().substr(0,10); //moment(d[a].date).local().format("YYYY-MM-DD");
                 // filter out weights
 
-                if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 && d[a].weight>600 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
+                if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 || d[a].weight>600 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
 
                     trace2.x.push(d[a].datePosted);
                     trace2.y.push(d[a].weight);

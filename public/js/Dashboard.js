@@ -56,7 +56,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.alerts=false;
 
-    $scope.$on('alerts', function (event, data) {
+    $scope.$on('alerts', function() {
        $scope.alerts=true;
     });
 
@@ -102,8 +102,8 @@ function tagDataService($http, $q) {
 	return service;
 
     function getStaticFile(callback) {
-        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){
@@ -222,24 +222,6 @@ function tagDataService($http, $q) {
 
     }
 
-	/*function getTestData(callback) {
-		var uri = "api/data";
-
-		$http.get(uri)
-			.then(getAllTagDataSuccess, getAllTagDataError);
-
-		function getAllTagDataSuccess(resp) {
-
-			if (callback && resp.data) {
-
-				callback(resp.data);
-			}
-		}
-
-		function getAllTagDataError() {
-			callback({success: false, message: 'Unable to fetch tag data'});
-		}
-	}*/
 }
 
 

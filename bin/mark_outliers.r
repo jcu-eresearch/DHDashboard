@@ -36,7 +36,7 @@ for(id in distinctIds){
 
   #iterate over the weights
   for(i in 1:length(tagWeights[[1]]) ){
-    if(tagWeights[i,2]>600 || tagWeights[i,2]<300){
+    if(tagWeights[i,2]>650 || tagWeights[i,2]<300){
       indexInvalid[countInvalid]<-i;
       weightsInvalid[countInvalid]<-tagWeights[i,2];
       if(is.na( tagWeights[i,4]) || tagWeights[i,4]!="INVALID")

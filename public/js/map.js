@@ -141,13 +141,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         $scope.heatmapOverlay.set('opacity',  $scope.heatmapOverlay.get('opacity') ? null : 0.2);
     }
 
-
-
-
-
-
     $scope.initMap=function() {
-
 
         var map
         map = new google.maps.Map(document.getElementById('map'), {
@@ -157,15 +151,11 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         });
         $scope.map=map;
 
-
-        //map.data.loadGeoJson('data/paddocks.json');
-
         var neBound = new google.maps.LatLng(-19.65111042090178, 146.87229902673334);
         var swBound = new google.maps.LatLng( -19.676194910665817, 146.8331438674927);
         var bounds = new google.maps.LatLngBounds(swBound, neBound);
         var srcImage = 'data/paddSoil.png';
         $scope.soilOverlay = new imgOverlay(bounds, srcImage, map);
-
 
         var neBound1 = new google.maps.LatLng(-19.6522016454622, 146.87255651879877);
         var swBound1 = new google.maps.LatLng( -19.6767606432209, 146.83365885162357);
@@ -173,7 +163,6 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         var srcImage1 = 'data/soilTopo.png';
         $scope.topologyOverlay = new imgOverlay(bounds1, srcImage1, map);
         $scope.topologyOverlay.removeFromMap();
-
 
         var marker1 = new google.maps.Marker({
             position: {lat: -19.66882, lng: 146.864},
@@ -216,17 +205,11 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
 
                 return points;
             }
-
             $scope.heatmapOverlay=heatmap;
-
         }
-
-
-
     }
 
     $timeout(function(){$scope.initMap();});
-
 
     $scope.slider = {
         'options': {
@@ -242,9 +225,5 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         sliderWeights: [200, 500],
         sliderWeightsChanges: [-5, 5]
     };
-
-
-
-
 
 });

@@ -8,8 +8,6 @@ var fs = require('fs');
 const zlib = require('zlib');
 var Readable = require('stream').Readable;
 
-
-
 program
     .version('0.0.1')
     .description("Generate the DigitalHomestead's static compressed data files.")
@@ -22,8 +20,7 @@ program
 console.log(program.output_dir);
 console.log('');
 
-if(!program.username)
-{
+if(!program.username) {
     console.log('Plotly Username required.');
     console.log('');
     program.outputHelp();
@@ -46,8 +43,15 @@ if(!program.output_dir)
     process.exit(1);
 }
 
-var plotly = require('plotly');
-plotly(program.username, program.api_key);
+/*
+*
+*
+saira_vi
+Wn3XnIZTL511VnlPo1M3
+* */
+
+
+var plotly = require('plotly')(program.username, program.api_key);
 
 connectionsubject = mongoose.createConnection(db.urlSubjectViews);
 
@@ -57,20 +61,18 @@ var Weight = require("../app/models/WeightsSchema");
 
 var static_dir = program.output_dir;
 
-
 console.log("Output Directory: "+static_dir);
 if(!fs.existsSync(static_dir)){
     console.log("Creating Directory: "+static_dir);
     fs.mkdirSync(static_dir);
 }
+
 static_dir=fs.realpathSync(static_dir);
 
-function create_static_file(bucket, cb)
-{
+function create_static_file(bucket, cb) {
     console.log(bucket);
     Weight.aggregate([
-        {$match:{"_id": bucket}},
-        {
+        {$match:{"_id": bucket}},{
             $project:{ts: "$weights.ts"}
         },
         {
@@ -127,7 +129,6 @@ function create_static_file(bucket, cb)
 
 Weight.find({}).exec(function (err, weights){
 
-
     var unwrappedData=[];
     if(weights && weights.length>0){
         weights.forEach(function(w){
@@ -137,10 +138,8 @@ Weight.find({}).exec(function (err, weights){
         });
     }
 
-
     var dailyIds={};
     var weeklyIds={};
-
 
     /** utility function for grouping data by different fields **/
     function groupBy( array , f ){
@@ -232,15 +231,13 @@ Weight.find({}).exec(function (err, weights){
             var outlierToday=false;
             var alerted=false;
 
-
             //remove all weights greater than the threshold weight
             for(var a=0; a<d.length; a++){
                 // fix the date
                 if(d[a].date && d[a].date.toISOString().substr)
-                    d[a].datePosted=d[a].date.toISOString().substr(0,10); //moment(d[a].date).local().format("YYYY-MM-DD");
-                // filter out weights
+                    d[a].datePosted=d[a].date.toISOString().substr(0,10);
 
-                if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 || d[a].weight>600 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
+                if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 || d[a].weight>650 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
 
                     trace2.x.push(d[a].datePosted);
                     trace2.y.push(d[a].weight);
@@ -253,6 +250,8 @@ Weight.find({}).exec(function (err, weights){
                     a--;
                 }
             }
+
+
 
             if(d[0] && d[0].id=='-1') {
                 idGroup.splice(j, 1);
@@ -345,6 +344,7 @@ Weight.find({}).exec(function (err, weights){
 
                 trace1.x.push(dt);
                 trace1.y.push(wt);
+
                 if(dailyIds[dt]){
                     dailyIds[dt][d[0].id]=1;
                 }
@@ -359,6 +359,7 @@ Weight.find({}).exec(function (err, weights){
                     weeklyIds[weeklyHash(dt)]={};
                     weeklyIds[weeklyHash(dt)][d[0].id]=1;
                 }
+
                 if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>=0){
                     var sum=wt;
                     if(dailyAverage[dt].length>=1)
@@ -372,18 +373,18 @@ Weight.find({}).exec(function (err, weights){
                 trace1Counter++;
                 tagDict[dt] = wt;
             }
-            var traces=[trace1, trace2];
-            if(d[0]) {
-                tagGraphs.push({name:d[0].id, traces: traces, layout: layout, alerted: alerted});
-                dict[d[0].id]={dict: tagDict, trace: trace1};
 
+            var traces=[trace1, trace2];
+
+            if(d[0]) {
+                tagGraphs.push({name: d[0].id, traces: traces, layout: layout, alerted: alerted});
+                dict[d[0].id]={dict: tagDict, trace: trace1};
             }
+
             if(d && d.length>0 ) {//change from 0 to 1 for multiple weights
                 relevantTags[d[0].id]=true;
             }
         }
-
-
 
         tagGraphs.sort(function(a, b){
             var keyA = a.name,
@@ -514,7 +515,6 @@ Weight.find({}).exec(function (err, weights){
         };
 
         var thirdsTraces=thirdsTraces;
-
         var lowerThird = {
             x: dailyAverageDays,
             y: thirdsTraces[0],
@@ -528,7 +528,6 @@ Weight.find({}).exec(function (err, weights){
             fillcolor: "rgba(255, 65, 54, 0.1)",
             type: 'scatter'
         };
-
         var middleThird = {
             x: dailyAverageDays,
             y: thirdsTraces[1],
@@ -542,7 +541,6 @@ Weight.find({}).exec(function (err, weights){
             fillcolor: "rgba(44, 160, 101, 0.4)",
             type: 'scatter'
         };
-
         var upperThird = {
             x: dailyAverageDays,
             y: thirdsTraces[2],
@@ -556,7 +554,6 @@ Weight.find({}).exec(function (err, weights){
             },
             type: 'scatter'
         };
-
         var thirdsLayout = {
             title: "Daily Herd Weight Average: Thirds",
             yaxis: {
@@ -566,9 +563,6 @@ Weight.find({}).exec(function (err, weights){
             showlegend: true,
             legend: {"orientation": "h"}
         };
-
-
-
         var allTags={};
 
         allTags.traces=[totalWeights];

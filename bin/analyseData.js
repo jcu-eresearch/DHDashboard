@@ -13,27 +13,27 @@ program
     .description("Generate the DigitalHomestead's static compressed data files.")
     .usage('[options]')
     .option('-o, --output_dir [output_dir]', 'The Directory to write the data files to.')
-    .option('-u, --username [username]', 'The Plotly Username.')
-    .option('-a, --api_key [api_key]', 'The Plotly API Key.')
+    // .option('-u, --username [username]', 'The Plotly Username.')
+    // .option('-a, --api_key [api_key]', 'The Plotly API Key.')
     .parse(process.argv);
 
 console.log(program.output_dir);
 console.log('');
 
-if(!program.username) {
-    console.log('Plotly Username required.');
-    console.log('');
-    program.outputHelp();
-    process.exit(1);
-}
-
-if(!program.api_key)
-{
-    console.log('Plotly API Key required.');
-    console.log('');
-    program.outputHelp();
-    process.exit(1);
-}
+// if(!program.username) {
+//     console.log('Plotly Username required.');
+//     console.log('');
+//     program.outputHelp();
+//     process.exit(1);
+// }
+//
+// if(!program.api_key)
+// {
+//     console.log('Plotly API Key required.');
+//     console.log('');
+//     program.outputHelp();
+//     process.exit(1);
+// }
 
 if(!program.output_dir)
 {
@@ -51,7 +51,7 @@ Wn3XnIZTL511VnlPo1M3
 * */
 
 
-var plotly = require('plotly')(program.username, program.api_key);
+// var plotly = require('plotly')(program.username, program.api_key);
 
 connectionsubject = mongoose.createConnection(db.urlSubjectViews);
 

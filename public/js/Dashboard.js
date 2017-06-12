@@ -249,7 +249,7 @@ homesteadApp.directive('plotly', [
 	function($window) {
 		return {
 			restrict: 'E',
-			template: '<div style="width:56vw; height: 500px" ><div id="loader" ng-if="activated" layout="column" style="height:100%" flex layout-align="center center"><md-progress-circular md-mode="indeterminate"  class="md-accent" ></md-progress-circular></div></div>',
+			template: '<div class="dashboard-graphs"  ><div id="loader" ng-if="activated" layout="column" style="height:100%" flex layout-align="center center"><md-progress-circular md-mode="indeterminate"  class="md-accent" ></md-progress-circular></div></div>',
 			scope: {
 				plotlyData: '=',
 				plotlyLayout: '=',

@@ -116,3 +116,36 @@ md-checkbox .md-icon {
 .alerted {
     color: red;
 }
+
+.dashboard-graphs{
+
+    width:40vw;
+    height: 500px
+}
+
+@media  (min-width: 600px)
+{
+    .dashboard-graphs{
+
+        width:45vw;
+        height: 500px
+    }
+}
+
+@media  (min-width: 690px)
+{
+    .dashboard-graphs{
+
+        width:50vw;
+        height: 500px
+    }
+}
+
+@media  (min-width: 1920px)
+{
+    .dashboard-graphs{
+
+        width:56vw;
+        height: 500px
+    }
+}

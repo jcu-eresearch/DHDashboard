@@ -53,6 +53,7 @@ function create_bucket(bucket, cb)
 
 function insert_weight(connectionsubject, message, unpacked_data) {
     var bucket = moment(message.time * 1000).format("YYYY_MM");
+    console.log("Inserting into Bucket: "+bucket);
     var reading = {
         id: unpacked_data.id,
         weight: unpacked_data.weight,

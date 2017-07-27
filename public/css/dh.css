@@ -465,6 +465,8 @@ a:active {
 .rad-sidebar li:hover .icon-bg {
     transform: translate3d(0, 0, 0);
 }
+
+
 .rad-sidebar li:hover a > i {
     color: white;
 }
@@ -1681,4 +1683,14 @@ md-checkbox .md-icon {
 
     width:40vw;
     height: 50vh;
+}
+
+
+/* for navbar selection*/
+.rad-sidebar-selected span{
+    transform: translate3d(0, 0, 0);
+}
+
+.rad-sidebar-selected a {
+    background: #28282a !important;
 }

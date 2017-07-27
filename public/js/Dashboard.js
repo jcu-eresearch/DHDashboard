@@ -1,5 +1,5 @@
 
-var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider']);
+var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider', 'gridster']);
 
 homesteadApp.config(function($mdThemingProvider) {
 
@@ -56,16 +56,30 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.alerts=false;
 
+    $scope.navItems = {
+        selected: null,
+        items : [
+            {name: "dash", ref:"#/", icon: "fa fa-dashboard", badge: "icon-bg rad-bg-success", text: "Dashboard"},
+            {name: "map", ref:"#map",  icon: "fa fa-map-marker", badge: "icon-bg rad-bg-danger", text: "Movement"},
+            {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg rad-bg-warning", text: "Details" }
+        ]
+    };
+
     $scope.$on('alerts', function() {
        $scope.alerts=true;
     });
 
 	$scope.currentNavItem='dash';
+
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
-		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1)
-			$scope.currentNavItem = current.$$route.originalPath.substring(1);
-		else
-			$scope.currentNavItem='dash';
+		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1) {
+		    debugger;
+            $scope.currentNavItem = current.$$route.originalPath.substring(1);
+        }
+		else {
+		    debugger;
+            $scope.currentNavItem = 'dash';
+        }
 
 	});
 
@@ -102,8 +116,8 @@ function tagDataService($http, $q) {
 	return service;
 
     function getStaticFile(callback) {
-        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){

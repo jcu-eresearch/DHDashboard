@@ -49,9 +49,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.8.0/lodash.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.1/ui-bootstrap.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.1/ui-bootstrap-tpls.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-	<script src="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.js"></script>
-	<script src="https://rawgit.com/krispo/angular-nvd3/v0.1.1/dist/angular-nvd3.js"></script>
+
+
 
 	<!-- gridster-->
 	<link rel="stylesheet" href="js/angular-gridster/dist/angular-gridster.min.css"/>
@@ -244,45 +243,6 @@
 							<li class="rad-dropmenu-footer"><a href="#">See all alerts</a></li>
 						</ul>
 					</li>
-					<!--<li class="rad-dropdown"><a class="rad-menu-item" href="#"><i class="fa fa-cog"></i></a>
-                                 <ul class="rad-dropmenu-item rad-settings">
-                                         <li class="rad-dropmenu-header"><a href="#">Settings</a></li>
-                                       <li class="rad-notification-item text-left">
-                                                 <div class="pull-left"><i class="fa fa-link"></i></div>
-                                                 <div class="pull-right"><label class="rad-chk-pin pull-right">
-                                                   <input type="checkbox"/><span></span></label></div>
-                                                 <div class="rad-notification-body">
-                                                         <div class="lg-text">Change to Flat Theme</div>
-                                                         <div class="sm-text">Flattify it</div>
-                                                 </div>
-                                         </li>
-                                       <li id="rad-color-opts" class="rad-notification-item text-left hide">
-                                                 <div class="pull-left"><i class="fa fa-puzzle-piece"></i></div>
-                                                 <div class="pull-right">
-                                                     <div class="rad-color-swatch">
-                                                         <label class="colors rad-bg-crimson rad-option-selected"><input type="radio" checked name="color" value="crimson"/></label>
-                                                         <label class="colors rad-bg-teal"><input type="radio" name="color" value="teal"/></label>
-                                                         <label class="colors rad-bg-orange"><input type="radio" name="color" value="orange"/></label>
-                                                     </div>
-                                                  </div>
-                                                 <div class="rad-notification-body">
-                                                         <div class="lg-text">Choose a color</div>
-                                                         <div class="sm-text">Make it colorful</div>
-                                                 </div>
-                                         </li>
-                                 </ul>
-                         </li>
-                         <li class="rad-dropdown">
-                                 <a class="rad-menu-item" href="#"><img class="rad-list-img sm-img" src="https://lh4.googleusercontent.com/-GXmmnYTuWkg/AAAAAAAAAAI/AAAAAAAAAAA/oK6DEDS7grM/w56-h56/photo.jpg" alt="me" /></a>
-                                 <ul class="rad-dropmenu-item sm-menu">
-                                         <li class="rad-notification-item">
-                                                 <a class="rad-notification-content lg-text" href="#"><i class="fa fa-edit"></i> My Profile</a>
-                                         </li>
-                                         <li class="rad-notification-item">
-                                                 <a class="rad-notification-content lg-text" href="#"><i class="fa fa-power-off"></i> Sign out</a>
-                                         </li>
-                                 </ul>
-                         </li>-->
 				</ul>
 			</div>
 		</nav>
@@ -292,28 +252,30 @@
 <aside>
 	<nav class="rad-sidebar ">
 		<ul>
-			<li>
-				<a ng-href="#/" name="dash" class="inbox" >
-					<i class="fa fa-dashboard"><span class="icon-bg rad-bg-success"></span></i>
-					<span class="rad-sidebar-item" >Dashboard</span>
-				</a>
-			</li>
-			<li>
-				<a ng-href="#detailed" name="detailed">
-					<i class="fa fa-bar-chart-o">
-						<span class="icon-bg rad-bg-danger"></span>
+
+			<li ng-repeat="item in navItems.items" ng-init="navItems.selected=navItems.items[0]" ng-class="{'rad-sidebar-selected': navItems.selected==item}" ng-click="navItems.selected=item">
+				<a ng-href="{{item.ref}}" name="{{item.name}}"  >
+					<i class="{{item.icon}}">
+						<span class="{{item.badge}}"></span>
 					</i>
-					<span class="rad-sidebar-item">Details</span>
+					<span class="rad-sidebar-item" >{{item.text}}</span>
 				</a>
 			</li>
-			<li><a href="#" class="snooz"><i class="fa fa-line-chart"><span class="icon-bg rad-bg-primary"></span></i><span class="rad-sidebar-item">Trends</span></a></li>
-			<li><a ng-href="#map" name="map" class="done"><i class="fa fa-map-marker"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Movement</span></a></li>
-			<li>
+
+			<li >
+				<a href="#" class="snooz">
+					<i class="fa fa-line-chart">
+						<span class="icon-bg rad-bg-primary"></span>
+					</i>
+					<span class="rad-sidebar-item">Trends</span></a>
+			</li>
+			<li >
 				<a href="#">
 					<i class="fa fa-wrench"><span class="icon-bg rad-bg-violet"></span></i>
 					<span class="rad-sidebar-item">Settings</span>
 				</a>
 			</li>
+
 		</ul>
 	</nav>
 </aside>

@@ -1,71 +1,41 @@
-<md-content class="background">
+<header class="rad-page-title">
+    <button class="btn" ng-click="showLiveData()" >
+        <i class="fa fa-rss"></i>View Live Data</button>
 
+    <h1>Dashboard</h1>
+    <small class="md-txt">Welcome,
+        <a href="#" target="_blank">
+            <i class="fa fa-map-marker rad-txt-danger"></i> Lansdown</a>
+    </small>
+</header>
+<rad-dashboard-grid>
 
+    <md-card>
+        <img  src="images/main2.png" class="md-card-image" alt="Washed Out">
+    </md-card>
 
-    <div class="lower" layout="row" layout-padding style="width:100%;" layout-align="stretch">
+    <div layout="row"  layout-align="stretch">
 
-        <md-content class="background " layout="column" flex="60" layout-fill layout-align="center center" >
-            <div style="height:78vh;">
-
-                <div class="card-panel" flex >
-                    <div class="card-content" >
-                        <md-card>
-                            <div class=" graph-container">
-                                <div layout="row"  >
-                                    <plotly plotly-data="allTags.thirdsTraces"
-                                            plotly-layout="allTags.thirdsLayout"
-                                    ></plotly>
-                                </div>
-                            </div>
-                        </md-card>
+        <div flex="50" style="height:50vh;">
+            <md-card>
+                <div class=" graph-container" >
+                    <div layout="row"  >
+                        <plotly plotly-data="allTags.thirdsTraces"
+                                plotly-layout="allTags.thirdsLayout"
+                        ></plotly>
                     </div>
                 </div>
-
-                <div class="card-panel" flex >
-                    <div class="card-content" >
-                        <md-card>
-                            <div class=" graph-container">
-                                <div layout="row"  >
-                                    <plotly plotly-data="allTags.traces"
-                                            plotly-layout="allTags.layout"
-                                    ></plotly>
-                                </div>
-                            </div>
-                        </md-card>
-                    </div>
-                </div>
-
-                <div class="card-panel" flex >
-                    <div class="card-content" >
-                        <md-card>
-                            <div class=" graph-container">
-                                <div layout="row"  >
-                                    <plotly plotly-data="weeklyTrace.traces"
-                                            plotly-layout="weeklyTrace.layout"
-                                    ></plotly>
-                                </div>
-                            </div>
-                        </md-card>
-                    </div>
-                </div>
-
-
-            </div>
-        </md-content>
-
-        <div flex="40" style="height:80vh;" >
-            <div class="card-panel"  flex>
-                <div class="card-content " >
-                    <md-card >
-
-                        <div  class="map-container" id="map" style="height:75vh; width: auto; "></div>
-
-                    </md-card>
-                </div>
-            </div>
+            </md-card>
         </div>
 
+        <div flex="50" style="height:50vh;" >
+            <md-card>
+                <div  class="map-container" id="map" style="height:48vh; width: auto; "></div>
 
+            </md-card>
+        </div>
 
     </div>
-</md-content>
+
+
+</rad-dashboard-grid>nt>

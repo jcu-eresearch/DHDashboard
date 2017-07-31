@@ -1573,7 +1573,7 @@ rad-panel .panel-body {
 
 
 .background  {
-    background-color: #F2F2F2;
+    background-color: #FAFAFA;
 }
 
 
@@ -1589,7 +1589,7 @@ rad-panel .panel-body {
 }
 
 .map-container{
-    margin: 15px;
+    margin: 0px;
 }
 
 .map-container-2{
@@ -1681,8 +1681,9 @@ md-checkbox .md-icon {
 
 .dashboard-graphs{
 
-    width:40vw;
-    height: 50vh;
+    width: auto;
+    height: 450px;
+    margin-top:0px;
 }
 
 

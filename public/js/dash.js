@@ -7,9 +7,10 @@ homesteadApp.controller('dashController', function($scope, $timeout, tagDataServ
     $scope.initDashMap=function() {
 
         map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -19.66574, lng: 146.8462},
+            center: {lat: -19.665, lng: 146.825},
             mapTypeId: 'hybrid',
-            zoom:14
+            zoom:14,
+            scrollwheel:  false
         });
 
         map.data.setStyle({
@@ -121,6 +122,58 @@ homesteadApp.controller('dashController', function($scope, $timeout, tagDataServ
         showlegend: false
     };
 
+    $scope.chart = {
+        chart: {
+            type: 'pieChart',
+            showLabels: false,
+            donut: true,
+            color : [ '#D9DD81', '#E67A77',  '#95D7BB'],
+            x: function(d){return d['key'];},
+            y: function(d){return d['y'];}
+        }
+    };
+
+    $scope.data = [
+        {
+            key: "Weight Gained",
+            y: 40
+        },
+        {
+            key: "Weight Lost ",
+            y: 23
+        },
+        {
+            key: "Same Weight",
+            y: 25
+        }
+    ];
+
+
+    $scope.chart1 = {
+        chart: {
+            type: 'pieChart',
+            showLabels: false,
+            donut: true,
+            color : [  '#D9DD81', '#79D1CF', '#95D7BB'],
+            x: function(d){return d['key'];},
+            y: function(d){return d['y'];}
+        }
+    };
+
+    $scope.data1 = [
+        {
+            key: "Total Weight Gained",
+            y: 400
+        },
+        {
+            key: "Total Weight Lost",
+            y: 200
+        }
+    ];
+
+
+
+
     $scope.init=function(){
 
         $timeout(function(){$scope.initDashMap();});
@@ -133,6 +186,12 @@ homesteadApp.controller('dashController', function($scope, $timeout, tagDataServ
         else {
             $scope.weeklyTrace = dashData.weeklyTrace;
             $scope.allTags = dashData;
+
+            if($scope.allTags.thirdsTraces){
+                $scope.allTags.thirdsTraces.forEach(function(d){
+                    d.mode="lines";
+                });
+            }
             if(dashData.alertedTags && dashData.alertedTags.length>0){
                 $scope.$emit('alerts');
             }
@@ -142,7 +201,30 @@ homesteadApp.controller('dashController', function($scope, $timeout, tagDataServ
             if(data) {
                 $scope.weeklyTrace = data.weeklyTrace;
                 $scope.allTags = data;
-                detailedTagDataService.addTagData(data)
+                debugger;
+
+                $scope.allTags.thirdsLayout.title=null;
+                $scope.allTags.thirdsLayout.margin= {
+                    l: 100,
+                    r: 50,
+                    b: 50,
+                    t: 10,
+                    pad: 4
+                };
+                var colors=["#95D7BB", "#D9DD81", "#79D1CF", "#E67A77"];
+                var fillColors=["rgba(149,215,187,0.5 )", "rgba(217,221,129,0.8)", "rgba(121,209,207,0.8)"];
+                if($scope.allTags.thirdsTraces){
+                    for(var i=0; i<$scope.allTags.thirdsTraces.length; i++){
+                        var d=$scope.allTags.thirdsTraces[i];
+                        d.mode="lines+markers";
+                        d.fillcolor= fillColors[i];
+                        d.line.color=colors[i];
+                    };
+                }
+                $scope.allTags.weeklyTrace.traces[0].marker.color= "#95D7BB";
+                $scope.allTags.weeklyTrace.traces[0].marker.opacity= "0.5";
+                detailedTagDataService.addTagData(data);
+
                 if (data.alertedTags && data.alertedTags.length > 0) {
                     $scope.$emit('alerts');
                 }

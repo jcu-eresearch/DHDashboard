@@ -10,32 +10,211 @@
 </header>
 <rad-dashboard-grid>
 
-    <md-card>
-        <img  src="images/main2.png" class="md-card-image" alt="Washed Out">
-    </md-card>
+    <div layout="row"  layout-align="stretch" >
+
+        <div flex="25" >
+            <md-card >
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline" ng-style="{color: '#23AE89'}">25</span>
+                        <span class="md-subhead">Animals Gained Weight </span>
+                    </md-card-title-text>
+                    <md-icon class="material-icons" style="font-size: 52px; margin-right: 20px; " ng-style="{color: '#95D7BB'}" >trending_up</md-icon>
+
+                    <!-- <span style="background: #95D7BB; border-radius: 50%; height: 50px; width: 50px">
+                        <md-icon class="material-icons"
+                                 style="font-size: 44px;   color: white; padding-left: 2px; padding-top:2px"
+                        >trending_up</md-icon>
+                     </span>
+                -->
+
+
+                </md-card-title>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button>View Animal Tags</md-button>
+                </md-card-actions>
+            </md-card>
+        </div>
+
+        <div flex="25" >
+            <md-card >
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline" ng-style="{color: '#afb530'}">5</span>
+                        <span class="md-subhead">Animals Lost Weight </span>
+                    </md-card-title-text>
+                    <md-icon class="material-icons" style="font-size: 52px; margin-right: 20px " ng-style="{color: '#D9DD81'}" >trending_down</md-icon>
+
+
+                </md-card-title>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button>View Animal Tags</md-button>
+                </md-card-actions>
+            </md-card>
+        </div>
+
+        <div flex="25" >
+            <md-card >
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline" ng-style="{color: '#45bfbd'}">100</span>
+                        <span class="md-subhead">Measurements </span>
+                    </md-card-title-text>
+                    <md-icon class="material-icons" style="font-size: 52px; margin-right: 20px " ng-style="{color: '#79D1CF'}" >equalizer</md-icon>
+
+
+                </md-card-title>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button>View</md-button>
+                </md-card-actions>
+            </md-card>
+        </div>
+
+        <div flex="25" >
+            <md-card >
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline" ng-style="{color: '#df5753'}">5 </span>
+                        <span class="md-subhead">Days Uptime </span>
+                    </md-card-title-text>
+                    <md-icon class="material-icons" style="font-size: 52px; margin-right: 20px " ng-style="{color: '#E67A77'}" >schedule</md-icon>
+
+                </md-card-title>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button>Latest Reading</md-button>
+                </md-card-actions>
+            </md-card>
+        </div>
+
+        </div>
+    </div>
 
     <div layout="row"  layout-align="stretch">
 
-        <div flex="50" style="height:50vh;">
+        <div flex="100"  >
             <md-card>
+                <div  class="map-container" id="map" style="height:500px; width: auto; "></div>
+
+            </md-card>
+        </div>
+    </div>
+
+    <div layout="row"  layout-align="stretch" >
+        <div flex="60" >
+
+            <md-card>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Herd Weight</span>
+                        <span class="md-subhead">Daily Herd Weight Average: Thirds</span>
+                    </md-card-title-text>
+                </md-card-title>
                 <div class=" graph-container" >
-                    <div layout="row"  >
-                        <plotly plotly-data="allTags.thirdsTraces"
-                                plotly-layout="allTags.thirdsLayout"
-                        ></plotly>
-                    </div>
+
+                    <plotly plotly-data="allTags.thirdsTraces"
+                            plotly-layout="allTags.thirdsLayout"
+                            plotly-options="{displayModeBar: false}"
+                    ></plotly>
+
+                </div>
+
+            </md-card>
+        </div>
+
+
+        <div flex="20" >
+            <md-card style="height:565px;">
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline" >Total Weight Gained/Lost</span>
+                        <span class="md-subhead">In the Last 24 Hours</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div  flex="100" >
+                    <nvd3 flex="100"  options='chart1' data='data1' api="chart1.api"></nvd3>
+
                 </div>
             </md-card>
         </div>
 
-        <div flex="50" style="height:50vh;" >
+        <div flex="20" >
+            <md-card style="height:565px;">
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline" >Animals</span>
+                        <span class="md-subhead">Gained/Lost in the Last 24 Hours</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div  flex="100" >
+                    <nvd3 flex="100"  options='chart' data='data' api="chart.api"></nvd3>
+
+                </div>
+            </md-card>
+        </div>
+
+
+
+    </div>
+
+   <!-- <md-card>
+        <img  src="images/main2.png" class="md-card-image" alt="Washed Out">
+    </md-card>-->
+
+    <div layout="row"  layout-align="stretch">
+
+        <div flex="60" >
+
             <md-card>
-                <div  class="map-container" id="map" style="height:48vh; width: auto; "></div>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Herd Weight</span>
+                        <span class="md-subhead">Weekly Herd Weight Averages</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div class=" graph-container" >
+
+                    <plotly plotly-data="weeklyTrace.traces"
+                            plotly-layout="weeklyTrace.layout"
+                            plotly-options="{displayModeBar: false}"
+                    ></plotly>
+
+                </div>
 
             </md-card>
         </div>
 
+
+
+        <div  flex="40" >
+            <md-card style="height:566px;">
+
+                <img  src="images/main.jpg"  height="350px" width="auto" alt="Washed Out">
+
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">Research Station</span>
+
+                    </md-card-title-text>
+                </md-card-title>
+
+
+
+                <md-card-actions layout="column" layout-align="start">
+                    <md-button>View Details</md-button>
+
+                </md-card-actions>
+            </md-card>
+        </div>
+
+
+
+
     </div>
+
+    <div layout="row"  layout-align="stretch">
+
+    </div>
+
 
 
 </rad-dashboard-grid>

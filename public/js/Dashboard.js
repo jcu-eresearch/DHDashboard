@@ -1,5 +1,5 @@
 
-var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider', 'gridster']);
+var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider', 'gridster', 'nvd3']);
 
 homesteadApp.config(function($mdThemingProvider) {
 
@@ -117,7 +117,7 @@ function tagDataService($http, $q) {
 
     function getStaticFile(callback) {
         //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        $http.get('data/weightsData.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){

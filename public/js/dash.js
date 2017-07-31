@@ -212,7 +212,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, tagDataServ
                     pad: 4
                 };
                 var colors=["#95D7BB", "#D9DD81", "#79D1CF", "#E67A77"];
-                var fillColors=["rgba(149,215,187,0.5 )", "rgba(217,221,129,0.8)", "rgba(121,209,207,0.8)"];
+                var fillColors=["rgba(149,215,187,0.5 )", "rgba(217,221,129,0.6)", "rgba(121,209,207,0.6)"];
                 if($scope.allTags.thirdsTraces){
                     for(var i=0; i<$scope.allTags.thirdsTraces.length; i++){
                         var d=$scope.allTags.thirdsTraces[i];

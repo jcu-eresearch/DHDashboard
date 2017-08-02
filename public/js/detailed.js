@@ -4,6 +4,12 @@ homesteadApp.controller('detailedController', function($scope, tagDataService, d
     $scope.selectedTag;
     $scope.tagGraphs=[];
 
+    //for the range slider
+    $scope.min = 0;
+    $scope.max = 200000;
+    $scope.lower = 0;
+    $scope.upper = 50000;
+
     $scope.init=function(){
 
         var detailedData=detailedTagDataService.getTagData();

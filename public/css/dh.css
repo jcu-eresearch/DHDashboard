@@ -1687,11 +1687,11 @@ md-checkbox .md-icon {
 }
 
 
-/* for navbar selection*/
+/* for navbar selection
 .rad-sidebar-selected span{
     transform: translate3d(0, 0, 0);
 }
-
+*/
 .rad-sidebar-selected a {
     background: #28282a !important;
 }

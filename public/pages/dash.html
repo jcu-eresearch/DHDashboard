@@ -31,7 +31,7 @@
 
                 </md-card-title>
                 <md-card-actions layout="row" layout-align="end center">
-                    <md-button>View Animal Tags</md-button>
+                    <md-button ng-click="showTagsGained()">View Animal Tags</md-button>
                 </md-card-actions>
             </md-card>
         </div>
@@ -44,11 +44,9 @@
                         <span class="md-subhead">Animals Lost Weight </span>
                     </md-card-title-text>
                     <md-icon class="material-icons" style="font-size: 52px; margin-right: 20px " ng-style="{color: '#D9DD81'}" >trending_down</md-icon>
-
-
                 </md-card-title>
                 <md-card-actions layout="row" layout-align="end center">
-                    <md-button>View Animal Tags</md-button>
+                    <md-button ng-click="showTagsLost()">View Animal Tags</md-button>
                 </md-card-actions>
             </md-card>
         </div>
@@ -65,7 +63,7 @@
 
                 </md-card-title>
                 <md-card-actions layout="row" layout-align="end center">
-                    <md-button>View</md-button>
+                    <md-button ng-click="showMeasurements()">View</md-button>
                 </md-card-actions>
             </md-card>
         </div>
@@ -81,7 +79,7 @@
 
                 </md-card-title>
                 <md-card-actions layout="row" layout-align="end center">
-                    <md-button>Latest Reading</md-button>
+                    <md-button ng-click="showLatestReading()">Latest Reading</md-button>
                 </md-card-actions>
             </md-card>
         </div>
@@ -110,14 +108,11 @@
                     </md-card-title-text>
                 </md-card-title>
                 <div class=" graph-container" >
-
                     <plotly plotly-data="allTags.thirdsTraces"
                             plotly-layout="allTags.thirdsLayout"
-                            plotly-options="{displayModeBar: false}"
-                    ></plotly>
-
+                            plotly-options="{displayModeBar: false}">
+                    </plotly>
                 </div>
-
             </md-card>
         </div>
 
@@ -132,7 +127,6 @@
                 </md-card-title>
                 <div  flex="100" >
                     <nvd3 flex="100"  options='chart1' data='data1' api="chart1.api"></nvd3>
-
                 </div>
             </md-card>
         </div>
@@ -163,7 +157,6 @@
     <div layout="row"  layout-align="stretch">
 
         <div flex="60" >
-
             <md-card>
                 <md-card-title >
                     <md-card-title-text layout-align="center center">
@@ -172,22 +165,17 @@
                     </md-card-title-text>
                 </md-card-title>
                 <div class=" graph-container" >
-
                     <plotly plotly-data="weeklyTrace.traces"
                             plotly-layout="weeklyTrace.layout"
-                            plotly-options="{displayModeBar: false}"
-                    ></plotly>
+                            plotly-options="{displayModeBar: false}">
 
+                    </plotly>
                 </div>
-
             </md-card>
         </div>
 
-
-
         <div  flex="40" >
             <md-card style="height:566px;">
-
                 <img  src="images/main.jpg"  height="350px" width="auto" alt="Washed Out">
 
                <!-- <md-card-title>
@@ -199,20 +187,11 @@
 
                 <md-card-actions layout="column" layout-align="start">
                     <md-button>View Details</md-button>
-
                 </md-card-actions>
             </md-card>
         </div>
 
-
-
-
     </div>
-
-    <div layout="row"  layout-align="stretch">
-
-    </div>
-
 
 
 </rad-dashboard-grid>

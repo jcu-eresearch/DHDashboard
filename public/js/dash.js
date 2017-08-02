@@ -1,4 +1,4 @@
-homesteadApp.controller('dashController', function($scope, $timeout, tagDataService, detailedTagDataService) {
+homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, tagDataService, detailedTagDataService) {
 
     $scope.currentNavItem = 'page1';
     $scope.allTags={};
@@ -230,6 +230,71 @@ homesteadApp.controller('dashController', function($scope, $timeout, tagDataServ
                 }
             }
         }
+
+        $scope.showTagsGained = function(ev) {
+            // Appending dialog to document.body to cover sidenav in docs app
+            // Modal dialogs should fully cover application
+            // to prevent interaction outside of dialog
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title('Animal Tags that Gained Weight in the Last 24 Hours')
+                    .textContent('List of Animal Tags Here')
+                    .ariaLabel('Animal Tags')
+                    .ok('Ok')
+                    .targetEvent(ev)
+            );
+        };
+
+        $scope.showTagsLost = function(ev) {
+            // Appending dialog to document.body to cover sidenav in docs app
+            // Modal dialogs should fully cover application
+            // to prevent interaction outside of dialog
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title('Animal Tags that Lost Weight in the Last 24 Hours')
+                    .textContent('List of Animal Tags Here')
+                    .ariaLabel('Animal Tags')
+                    .ok('Ok')
+                    .targetEvent(ev)
+            );
+        };
+
+        $scope.showMeasurements = function(ev) {
+            // Appending dialog to document.body to cover sidenav in docs app
+            // Modal dialogs should fully cover application
+            // to prevent interaction outside of dialog
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title('Measurements in the Last 24 Hours')
+                    .textContent('List of Measurements Here')
+                    .ariaLabel('Measurements')
+                    .ok('Ok')
+                    .targetEvent(ev)
+            );
+        };
+
+        $scope.showLatestReading = function(ev) {
+            // Appending dialog to document.body to cover sidenav in docs app
+            // Modal dialogs should fully cover application
+            // to prevent interaction outside of dialog
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title('Latest Reading in the Last 24 Hours')
+                    .textContent('Latest Reading Here')
+                    .ariaLabel('Latest Reading')
+                    .ok('Ok')
+                    .targetEvent(ev)
+            );
+        };
+
     };
     $scope.init();
 

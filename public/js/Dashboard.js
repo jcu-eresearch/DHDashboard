@@ -1,5 +1,5 @@
 
-var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider', 'gridster', 'nvd3']);
+var homesteadApp = angular.module('homesteadApp', ['ngMaterial', 'ngMessages', 'ngRoute','ui.slider', 'gridster', 'nvd3', 'mdRangeSlider']);
 
 homesteadApp.config(function($mdThemingProvider) {
 

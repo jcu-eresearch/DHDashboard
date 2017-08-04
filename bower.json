@@ -22,6 +22,11 @@
     "twix": "^1.1.5",
     "angular-gridster": "^0.13.15",
     "angular-nvd3": "^1.0.9",
-    "angular-route": "^1.6.5"
+    "angular-route": "^1.6.5",
+    "dcjs": "^2.1.8",
+    "plotlyjs": "plotly#^1.18.1",
+    "jquery": "^3.2.1",
+    "jquery-ui": "jqueryui#^1.12.1",
+    "lodash": "^4.17.4"
   }
 }

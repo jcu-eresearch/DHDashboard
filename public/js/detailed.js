@@ -29,7 +29,7 @@ homesteadApp.controller('detailedController', function($scope, tagDataService, d
                 $scope.tagGraphs = data.tagGraphs;
                 if ($scope.tagGraphs && $scope.tagGraphs.length > 0)
                     $scope.selectedTag = $scope.tagGraphs[0];
-                detailedTagDataService.addTagData(data)
+                detailedTagDataService.addTagData(data);
                 if (data.alertedTags && data.alertedTags.length > 0) {
                     $scope.$emit('alerts');
                 }

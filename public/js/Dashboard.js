@@ -49,6 +49,11 @@ homesteadApp.config(function($routeProvider) {
 		.when('/detailed', {
 			templateUrl : 'pages/detailed.html',
 			controller  : 'detailedController'
+		})
+
+		.when('/trends', {
+			templateUrl : 'pages/trends.html',
+			controller  : 'trendsController'
 		});
 });
 
@@ -61,7 +66,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
         items : [
             {name: "dash", ref:"#/", icon: "fa fa-dashboard", badge: "icon-bg rad-bg-success", text: "Dashboard"},
             {name: "map", ref:"#map",  icon: "fa fa-map-marker", badge: "icon-bg rad-bg-danger", text: "Movement"},
-            {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg rad-bg-warning", text: "Details" }
+            {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg rad-bg-warning", text: "Details" },
+			{name: "trends", ref:"#trends",  icon: "fa fa-line-chart", badge: "icon-bg rad-bg-primary", text: "Trends" }
         ]
     };
 
@@ -73,11 +79,11 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
 		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1) {
-		    debugger;
+
             $scope.currentNavItem = current.$$route.originalPath.substring(1);
         }
 		else {
-		    debugger;
+		    
             $scope.currentNavItem = 'dash';
         }
 
@@ -108,7 +114,7 @@ homesteadApp.factory('tagDataService', tagDataService);
 function tagDataService($http, $q) {
 
 	var service = {
-		//getAllTagData: getAllTagData,
+		getAllTagData: getAllTagData,
 		//getTestData: getTestData,
         getLocationData: getLocationData,
         getStaticFile: getStaticFile
@@ -117,7 +123,7 @@ function tagDataService($http, $q) {
 
     function getStaticFile(callback) {
         //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        $http.get('data/weightsData.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){
@@ -128,7 +134,7 @@ function tagDataService($http, $q) {
         	console.log("Error getting the data");
         }
     }
-/*
+
 	function getAllTagData(callback) {
 
 		var uri = "api/weights/buckets";
@@ -176,7 +182,7 @@ function tagDataService($http, $q) {
 			callback({success: false, message: 'Unable to fetch buckets'});
 		}
 
-	}*/
+	}
 
 	function getLocationData(callback){
 

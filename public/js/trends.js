@@ -1,17 +1,15 @@
 
 homesteadApp.controller('trendsController', function($scope, tagDataService, $rootScope, $timeout) {
 
-
     tagDataService.getAllTagData(renderCharts);
-
 
     function renderCharts(data){
 
         var filterChart = dc.barChart("#errorbar");
         var rangeChart = dc.barChart("#range-chart");
+        var table = dc.dataTable('#table');
 
         var dateFormat = d3.time.format.iso;
-
 
         data.forEach(function (d) {
             debugger;
@@ -23,6 +21,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
             d.month = d3.time.month(d.dd); // pre-calculate month for better performance
         });
 
+
+
         var ndx = crossfilter(data);
         var all = ndx.groupAll();
 
@@ -31,26 +31,17 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
         });
 
         var flagDimension = ndx.dimension(function (d) {return d.qa_flag;});
-
-        var weightDimension = ndx.dimension(function (d) {return d.weight;});
-
-        var tagDimension = ndx.dimension(function (d) {return d.id;});
-
-        var locationDimension = ndx.dimension(function (d) {return d.tag_id;});
-
-        var dayDimension = ndx.dimension(function (d) {return d.day;});
-
-        var weekDimension = ndx.dimension(function (d) {return d.week;});
-
-        var weekTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
-
-        var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
-
-        var monthTagsGroup = monthDimension.group().reduceCount(function(d) {return d.id;});
-
         flagDimension.filterExact("VALID");
-
-
+        var weightDimension = ndx.dimension(function (d) {return d.weight;});
+        var tagDimension = ndx.dimension(function (d) {return d.id;});
+        tagDimension.filterFunction(function (d) {return !(d =='-1');});
+        var locationDimension = ndx.dimension(function (d) {return d.tag_id;});
+        var dayDimension = ndx.dimension(function (d) {return d.day;});
+        var dateDimension = ndx.dimension(function (d) {return d.date;});
+        var weekDimension = ndx.dimension(function (d) {return d.week;});
+        var weekTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
+        var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
+        var monthTagsGroup = monthDimension.group().reduceCount(function(d) {return d.id;});
 
         $(document).ready(function () {
             $("#valueSlider").slider({
@@ -64,24 +55,21 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
                     $("#end").val(ui.values[1]);
                     if (document.getElementById("start").value != "") {
                         start = document.getElementById("start").value;
-                    }
-                    ;
+                    };
                     if (document.getElementById("end").value != "") {
                         end = document.getElementById("end").value;
-                    }
-                    ;
+                    };
                     weightDimension.filterRange([start, end]);
                     dc.redrawAll();
                     if ((ui.values[0] + 0.1 ) >= ui.values[1]) {
                         return false;
                     }
                 }
-
             });
         });
 
 
-        filterChart.width(1000).height(500)
+        filterChart.width(2000).height(500)
             .dimension(weekDimension)
             .group(weekTagsGroup)
             .transitionDuration(500)
@@ -95,7 +83,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
             .colors(["orange"])
             .yAxis().ticks(20);
 
-        rangeChart.width(1000) /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
+        rangeChart.width(2000) /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
             .height(40)
             .margins({top: 0, right: 50, bottom: 20, left: 50})
             .dimension(weekDimension)
@@ -108,98 +96,58 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
             .yAxis().ticks(0);
 
 
+       table
+            .dimension(tagDimension)
+            .group(function(d) {
+                return d.day;
+            })
+            .showGroups(false)
+            .size(50)
+            .sortBy(function(d) { return +d.weight; })
+            .columns(['Animal Tag',
+                {
+                    label: '',
+                    format: function(d) {
+                        return d.id;
+                    }
+                },
+                'Weight',
+                {
+                    label: '',
+                    format: function(d) {
+                        return d.weight;
+                    }
+                }]);
+
+        d3.select('#download')
+            .on('click', function() {
+                var data = tagDimension.top(Infinity);
+
+                data = data.sort(function(a, b) {
+                    return table.order()(table.sortBy()(a), table.sortBy()(b));
+                });
+                data = data.map(function(d) {
+                    var row = {};
+                    table.columns().forEach(function(c) {
+                        row[table._doColumnHeaderFormat(c)] = table._doColumnValueFormat(c, d);
+                    });
+                    return row;
+                });
+
+                var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
+                saveAs(blob, 'data.csv');
+            });
+
+
+
 
         dc.renderAll();
-        debugger;
+
     }
 
     function renderCharts2() {
 
-        var data = [{
-            "city": "New York",
-            "neighborhood": "Chinatown",
-            "likes": 25
-        }, {
-            "city": "New York",
-            "neighborhood": "Brooklyn",
-            "likes": 55
-        }, {
-            "city": "New York",
-            "neighborhood": "Queens",
-            "likes": 74
-        }, {
-            "city": "San Francisco",
-            "neighborhood": "Chinatown",
-            "likes": 10
-        }, {
-            "city": "San Francisco",
-            "neighborhood": "Downtown",
-            "likes": 66
-        }, {
-            "city": "Seattle",
-            "neighborhood": "N/A",
-            "likes": 80
-        }, {
-            "city": "Seattle",
-            "neighborhood": "Freemont",
-            "likes": 55
-        }];
 
-        var filterChart = dc.barChart("#errorbar");
-
-        var ndx = crossfilter(data),
-            likesDimension = ndx.dimension(function (d) {
-                return d.likes;
-            }),
-            cityDimension = ndx.dimension(function (d) {
-                return d.city;
-            }),
-            cityLikesGroup = cityDimension.group().reduceSum(function (d) {
-                return d.likes;
-            });
-
-        $(document).ready(function () {
-            $("#valueSlider").slider({
-                range: true,
-                min: 0,
-                max: 100,
-                step: 1,
-                values: [0, 100],
-                slide: function (event, ui) {
-                    $("#start").val(ui.values[0]);
-                    $("#end").val(ui.values[1]);
-                    if (document.getElementById("start").value != "") {
-                        start = document.getElementById("start").value;
-                    }
-                    ;
-                    if (document.getElementById("end").value != "") {
-                        end = document.getElementById("end").value;
-                    }
-                    ;
-                    likesDimension.filterRange([start, end]);
-                    dc.redrawAll();
-                    if ((ui.values[0] + 0.1 ) >= ui.values[1]) {
-                        return false;
-                    }
-                }
-
-            });
-        });
-
-
-        filterChart.width(500).height(500)
-            .dimension(cityDimension)
-            .group(cityLikesGroup)
-            .transitionDuration(500)
-            .elasticX(true)
-            .elasticY(true)
-            .x(d3.scale.ordinal())
-            .xUnits(dc.units.ordinal)
-            .colors(["orange"])
-            .yAxis().ticks(5);
-
-
-        dc.renderAll();
     }
     
 });

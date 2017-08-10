@@ -1,10 +1,22 @@
 
-homesteadApp.controller('trendsController', function($scope, tagDataService, $rootScope, $timeout) {
+homesteadApp.controller('trendsController', function($scope, tagDataService, detailedTagDataService,$rootScope, $timeout) {
 
-    tagDataService.getAllTagData(renderCharts);
+    //tagDataService.getAllTagData(renderCharts);
 
-    function renderCharts(data){
 
+    var dashData=detailedTagDataService.getTagData();
+
+    if(dashData==null){
+        tagDataService.getStaticFile(renderCharts);
+    }
+    else {
+       renderCharts(dashData);
+
+    }
+
+    function renderCharts(results){
+
+        var data=results.records;
         debugger;
 
         var filterChart = dc.barChart("#errorbar");
@@ -28,12 +40,13 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
             return d.month;
         });
 
-        var flagDimension = ndx.dimension(function (d) {return d.qa_flag;});
-        flagDimension.filterExact("VALID");
+        // var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: d[i].tag_id });
+        //var flagDimension = ndx.dimension(function (d) {return d.qa_flag;});
+        //flagDimension.filterExact("VALID");
         var weightDimension = ndx.dimension(function (d) {return d.weight;});
         var tagDimension = ndx.dimension(function (d) {return d.id;});
         tagDimension.filterFunction(function (d) {return !(d =='-1');});
-        var locationDimension = ndx.dimension(function (d) {return d.tag_id;});
+        var locationDimension = ndx.dimension(function (d) {return d.location;});
         var dayDimension = ndx.dimension(function (d) {return d.day;});
         var dateDimension = ndx.dimension(function (d) {return d.date;});
         var weekDimension = ndx.dimension(function (d) {return d.week;});

@@ -41,7 +41,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         });
 
         // var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: d[i].tag_id });
-        //var flagDimension = ndx.dimension(function (d) {return d.qa_flag;});
+        //var flagDimension = ndx.dimensionfunction (d) {return d.qa_flag;});
         //flagDimension.filterExact("VALID");
         var weightDimension = ndx.dimension(function (d) {return d.weight;});
         var tagDimension = ndx.dimension(function (d) {return d.id;});

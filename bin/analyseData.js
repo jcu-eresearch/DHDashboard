@@ -239,8 +239,8 @@ Weight.find({}).exec(function (err, weights){
                 trace1.x.push(d[0].datePosted);
                 trace1.y.push(d[0].weight);
 
-                //Push this initial reading into records
-                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: d[0].tag_id });
+                //Push this initial reading into records for trends page
+                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: d[0].tag_id, change: 0 });
 
                 trace1Counter++;
                 recordCounter++;
@@ -280,7 +280,7 @@ Weight.find({}).exec(function (err, weights){
             for(var i=1; i<d.length; i++){
                 var dt=d[i].datePosted, wt=d[i].weight;
 
-                //Push this initial reading into records
+                //Push this initial reading into records for trends page
                 var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: d[i].tag_id });
 
                 if(trace1Counter>0){
@@ -295,7 +295,11 @@ Weight.find({}).exec(function (err, weights){
                     if (count > 1) {
                         wt = dupSum / count;
                         trace1.y[trace1Counter - 1] = wt;
+
+                        //weight and change in weight for trends
                         records[recordCounter-1].weight=wt;
+                        if(trace1Counter>2)
+                            records[recordCounter-1].change=wt-records[recordCounter-2].weight;
 
                         tagDict[d[index-1].datePosted] = wt;
                         if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>0){
@@ -329,10 +333,13 @@ Weight.find({}).exec(function (err, weights){
 
                 trace1.x.push(dt);
                 trace1.y.push(wt);
+                trace1Counter++;
 
+                //weight and change in weight for trends
                 rec.weight=wt;
-
+                rec.change=wt-records[recordCounter-1].weight;
                 records.push(rec);
+                recordCounter++;
 
                 if(dailyIds[dt]){
                     dailyIds[dt][d[0].id]=1;
@@ -359,8 +366,7 @@ Weight.find({}).exec(function (err, weights){
                     dailyAverage[dt]=[];
                     dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt});
                 }
-                trace1Counter++;
-                recordCounter++;
+
                 tagDict[dt] = wt;
             }
 

@@ -43,6 +43,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         // var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: d[i].tag_id });
         //var flagDimension = ndx.dimensionfunction (d) {return d.qa_flag;});
         //flagDimension.filterExact("VALID");
+        var changeDimension =ndx.dimension(function(d){return d.change});
+
         var weightDimension = ndx.dimension(function (d) {return d.weight;});
         var tagDimension = ndx.dimension(function (d) {return d.id;});
         tagDimension.filterFunction(function (d) {return !(d =='-1');});
@@ -54,7 +56,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
         var monthTagsGroup = monthDimension.group().reduceCount(function(d) {return d.id;});
 
-        $(document).ready(function (){
+        /*$(document).ready(function (){
             $("#valueSlider").slider({
                 range: true,
                 min: 300,
@@ -71,6 +73,31 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                         end = document.getElementById("end").value;
                     };
                     weightDimension.filterRange([start, end]);
+                    dc.redrawAll();
+                    if ((ui.values[0] + 0.1 ) >= ui.values[1]) {
+                        return false;
+                    }
+                }
+            });
+        });*/
+
+        $(document).ready(function (){
+            $("#valueSlider").slider({
+                range: true,
+                min: 0,
+                max: 50,
+                step: 1,
+                values: [0, 50],
+                slide: function (event, ui) {
+                    $("#start").val(ui.values[0]);
+                    $("#end").val(ui.values[1]);
+                    if (document.getElementById("start").value != "") {
+                        start = document.getElementById("start").value;
+                    };
+                    if (document.getElementById("end").value != "") {
+                        end = document.getElementById("end").value;
+                    };
+                    changeDimension.filterRange([start, end]);
                     dc.redrawAll();
                     if ((ui.values[0] + 0.1 ) >= ui.values[1]) {
                         return false;

@@ -133,6 +133,25 @@ Weight.find({}).exec(function (err, weights){
         return new Date(curr.setDate(first)).toISOString().substr(0,10);
     }
 
+
+    /** utility function for calculating the difference between two dates **/
+    Date.daysBetween = function( d1, d2 ) {
+        //Get 1 day in milliseconds
+        var one_day=1000*60*60*24;
+
+        var date1=new Date(d1);
+        var date2=new Date(d2);
+        // Convert both dates to milliseconds
+        var date1_ms = date1.getTime();
+        var date2_ms = date2.getTime();
+
+        // Calculate the difference in milliseconds
+        var difference_ms = date2_ms - date1_ms;
+
+        // Convert back to days and return
+        return Math.round(difference_ms/one_day);
+    };
+
     /** Perform analysis on the weight data**/
     function analyseData(dataSet){
 
@@ -298,8 +317,11 @@ Weight.find({}).exec(function (err, weights){
 
                         //weight and change in weight for trends
                         records[recordCounter-1].weight=wt;
-                        if(trace1Counter>2)
-                            records[recordCounter-1].change=wt-records[recordCounter-2].weight;
+                        if(trace1Counter>2) {
+                            records[recordCounter - 1].change = wt - records[recordCounter - 2].weight;
+                            var btw=Date.daysBetween( records[recordCounter - 2].date,records[recordCounter - 1].date);
+                            if(btw>1)records[recordCounter - 1].change=records[recordCounter - 1].change/btw;
+                        }
 
                         tagDict[d[index-1].datePosted] = wt;
                         if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>0){
@@ -338,6 +360,8 @@ Weight.find({}).exec(function (err, weights){
                 //weight and change in weight for trends
                 rec.weight=wt;
                 rec.change=wt-records[recordCounter-1].weight;
+                var btwDays=Date.daysBetween( records[recordCounter-1].date,rec.date);
+                if(btwDays>1)rec.change=rec.change/btwDays;
                 records.push(rec);
                 recordCounter++;
 

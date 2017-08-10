@@ -21,7 +21,6 @@
 	<!--d3-->
 	<script src="js/d3/d3.js"></script>
 
-
 	<!--angular-->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
@@ -219,7 +218,7 @@
 									</div>
 									<div class="rad-notification-body">
 										<div class="lg-text">Google Account</div>
-										<div class="sm-text">sathishlxg@gmail.com</div>
+
 										<em class="pull-right sm-text"><i class="fa fa-clock-o"></i> 2 days ago</em>
 									</div>
 								</a>
@@ -236,7 +235,6 @@
 <aside>
 	<nav class="rad-sidebar ">
 		<ul>
-
 			<li ng-repeat="item in navItems.items" ng-init="navItems.selected=navItems.items[0]" ng-class="{'rad-sidebar-selected': navItems.selected==item}" ng-click="navItems.selected=item">
 				<a ng-href="{{item.ref}}" name="{{item.name}}"  >
 					<i class="{{item.icon}}">

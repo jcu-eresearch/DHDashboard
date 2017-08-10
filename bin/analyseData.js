@@ -155,7 +155,6 @@ Weight.find({}).exec(function (err, weights){
             showlegend: false
         };
 
-
         if(!dataSet){
             console.log("No data available");
             return;
@@ -165,7 +164,6 @@ Weight.find({}).exec(function (err, weights){
             return [item.id];
         });
 
-
         var firstDay=dataSet[0].date.toISOString().substr(0,10);
         var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
         var range=[];
@@ -173,6 +171,9 @@ Weight.find({}).exec(function (err, weights){
         while(itr.hasNext()){
             range.push((itr.next().toDate()).toISOString().substr(0,10));
         }
+
+        var records=[];
+        var recordCounter=0;
 
         /** Iterate over all the ids and generate the individual graph for each animal **/
         for(var j=0; j<idGroup.length; j++){
@@ -212,6 +213,8 @@ Weight.find({}).exec(function (err, weights){
 
                 if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 || d[a].weight>650 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
 
+                    //Not including outliers etc in records at this point otherwise push into records here
+
                     trace2.x.push(d[a].datePosted);
                     trace2.y.push(d[a].weight);
                     trace2Counter++;
@@ -224,8 +227,6 @@ Weight.find({}).exec(function (err, weights){
                 }
             }
 
-
-
             if(d[0] && d[0].id=='-1') {
                 idGroup.splice(j, 1);
                 j--;
@@ -237,7 +238,12 @@ Weight.find({}).exec(function (err, weights){
                 trace2["name"]='Outlier';
                 trace1.x.push(d[0].datePosted);
                 trace1.y.push(d[0].weight);
+
+                //Push this initial reading into records
+                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: d[0].tag_id });
+
                 trace1Counter++;
+                recordCounter++;
                 tagDict[d[0].datePosted]=d[0].weight;
                 if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
                     var sum=d[0].weight;
@@ -273,6 +279,10 @@ Weight.find({}).exec(function (err, weights){
             //take average of multiple readings during one day
             for(var i=1; i<d.length; i++){
                 var dt=d[i].datePosted, wt=d[i].weight;
+
+                //Push this initial reading into records
+                var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: d[i].tag_id });
+
                 if(trace1Counter>0){
                     var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;
                     if (d[index].datePosted == d[index - 1].datePosted)
@@ -285,6 +295,8 @@ Weight.find({}).exec(function (err, weights){
                     if (count > 1) {
                         wt = dupSum / count;
                         trace1.y[trace1Counter - 1] = wt;
+                        records[recordCounter-1].weight=wt;
+
                         tagDict[d[index-1].datePosted] = wt;
                         if(dailyAverage[dt] && dailyAverage[dt].length && dailyAverage[dt].length>0){
                             var sum=wt;
@@ -318,6 +330,10 @@ Weight.find({}).exec(function (err, weights){
                 trace1.x.push(dt);
                 trace1.y.push(wt);
 
+                rec.weight=wt;
+
+                records.push(rec);
+
                 if(dailyIds[dt]){
                     dailyIds[dt][d[0].id]=1;
                 }
@@ -344,6 +360,7 @@ Weight.find({}).exec(function (err, weights){
                     dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt});
                 }
                 trace1Counter++;
+                recordCounter++;
                 tagDict[dt] = wt;
             }
 
@@ -406,6 +423,7 @@ Weight.find({}).exec(function (err, weights){
 
                     //Prepare thirds graphs
                     var bin=Math.floor(dailyAverage[day].length/3);
+
                     if(dailyAverage[day]) {
                         var index0=thirdsTraces[0].length;
                         var index1=thirdsTraces[1].length;
@@ -413,17 +431,43 @@ Weight.find({}).exec(function (err, weights){
                         var count0=0;
                         var count1=0;
                         var count2=0;
-                        for (var i = 0; i < dailyAverage[day].length; i++) {
-                            if (i == 0) {thirdsTraces[0].push(dailyAverage[day][i].weight); count0++;}
-                            else if (i < bin) {thirdsTraces[0][index0] += dailyAverage[day][i].weight; count0++;}
-                            else if (i == bin ) {thirdsTraces[1].push(dailyAverage[day][i].weight); count1++;}
-                            else if (i < 2 * bin) {thirdsTraces[1][index1] += dailyAverage[day][i].weight; count1++;}
-                            else if (i == 2 * bin || bin==0) {thirdsTraces[2].push(dailyAverage[day][i].weight); count2++;}
-                            else if (i < d.length) {thirdsTraces[2][index2] += dailyAverage[day][i].weight; count2++;}
+                        for (var i = 0; i < dailyAverage[day].length; i++){
+
+                            if (i == 0) {
+                                thirdsTraces[0].push(dailyAverage[day][i].weight);
+                                count0++;
+                            }
+                            else if (i < bin){
+                                thirdsTraces[0][index0] += dailyAverage[day][i].weight;
+                                count0++;
+                            }
+                            else if (i == bin ){
+                                thirdsTraces[1].push(dailyAverage[day][i].weight);
+                                count1++;
+                            }
+                            else if (i < 2 * bin){
+                                thirdsTraces[1][index1] += dailyAverage[day][i].weight;
+                                count1++;
+                            }
+                            else if (i == 2 * bin || bin==0){
+                                thirdsTraces[2].push(dailyAverage[day][i].weight);
+                                count2++;
+                            }
+                            else if (i < d.length){
+                                thirdsTraces[2][index2] += dailyAverage[day][i].weight;
+                                count2++;
+                            }
+
                         }
-                        if(thirdsTraces[0][index0] && count0>0) thirdsTraces[0][index0]/=count0; else thirdsTraces[0][index0]=NaN;
-                        if(thirdsTraces[1][index1] && count1>0) thirdsTraces[1][index1]/=count1; else thirdsTraces[1][index1]=NaN;
-                        if(thirdsTraces[2][index2] && count2>0) thirdsTraces[2][index2]/=count2; else thirdsTraces[2][index2]=NaN;
+                        if(thirdsTraces[0][index0] && count0>0)
+                            thirdsTraces[0][index0]/=count0;
+                        else thirdsTraces[0][index0]=NaN;
+                        if(thirdsTraces[1][index1] && count1>0)
+                            thirdsTraces[1][index1]/=count1;
+                        else thirdsTraces[1][index1]=NaN;
+                        if(thirdsTraces[2][index2] && count2>0)
+                            thirdsTraces[2][index2]/=count2;
+                        else thirdsTraces[2][index2]=NaN;
                     }
                 }
             }
@@ -550,6 +594,7 @@ Weight.find({}).exec(function (err, weights){
 
         allTags.tagGraphs=tagGraphs;
         allTags.alertedTags=alertedTags;
+        allTags.records=records;
 
         createStaticFile(allTags);
 

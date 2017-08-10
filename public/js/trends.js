@@ -5,6 +5,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
 
     function renderCharts(data){
 
+        debugger;
+
         var filterChart = dc.barChart("#errorbar");
         var rangeChart = dc.barChart("#range-chart");
         var table = dc.dataTable('#table');
@@ -12,21 +14,17 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
         var dateFormat = d3.time.format.iso;
 
         data.forEach(function (d) {
-            debugger;
             if(!d || d==null || d==undefined || d.date==undefined) return;
             d.dd = dateFormat.parse(d.date);
-            debugger;
             d.day=d3.time.day(d.dd);
             d.week=d3.time.week(d.dd);
             d.month = d3.time.month(d.dd); // pre-calculate month for better performance
         });
 
-
-
         var ndx = crossfilter(data);
         var all = ndx.groupAll();
 
-        var monthDimension = ndx.dimension(function (d) {
+        var monthDimension = ndx.dimension(function (d){
             return d.month;
         });
 
@@ -43,7 +41,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
         var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
         var monthTagsGroup = monthDimension.group().reduceCount(function(d) {return d.id;});
 
-        $(document).ready(function () {
+        $(document).ready(function (){
             $("#valueSlider").slider({
                 range: true,
                 min: 300,
@@ -68,10 +66,9 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
             });
         });
 
-
         filterChart.width(2000).height(500)
-            .dimension(weekDimension)
-            .group(weekTagsGroup)
+            .dimension(dayDimension)
+            .group(dayTagsGroup)
             .transitionDuration(500)
             .margins({top: 30, right: 50, bottom: 25, left: 50})
             .elasticY(true)
@@ -86,8 +83,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
         rangeChart.width(2000) /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
             .height(40)
             .margins({top: 0, right: 50, bottom: 20, left: 50})
-            .dimension(weekDimension)
-            .group(weekTagsGroup)
+            .dimension(dayDimension)
+            .group(dayTagsGroup)
             .centerBar(true)
             .gap(1)
             .x(d3.time.scale().domain([new Date(2016, 06, 1), new Date(2017, 05, 04)]))
@@ -139,15 +136,10 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, $ro
             });
 
 
-
-
         dc.renderAll();
 
     }
 
-    function renderCharts2() {
 
-
-    }
     
 });

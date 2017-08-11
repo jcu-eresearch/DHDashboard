@@ -22,6 +22,13 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var filterChart = dc.barChart("#errorbar");
         var rangeChart = dc.barChart("#range-chart");
         var table = dc.dataTable('#table');
+        var gainOrLossChart = dc.pieChart('#gain-loss-chart');
+        var quarterChart = dc.pieChart('#quarter-chart');
+        var dayOfWeekChart = dc.rowChart('#day-of-week-chart');
+
+
+
+
 
         var dateFormat = d3.time.format.iso;
 
@@ -45,32 +52,121 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         //flagDimension.filterExact("VALID");
         var changeDimension =ndx.dimension(function(d){return d.change});
 
+        var gainOrLoss = ndx.dimension(function (d) {
+            return d.change < 0 ? 'Loss' : 'Gain';
+        });
+
+        var gainOrLossGroup = gainOrLoss.group();
+
         var weightDimension = ndx.dimension(function (d) {return d.weight;});
         var tagDimension = ndx.dimension(function (d) {return d.id;});
         tagDimension.filterFunction(function (d) {return !(d =='-1');});
-        var locationDimension = ndx.dimension(function (d) {return d.location;});
+
         var dayDimension = ndx.dimension(function (d) {return d.day;});
         var dateDimension = ndx.dimension(function (d) {return d.date;});
         var weekDimension = ndx.dimension(function (d) {return d.week;});
         var weekTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
         var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
         var monthTagsGroup = monthDimension.group().reduceCount(function(d) {return d.id;});
+        var locationDimension = ndx.dimension(function(d) { return d.location; });
+        var locationGroup = locationDimension.group().reduceCount(function(d) {return d.id;});
 
-        /*$(document).ready(function (){
-            $("#valueSlider").slider({
+
+        var quarter = ndx.dimension(function (d) {
+            var month = d.dd.getMonth();
+            if (month <= 2) {
+                return 'Q1';
+            } else if (month > 2 && month <= 5) {
+                return 'Q2';
+            } else if (month > 5 && month <= 8) {
+                return 'Q3';
+            } else {
+                return 'Q4';
+            }
+        });
+        var quarterGroup = quarter.group().reduceCount(function (d) {
+            return d.id;
+        });
+
+        var dayOfWeek = ndx.dimension(function (d) {
+            var day = d.dd.getDay();
+            var name = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            return day + '.' + name[day];
+        });
+        var dayOfWeekGroup = dayOfWeek.group();
+
+
+
+        var marker = dc.leafletMarkerChart("#leaflet-map")
+            .dimension(locationDimension)
+            .group(locationGroup)
+            .center([ -19.665,146.825])
+            .zoom(12)
+            .width(600)
+            .height(400)
+            .fitOnRender(true)
+            .fitOnRedraw(true)
+            .cluster(false);
+
+
+
+
+        //dc.renderAll(groupname);
+
+        quarterChart /* dc.pieChart('#quarter-chart', 'chartGroup') */
+            .width(180)
+            .height(180)
+            .radius(80)
+            .innerRadius(30)
+            .dimension(quarter)
+            .group(quarterGroup)
+            .ordinalColors([
+                '#6baed6',
+                '#95D7BB',
+                '#D9DD81',
+                '#79D1CF',
+                '#c6dbef',
+                '#dadaeb']);
+
+        dayOfWeekChart /* dc.rowChart('#day-of-week-chart', 'chartGroup') */
+            .width(180)
+            .height(180)
+            .margins({top: 20, left: 10, right: 10, bottom: 20})
+            .group(dayOfWeekGroup)
+            .dimension(dayOfWeek)
+            .ordinalColors([
+                '#3182bd',
+                '#6baed6',
+                '#95D7BB',
+                '#D9DD81',
+                '#79D1CF',
+                '#c6dbef',
+                '#dadaeb'])
+            .label(function (d) {
+                return d.key.split('.')[1];
+            })
+            .title(function (d) {
+                return d.value;
+            })
+            .elasticX(true)
+            .xAxis().ticks(4);
+
+        $(document).ready(function (){
+            $("#weightSlider").slider({
                 range: true,
                 min: 300,
                 max: 650,
                 step: 1,
                 values: [300, 650],
                 slide: function (event, ui) {
-                    $("#start").val(ui.values[0]);
-                    $("#end").val(ui.values[1]);
-                    if (document.getElementById("start").value != "") {
-                        start = document.getElementById("start").value;
+                    var start, end
+                    $("#startWeight").val(ui.values[0]);
+                    $("#endWeight").val(ui.values[1]);
+                    if (document.getElementById("startWeight").value != "") {
+                        start = document.getElementById("startWeight").value;
                     };
-                    if (document.getElementById("end").value != "") {
-                        end = document.getElementById("end").value;
+                    if (document.getElementById("endWeight").value != "") {
+                        end = document.getElementById("endWeight").value;
                     };
                     weightDimension.filterRange([start, end]);
                     dc.redrawAll();
@@ -79,23 +175,21 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                     }
                 }
             });
-        });*/
-
-        $(document).ready(function (){
-            $("#valueSlider").slider({
+            $("#changeSlider").slider({
                 range: true,
-                min: 0,
-                max: 50,
+                min: -60,
+                max: 60,
                 step: 1,
-                values: [0, 50],
+                values: [-60, 60],
                 slide: function (event, ui) {
-                    $("#start").val(ui.values[0]);
-                    $("#end").val(ui.values[1]);
-                    if (document.getElementById("start").value != "") {
-                        start = document.getElementById("start").value;
+                    var start, end;
+                    $("#startChange").val(ui.values[0]);
+                    $("#endChange").val(ui.values[1]);
+                    if (document.getElementById("startChange").value != "") {
+                        start = document.getElementById("startChange").value;
                     };
-                    if (document.getElementById("end").value != "") {
-                        end = document.getElementById("end").value;
+                    if (document.getElementById("endChange").value != "") {
+                        end = document.getElementById("endChange").value;
                     };
                     changeDimension.filterRange([start, end]);
                     dc.redrawAll();
@@ -104,9 +198,52 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                     }
                 }
             });
+
+            $("#topKSlider").slider({
+                range: false,
+                step: 1,
+                max: 100 ,
+                slide: function (event, ui) {
+                    var val;
+                    $("#startTopK").val(ui.value);
+
+                    if (document.getElementById("startTopK").value != "") {
+                        val = document.getElementById("startTopK").value;
+                    };
+
+                    changeDimension.top(val);
+                    dc.redrawAll();
+                }
+            });
         });
 
-        filterChart.width(2000).height(500)
+        $(document).ready(function (){
+
+        });
+
+
+        var colorScale = d3.scale.ordinal().range(["#95D7BB", "#D9DD81", "#79D1CF", "#E67A77"]);
+        gainOrLossChart
+            .width(180)
+            .height(180)
+            .radius(80)
+            .dimension(gainOrLoss)
+            .group(gainOrLossGroup)
+            .label(function (d) {
+                if (gainOrLossChart.hasFilter() && !gainOrLossChart.hasFilter(d.key)) {
+                    return d.key ;
+                }
+                var label = d.key;
+                return label;
+            })
+            .renderLabel(true)
+
+            .transitionDuration(500)
+            .colors(colorScale);
+            //.colorDomain([-1750, 1644])
+            //.colorAccessor(function(d, i){return d.value;})
+
+        filterChart.height(700)
             .dimension(dayDimension)
             .group(dayTagsGroup)
             .transitionDuration(500)
@@ -117,19 +254,19 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .centerBar(true)
             .gap(1)
             .xUnits(d3.time.days)
-            .colors(["orange"])
+            .colors(["#95D7BB"])
             .yAxis().ticks(20);
 
-        rangeChart.width(2000) /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
+        rangeChart /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
             .height(40)
-            .margins({top: 0, right: 50, bottom: 20, left: 50})
+            .margins({top: 10, right: 50, bottom: 20, left: 50})
             .dimension(dayDimension)
             .group(dayTagsGroup)
             .centerBar(true)
             .gap(1)
             .x(d3.time.scale().domain([new Date(2016, 06, 1), new Date(2017, 05, 04)]))
             .xUnits(d3.time.days)
-            .colors(["orange"])
+            .colors(["#95D7BB"])
             .yAxis().ticks(0);
 
 
@@ -156,8 +293,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                     }
                 }]);
 
-        d3.select('#download')
-            .on('click', function() {
+         $scope.downloadData=function(){
                 var data = tagDimension.top(Infinity);
 
                 data = data.sort(function(a, b) {
@@ -173,7 +309,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
                 var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
                 saveAs(blob, 'data.csv');
-            });
+            };
 
 
         dc.renderAll();

@@ -152,6 +152,12 @@ Weight.find({}).exec(function (err, weights){
         return Math.round(difference_ms/one_day);
     };
 
+    function tagIdToLatLong(tag){
+
+        if(tag=="110177") return"-19.66882,146.864";
+        else if(tag=="110171") return"-19.66574,146.8462";
+        else if(tag=="110163") return "-19.66872,146.8642";
+    }
     /** Perform analysis on the weight data**/
     function analyseData(dataSet){
 
@@ -259,7 +265,7 @@ Weight.find({}).exec(function (err, weights){
                 trace1.y.push(d[0].weight);
 
                 //Push this initial reading into records for trends page
-                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: d[0].tag_id, change: 0 });
+                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0 });
 
                 trace1Counter++;
                 recordCounter++;
@@ -300,7 +306,7 @@ Weight.find({}).exec(function (err, weights){
                 var dt=d[i].datePosted, wt=d[i].weight;
 
                 //Push this initial reading into records for trends page
-                var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: d[i].tag_id });
+                var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: tagIdToLatLong(d[i].tag_id) });
 
                 if(trace1Counter>0){
                     var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;

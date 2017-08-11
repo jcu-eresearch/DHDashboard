@@ -276,7 +276,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                 return d.day;
             })
             .showGroups(false)
-            .size(50)
+            .size(10)
             .sortBy(function(d) { return +d.weight; })
             .columns(['Animal Tag',
                 {
@@ -291,7 +291,9 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                     format: function(d) {
                         return d.weight;
                     }
-                }]);
+                }])
+           .on('renderlet', function (table) {
+               table.selectAll('.dc-table-group').classed('info', true)});
 
          $scope.downloadData=function(){
                 var data = tagDimension.top(Infinity);

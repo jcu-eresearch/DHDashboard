@@ -153,11 +153,11 @@ Weight.find({}).exec(function (err, weights){
     };
 
     function tagIdToLatLong(tag){
-
         if(tag=="110177") return"-19.66882,146.864";
         else if(tag=="110171") return"-19.66574,146.8462";
         else if(tag=="110163") return "-19.66872,146.8642";
     }
+
     /** Perform analysis on the weight data**/
     function analyseData(dataSet){
 

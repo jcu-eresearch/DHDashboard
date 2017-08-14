@@ -71,7 +71,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
         ]
     };
 
-    $scope.$on('alerts', function() {
+    $scope.$on('alerts', function(){
        $scope.alerts=true;
     });
 
@@ -79,17 +79,14 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
 		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1) {
-
             $scope.currentNavItem = current.$$route.originalPath.substring(1);
         }
 		else {
-		    
             $scope.currentNavItem = 'dash';
         }
-
 	});
 
-	$scope.showLiveData = function() {
+	$scope.showLiveData = function(){
 		$scope.alert = '';
 		$mdBottomSheet.show({
 			templateUrl: 'templates/live.templ.html',

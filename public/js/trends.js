@@ -26,10 +26,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var quarterChart = dc.pieChart('#quarter-chart');
         var dayOfWeekChart = dc.rowChart('#day-of-week-chart');
 
-
-
-
-
         var dateFormat = d3.time.format.iso;
 
         data.forEach(function (d) {
@@ -71,7 +67,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var locationDimension = ndx.dimension(function(d) { return d.location; });
         var locationGroup = locationDimension.group().reduceCount(function(d) {return d.id;});
 
-
         var quarter = ndx.dimension(function (d) {
             var month = d.dd.getMonth();
             if (month <= 2) {
@@ -95,8 +90,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         });
         var dayOfWeekGroup = dayOfWeek.group();
 
-
-
         var marker = dc.leafletMarkerChart("#leaflet-map")
             .dimension(locationDimension)
             .group(locationGroup)
@@ -107,9 +100,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .fitOnRender(true)
             .fitOnRedraw(true)
             .cluster(false);
-
-
-
 
         //dc.renderAll(groupname);
 
@@ -276,7 +266,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                 return d.day;
             })
             .showGroups(false)
-            .size(10)
+            .size(Infinity)
             .sortBy(function(d) { return +d.weight; })
             .columns(['Animal Tag',
                 {
@@ -295,25 +285,74 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
            .on('renderlet', function (table) {
                table.selectAll('.dc-table-group').classed('info', true)});
 
+
+
+
+       /* d3.select('#download')
+            .on('click', function() {
+                var data = nameDim.top(Infinity);
+                if(d3.select('#download-type input:checked').node().value==='table') {
+                    data = data.sort(function(a, b) {
+                        return table.order()(table.sortBy()(a), table.sortBy()(b));
+                    });
+                    data = data.map(function(d) {
+                        var row = {};
+                        table.columns().forEach(function(c) {
+                            row[table._doColumnHeaderFormat(c)] = table._doColumnValueFormat(c, d);
+                        });
+                        return row;
+                    });
+                }
+                var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
+                saveAs(blob, 'data.csv');
+            });
+
+*/
+
+
+
          $scope.downloadData=function(){
                 var data = tagDimension.top(Infinity);
 
-                data = data.sort(function(a, b) {
-                    return table.order()(table.sortBy()(a), table.sortBy()(b));
-                });
-                data = data.map(function(d) {
-                    var row = {};
-                    table.columns().forEach(function(c) {
-                        row[table._doColumnHeaderFormat(c)] = table._doColumnValueFormat(c, d);
-                    });
-                    return row;
-                });
+
 
                 var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
                 saveAs(blob, 'data.csv');
-            };
+         };
 
 
+
+
+
+        var ofs = 0, pag = 10;
+        function display() {
+            d3.select('#begin')
+                .text(ofs);
+            d3.select('#end')
+                .text(ofs+pag-1);
+            d3.select('#last')
+                .attr('disabled', ofs-pag<0 ? 'true' : null);
+            d3.select('#next')
+                .attr('disabled', ofs+pag>=ndx.size() ? 'true' : null);
+            d3.select('#size').text(ndx.size());
+        }
+        function update() {
+            table.beginSlice(ofs);
+            table.endSlice(ofs+pag);
+            display();
+        }
+        $scope.next= function() {
+            ofs += pag;
+            update();
+            table.redraw();
+        }
+        $scope.last = function() {
+            ofs -= pag;
+            update();
+            table.redraw();
+        }
+
+        update();
         dc.renderAll();
 
     }

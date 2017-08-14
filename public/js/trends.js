@@ -248,7 +248,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .yAxis().ticks(20);
 
         rangeChart /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
-            .height(40)
+            .height(60)
             .margins({top: 10, right: 50, bottom: 20, left: 50})
             .dimension(dayDimension)
             .group(dayTagsGroup)

@@ -2,7 +2,7 @@
 
 <header class="rad-page-title">
     <button class="btn" ng-click="downloadData()" >
-        <i class="fa fa-download"></i>Download Tags</button>
+        <i class="fa fa-download"></i>Download Filtered Tags</button>
 
     <h1>Explore Animal Weight Trends</h1>
     <small class="md-txt">Welcome,
@@ -16,6 +16,12 @@
 
         <div layout="column" flex="25" layout-align="stretch">
             <md-card>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Weight Range</span>
+                        <span class="md-subhead">Filter by Weight/Weight Change Range</span>
+                    </md-card-title-text>
+                </md-card-title>
                 <div style="margin-left: 50px">
                     Weight (KG):  Start:<input type="text"  id="startWeight" style="margin-top:10px ;border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=300 ></input>
                     End:<input type="text"  id="endWeight" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=650></input>
@@ -37,7 +43,13 @@
             </md-card>
 
             <md-card>
-                <div id="leaflet-map" style="width:100%;height:600px;clear:both"></div>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Walk Over Weigher Locations</span>
+                        <span class="md-subhead">Filter by Location</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div id="leaflet-map" style="width:100%;height:400px;clear:both"></div>
             </md-card>
         </div>
 
@@ -49,23 +61,47 @@
                 </md-card-title-text>
             </md-card-title>
             <div id="errorbar"></div>
-            <div style="margin-bottom: 20px" id="range-chart"></div>
+            <div style="margin-bottom: 20px;" id="range-chart"></div>
         </md-card>
     </div>
 
     <div layout="row"  layout-align="stretch" >
             <md-card  flex="25" layout-align="center center">
-                <div id='gain-loss-chart'><span></span></div>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Number of Animals that Lost/Gained Weight</span>
+                        <span class="md-subhead">Filter by Weight Lost/Gained</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div style="margin-bottom: 20px;" id='gain-loss-chart'><span></span></div>
             </md-card>
             <md-card  flex="25" layout-align="center center">
-                <div id='quarter-chart'><span></span></div>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Number of Animals/Quarter Year</span>
+                        <span class="md-subhead">Filter by Quarter</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div style="margin-bottom: 20px;" id='quarter-chart'><span></span></div>
             </md-card>
             <md-card  flex="25" layout-align="center center">
-                <div id='day-of-week-chart'><span></span></div>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Number of Animals/Day of the Week</span>
+                        <span class="md-subhead">Filter by Day of the Week</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div style="margin-bottom: 20px;" id='day-of-week-chart'><span></span></div>
             </md-card>
-            <md-card flex="25" class="md-padding">
+            <md-card flex="25" class="md-padding" layout-align="center center">
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Selected Animal Tags</span>
+                        <span class="md-subhead">Download Using the Button at the Top</span>
+                    </md-card-title-text>
+                </md-card-title>
                 <div id="table"></div>
-                <div id="paging">
+                <div  id="paging">
                     Showing <span id="begin"></span>-<span id="end"></span> of <span id="size"></span>.
                     <input id="last" class="btn" type="Button" value="Last" ng-click="last()" />
                     <input id="next" class="btn" type="button" value="Next" ng-click="next()"/>

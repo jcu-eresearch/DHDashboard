@@ -1552,6 +1552,8 @@ rad-panel .panel-body {
     -webkit-transition: all .2s linear;
 }
 
+
+/**********************/
 .modal-content {
     margin-top: 130px;
 }
@@ -1632,45 +1634,6 @@ md-nav-bar md-nav-ink-bar {
 }
 
 
-
-.ui-slider-tick {
-    position: absolute;
-    background-color: #aaa;
-    width: 2px;
-    height: 8px;
-    top: 16px;
-}
-
-.ui-slider {
-    position: relative;
-}
-
-.ui-slider-out-of-bounds {
-    position: absolute;
-    background-color: #EEE;
-    height: 100%;
-}
-
-.ui-slider-tip {
-    position: absolute;
-    top: 2px;
-    left: 0px;
-    width: 21px;
-    text-align: center;
-    font-size: 0.8em;
-}
-
-.slider-text{
-
-    color: white;
-
-}
-
-.slider-padding{
-    margin-left: 20px;
-    margin-right: 20px;
-}
-
 md-checkbox .md-icon {
     background-color: white;
 }
@@ -1694,4 +1657,36 @@ md-checkbox .md-icon {
 */
 .rad-sidebar-selected a {
     background: #28282a !important;
+}
+
+
+/***********/
+
+
+.slider-control {
+    height: 1em;
+    padding-top: .5em;
+}
+
+.ui-slider{
+
+    height: 2px;
+    border: 1px solid gray;
+}
+
+.ui-slider-handle {
+    height: 1em;
+    width: 1em;
+    border: 1px solid gray;
+    border-radius: 10px;
+    margin-top: -5px;
+    background: #fff;
+    cursor: pointer;
+}
+.ui-slider-handle:hover {
+    background: #ddd;
+}
+
+*:focus {
+    outline: none;
 }

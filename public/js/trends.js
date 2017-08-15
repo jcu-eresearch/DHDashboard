@@ -127,7 +127,7 @@ debugger;
         dayOfWeekChart /* dc.rowChart('#day-of-week-chart', 'chartGroup') */
             .width(180)
             .height(180)
-            .margins({top: 20, left: 10, right: 10, bottom: 20})
+            .margins({top: 0, left: 30, right: 30, bottom: 30})
             .group(dayOfWeekGroup)
             .dimension(dayOfWeek)
             .ordinalColors([
@@ -295,30 +295,6 @@ debugger;
 
 
 
-
-       /* d3.select('#download')
-            .on('click', function() {
-                var data = nameDim.top(Infinity);
-                if(d3.select('#download-type input:checked').node().value==='table') {
-                    data = data.sort(function(a, b) {
-                        return table.order()(table.sortBy()(a), table.sortBy()(b));
-                    });
-                    data = data.map(function(d) {
-                        var row = {};
-                        table.columns().forEach(function(c) {
-                            row[table._doColumnHeaderFormat(c)] = table._doColumnValueFormat(c, d);
-                        });
-                        return row;
-                    });
-                }
-                var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
-                saveAs(blob, 'data.csv');
-            });
-
-*/
-
-
-
          $scope.downloadData=function(){
                 var data = tagDimension.top(Infinity);
 
@@ -327,13 +303,6 @@ debugger;
                 var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
                 saveAs(blob, 'data.csv');
          };
-
-
-
-
-
-
-
 
 
         var ofs = 0, pag = 10;

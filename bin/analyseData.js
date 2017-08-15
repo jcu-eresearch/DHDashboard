@@ -265,20 +265,21 @@ Weight.find({}).exec(function (err, weights){
                 trace1.y.push(d[0].weight);
 
                 //Push this initial reading into records for trends page
-                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0 });
+                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
 
                 trace1Counter++;
-                recordCounter++;
+
+
                 tagDict[d[0].datePosted]=d[0].weight;
                 if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
                     var sum=d[0].weight;
                     if(dailyAverage[d[0].datePosted].length>=1)
                         sum=d[0].weight + dailyAverage[d[0].datePosted][ dailyAverage[d[0].datePosted].length-1].sum;
-                    dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum : sum});
+                    dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum : sum, index: recordCounter});
                 }
                 else{
                     dailyAverage[d[0].datePosted]=[];
-                    dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum:  d[0].weight});
+                    dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum:  d[0].weight, index: recordCounter});
                 }
                 if(dailyIds[d[0].datePosted]){
                     dailyIds[d[0].datePosted][d[0].id]=1;
@@ -299,6 +300,7 @@ Weight.find({}).exec(function (err, weights){
                     alertedTags.push(d[0].id);
                     alerted=true;
                 }
+                recordCounter++;
             }
 
             //take average of multiple readings during one day
@@ -306,13 +308,13 @@ Weight.find({}).exec(function (err, weights){
                 var dt=d[i].datePosted, wt=d[i].weight;
 
                 //Push this initial reading into records for trends page
-                var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: tagIdToLatLong(d[i].tag_id) });
+                var rec =({date: d[i].date, weight: d[i].weight, id: d[i].id, location: tagIdToLatLong(d[i].tag_id), index: recordCounter });
 
                 if(trace1Counter>0){
                     var dupSum = trace1.y[trace1Counter - 1], index = i, count = 1;
                     if (d[index].datePosted == d[index - 1].datePosted)
                         while (d[index] && d[index].datePosted == d[index - 1].datePosted
-                        && index < d.length && d[index]) {
+                        && index < d.length && d[index]){
                             dupSum += d[index].weight;
                             index++;
                             count++;
@@ -323,7 +325,7 @@ Weight.find({}).exec(function (err, weights){
 
                         //weight and change in weight for trends
                         records[recordCounter-1].weight=wt;
-                        if(trace1Counter>2) {
+                        if(recordCounter>2){
                             records[recordCounter - 1].change = wt - records[recordCounter - 2].weight;
                             var btw=Date.daysBetween( records[recordCounter - 2].date,records[recordCounter - 1].date);
                             if(btw>1)records[recordCounter - 1].change=records[recordCounter - 1].change/btw;
@@ -334,11 +336,12 @@ Weight.find({}).exec(function (err, weights){
                             var sum=wt;
                             if(dailyAverage[dt].length>=2)
                                 sum=wt + dailyAverage[dt][ dailyAverage[dt].length-2].sum;
-                            dailyAverage[dt][dailyAverage[dt].length-1]={weight: wt, id: d[0].id, sum : sum};
+                            var previous=dailyAverage[dt][dailyAverage[dt].length-1].index;
+                            dailyAverage[dt][dailyAverage[dt].length-1]={weight: wt, id: d[0].id, sum : sum, index: previous};
                         }
                         else{
                             dailyAverage[dt]=[];
-                            dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt});
+                            dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt, index: recordCounter});
                         }
                         if(dailyIds[dt]){
                             dailyIds[dt][d[0].id]=1;
@@ -369,7 +372,7 @@ Weight.find({}).exec(function (err, weights){
                 var btwDays=Date.daysBetween( records[recordCounter-1].date,rec.date);
                 if(btwDays>1)rec.change=rec.change/btwDays;
                 records.push(rec);
-                recordCounter++;
+
 
                 if(dailyIds[dt]){
                     dailyIds[dt][d[0].id]=1;
@@ -390,14 +393,15 @@ Weight.find({}).exec(function (err, weights){
                     var sum=wt;
                     if(dailyAverage[dt].length>=1)
                         sum=wt + dailyAverage[dt][ dailyAverage[dt].length-1].sum;
-                    dailyAverage[dt].push({weight: wt, id: d[0].id, sum: sum})
+                    dailyAverage[dt].push({weight: wt, id: d[0].id, sum: sum, index: recordCounter})
                 }
                 else{
                     dailyAverage[dt]=[];
-                    dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt});
+                    dailyAverage[dt].push({weight: wt, id: d[0].id, sum: wt, index: recordCounter});
                 }
 
                 tagDict[dt] = wt;
+                recordCounter++;
             }
 
             var traces=[trace1, trace2];
@@ -410,6 +414,7 @@ Weight.find({}).exec(function (err, weights){
             if(d && d.length>0 ) {//change from 0 to 1 for multiple weights
                 relevantTags[d[0].id]=true;
             }
+
         }
 
         tagGraphs.sort(function(a, b){
@@ -457,10 +462,18 @@ Weight.find({}).exec(function (err, weights){
                     //also sort while iterating
                     dailyAverage[day].sort(compare);
 
+                    //assign rank to records based on sorted order
+                    var dailyLen=dailyAverage[day].length;
+                    var dailyRank=1;
+                    for(var dailyIndex=dailyLen-1; dailyIndex>=0; dailyIndex-- ){
+                        records[(dailyAverage[day][dailyIndex]).index].rank=dailyRank;
+                        dailyRank++;
+                    }
+
                     //Prepare thirds graphs
                     var bin=Math.floor(dailyAverage[day].length/3);
 
-                    if(dailyAverage[day]) {
+                    if(dailyAverage[day]){
                         var index0=thirdsTraces[0].length;
                         var index1=thirdsTraces[1].length;
                         var index2=thirdsTraces[2].length;

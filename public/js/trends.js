@@ -55,6 +55,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var gainOrLossGroup = gainOrLoss.group();
 
         var weightDimension = ndx.dimension(function (d) {return d.weight;});
+        var rankDimension = ndx.dimension(function (d) {return d.rank;});
         var tagDimension = ndx.dimension(function (d) {return d.id;});
         tagDimension.filterFunction(function (d) {return !(d =='-1');});
 
@@ -193,6 +194,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                 range: false,
                 step: 1,
                 max: 100 ,
+                value:100,
+                min: 1,
                 slide: function (event, ui) {
                     var val;
                     $("#startTopK").val(ui.value);
@@ -201,7 +204,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                         val = document.getElementById("startTopK").value;
                     };
 
-                    changeDimension.top(val);
+                    rankDimension.filterRange([0, val]);
                     dc.redrawAll();
                 }
             });

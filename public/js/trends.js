@@ -332,6 +332,10 @@ debugger;
 
 
 
+
+
+
+
         var ofs = 0, pag = 10;
         function display() {
             d3.select('#begin')
@@ -362,6 +366,17 @@ debugger;
 
         update();
         dc.renderAll();
+
+        onresize = function(){
+            dc.chartRegistry.list().forEach(chart => {
+                let: _bbox = chart.root().node().parentNode.getBoundingClientRect();
+            chart.width(_bbox.width).render();
+        });
+        };
+
+        onresize();
+
+        window.addEventListener('resize', onresize);
 
     }
 

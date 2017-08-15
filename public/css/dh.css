@@ -1672,6 +1672,7 @@ md-checkbox .md-icon {
 
     height: 2px;
     border: 1px solid gray;
+    position: relative;
 }
 
 .ui-slider-handle {

@@ -119,8 +119,8 @@ function tagDataService($http, $q) {
 	return service;
 
     function getStaticFile(callback) {
-        //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){

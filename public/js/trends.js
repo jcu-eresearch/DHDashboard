@@ -10,12 +10,14 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         tagDataService.getStaticFile(renderCharts);
     }
     else {
-       renderCharts(dashData);
+
+        $timeout(function (){renderCharts(dashData);dc.redrawAll();});
 
     }
 
     function renderCharts(results){
 
+        debugger;
         var data=results.records;
         debugger;
 
@@ -29,7 +31,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var dateFormat = d3.time.format("%Y-%m-%d");	//d3.time.format.iso;
 
         data.forEach(function (d) {
-debugger;
+
 
 
             if(!d || d==null || d==undefined || d.date==undefined) return;
@@ -41,7 +43,9 @@ debugger;
             d.month = d3.time.month(d.dd); // pre-calculate month for better performance
         });
 
+
         var ndx = crossfilter(data);
+        $scope.ndx=ndx;
         var all = ndx.groupAll();
 
         var monthDimension = ndx.dimension(function (d){
@@ -96,7 +100,7 @@ debugger;
         });
         var dayOfWeekGroup = dayOfWeek.group();
 
-        var marker = dc.leafletMarkerChart("#leaflet-map")
+      /*  var marker = dc.leafletMarkerChart("#leaflet-map")
             .mapOptions({scrollWheelZoom: false})
             .dimension(locationDimension)
             .group(locationGroup)
@@ -107,7 +111,7 @@ debugger;
             .fitOnRender(true)
             .fitOnRedraw(true)
             .cluster(false);
-
+*/
         //dc.renderAll(groupname);
 
         quarterChart /* dc.pieChart('#quarter-chart', 'chartGroup') */
@@ -148,7 +152,10 @@ debugger;
             .elasticX(true)
             .xAxis().ticks(4);
 
-        $(document).ready(function (){
+        //$(document).ready(initSliders);
+
+
+        function initSliders(){
             $("#weightSlider").slider({
                 range: true,
                 min: 300,
@@ -214,12 +221,8 @@ debugger;
                     dc.redrawAll();
                 }
             });
-        });
-
-        $(document).ready(function (){
-
-        });
-
+        }
+        initSliders();
 
         var colorScale = d3.scale.ordinal().range(["#95D7BB", "#D9DD81", "#79D1CF", "#E67A77"]);
         gainOrLossChart

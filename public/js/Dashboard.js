@@ -57,7 +57,7 @@ homesteadApp.config(function($routeProvider) {
 		});
 });
 
-homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope) {
+homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope, $location) {
 
 	$scope.alerts=false;
 
@@ -68,7 +68,13 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
             {name: "map", ref:"#map",  icon: "fa fa-map-marker", badge: "icon-bg rad-bg-danger", text: "Movement"},
             {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg rad-bg-warning", text: "Details" },
 			{name: "trends", ref:"#trends",  icon: "fa fa-line-chart", badge: "icon-bg rad-bg-primary", text: "Trends" }
-        ]
+        ],
+		returnIndex: function (loc) {
+			if(loc=="/") return 0;
+			else if(loc=="/map") return 1;
+			else if(loc=="/detailed") return 2;
+			else if (loc=="/trends") return 3;
+        }
     };
 
     $scope.$on('alerts', function(){
@@ -77,13 +83,21 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.currentNavItem='dash';
 
+
+
+
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
 		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1) {
-            $scope.currentNavItem = current.$$route.originalPath.substring(1);
+			debugger;
+            var currentPath=$location.path();
+            $scope.navItems.selected = $scope.navItems.items[$scope.navItems.returnIndex(currentPath)];
+            //$scope.navItems.selected = current.$$route.originalPath.substring(1);
         }
 		else {
-            $scope.currentNavItem = 'dash';
+            $scope.navItems.selected = $scope.navItems.items[0];
         }
+        //debugger;
+        //
 	});
 
 	$scope.showLiveData = function(){
@@ -119,8 +133,8 @@ function tagDataService($http, $q) {
 	return service;
 
     function getStaticFile(callback) {
-        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){

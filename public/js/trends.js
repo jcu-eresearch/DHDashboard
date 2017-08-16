@@ -43,8 +43,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
         data.forEach(function (d) {
 
-
-
             if(!d || d==null || d==undefined || d.date==undefined) return;
             d.datePosted=d.date.substr(0,10);
 

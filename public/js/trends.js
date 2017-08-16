@@ -11,15 +11,26 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
     }
     else {
 
-        $timeout(function (){renderCharts(dashData);dc.redrawAll();});
+        reinitDc();
+        $timeout(function (){renderCharts(dashData);});
 
     }
 
+    function reinitDc(){
+        d3.selectAll("svg").remove();
+
+        $('#leaflet-chart').empty();
+
+    };
+
     function renderCharts(results){
 
-        debugger;
+
+
+
+
         var data=results.records;
-        debugger;
+
 
         var filterChart = dc.barChart("#errorbar");
         var rangeChart = dc.barChart("#range-chart");
@@ -100,7 +111,16 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         });
         var dayOfWeekGroup = dayOfWeek.group();
 
-      /*  var marker = dc.leafletMarkerChart("#leaflet-map")
+
+
+
+        //var target = angular.element('#inner-map');
+        //target.remove();
+
+        //document.getElementById('leaflet-map').innerHTML =  '<div id="inner-map" style="width:100%;height:400px;clear:both"></div>';
+
+
+        $scope.markerChart = dc.leafletMarkerChart("#inner-map")
             .mapOptions({scrollWheelZoom: false})
             .dimension(locationDimension)
             .group(locationGroup)
@@ -111,7 +131,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .fitOnRender(true)
             .fitOnRedraw(true)
             .cluster(false);
-*/
+
         //dc.renderAll(groupname);
 
         quarterChart /* dc.pieChart('#quarter-chart', 'chartGroup') */

@@ -201,7 +201,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             if(data) {
                 $scope.weeklyTrace = data.weeklyTrace;
                 $scope.allTags = data;
-                debugger;
+
 
                 $scope.allTags.thirdsLayout.title=null;
                 $scope.allTags.thirdsLayout.margin= {

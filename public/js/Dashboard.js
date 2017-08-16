@@ -88,7 +88,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
 		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1) {
-			debugger;
+
             var currentPath=$location.path();
             $scope.navItems.selected = $scope.navItems.items[$scope.navItems.returnIndex(currentPath)];
             //$scope.navItems.selected = current.$$route.originalPath.substring(1);
@@ -96,7 +96,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		else {
             $scope.navItems.selected = $scope.navItems.items[0];
         }
-        //debugger;
+        //
         //
 	});
 

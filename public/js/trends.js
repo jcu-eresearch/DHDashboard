@@ -97,6 +97,7 @@ debugger;
         var dayOfWeekGroup = dayOfWeek.group();
 
         var marker = dc.leafletMarkerChart("#leaflet-map")
+            .mapOptions({scrollWheelZoom: false})
             .dimension(locationDimension)
             .group(locationGroup)
             .center([ -19.665,146.825])

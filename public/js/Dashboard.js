@@ -57,7 +57,7 @@ homesteadApp.config(function($routeProvider) {
 		});
 });
 
-homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope, $location) {
+homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope, $location, $mdDialog) {
 
 	$scope.alerts=false;
 
@@ -91,7 +91,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
             var currentPath=$location.path();
             $scope.navItems.selected = $scope.navItems.items[$scope.navItems.returnIndex(currentPath)];
-            //$scope.navItems.selected = current.$$route.originalPath.substring(1);
+
         }
 		else {
             $scope.navItems.selected = $scope.navItems.items[0];
@@ -102,7 +102,7 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.showLiveData = function(){
 		$scope.alert = '';
-		$mdBottomSheet.show({
+		$mdDialog.show({
 			templateUrl: 'templates/live.templ.html',
 			controller: 'LiveDataCtrl',
 			clickOutsideToClose: true
@@ -133,8 +133,8 @@ function tagDataService($http, $q) {
 	return service;
 
     function getStaticFile(callback) {
-        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){

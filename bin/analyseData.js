@@ -198,7 +198,9 @@ Weight.find({}).exec(function (err, weights){
         }
 
         var records=[];
+        var recordsForToday=[];
         var recordCounter=0;
+        var recordsForTodayCounter=0;
 
         /** Iterate over all the ids and generate the individual graph for each animal **/
         for(var j=0; j<idGroup.length; j++){
@@ -267,8 +269,12 @@ Weight.find({}).exec(function (err, weights){
                 //Push this initial reading into records for trends page
                 records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
 
-                trace1Counter++;
+                if(d[0].datePosted==today){
+                    recordsForToday.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
+                    recordsForTodayCounter++;
+                }
 
+                trace1Counter++;
 
                 tagDict[d[0].datePosted]=d[0].weight;
                 if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
@@ -329,6 +335,17 @@ Weight.find({}).exec(function (err, weights){
                             records[recordCounter - 1].change = wt - records[recordCounter - 2].weight;
                             var btw=Date.daysBetween( records[recordCounter - 2].date,records[recordCounter - 1].date);
                             if(btw>1)records[recordCounter - 1].change=records[recordCounter - 1].change/btw;
+                        }
+
+                        //Added
+                        if (d[index].datePosted==today){
+                            recordsForToday[recordsForTodayCounter-1].weight=wt;
+
+                            if(recordsForTodayCounter>2){
+                                recordsForToday[recordsForTodayCounter - 1].change = wt - recordsForToday[recordsForTodayCounter - 2].weight;
+                                var btw=Date.daysBetween( recordsForToday[recordsForTodayCounter - 2].date,recordsForToday[recordsForTodayCounter - 1].date);
+                                if(btw>1)recordsForToday[recordsForTodayCounter - 1].change=recordsForToday[recordsForTodayCounter - 1].change/btw;
+                            }
                         }
 
                         tagDict[d[index-1].datePosted] = wt;

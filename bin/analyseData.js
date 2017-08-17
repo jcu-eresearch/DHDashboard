@@ -169,7 +169,7 @@ Weight.find({}).exec(function (err, weights){
         var tagGraphs=[];
         var alertedTags=[];
 
-        var today=new Date();
+        var today=new Date("2017-05-03");
         var yesterday= new Date(today-1000*60*60*24)
         today=today.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);
@@ -269,6 +269,7 @@ Weight.find({}).exec(function (err, weights){
                 //Push this initial reading into records for trends page
                 records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
 
+
                 if(d[0].datePosted==today){
                     recordsForToday.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
                     recordsForTodayCounter++;
@@ -338,7 +339,7 @@ Weight.find({}).exec(function (err, weights){
                         }
 
                         //Added
-                        if (d[index].datePosted==today){
+                        if (dt==today){
                             recordsForToday[recordsForTodayCounter-1].weight=wt;
 
                             if(recordsForTodayCounter>2){
@@ -389,6 +390,10 @@ Weight.find({}).exec(function (err, weights){
                 var btwDays=Date.daysBetween( records[recordCounter-1].date,rec.date);
                 if(btwDays>1)rec.change=rec.change/btwDays;
                 records.push(rec);
+                if(dt==today){
+                    recordsForToday.push(rec);
+                    recordsForTodayCounter++;
+                }
 
 
                 if(dailyIds[dt]){
@@ -661,6 +666,7 @@ Weight.find({}).exec(function (err, weights){
         allTags.tagGraphs=tagGraphs;
         allTags.alertedTags=alertedTags;
         allTags.records=records;
+        allTags.recordsForToday=recordsForToday;
 
         createStaticFile(allTags);
 

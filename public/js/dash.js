@@ -133,21 +133,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         }
     };
 
-    $scope.data = [
-        {
-            key: "Weight Gained",
-            y: 40
-        },
-        {
-            key: "Weight Lost ",
-            y: 23
-        },
-        {
-            key: "Same Weight",
-            y: 25
-        }
-    ];
-
+    $scope.data={};
 
     $scope.chart1 = {
         chart: {
@@ -160,18 +146,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         }
     };
 
-    $scope.data1 = [
-        {
-            key: "Total Weight Gained",
-            y: 400
-        },
-        {
-            key: "Total Weight Lost",
-            y: 200
-        }
-    ];
-
-
+    $scope.data1={};
 
 
     $scope.init=function(){
@@ -201,7 +176,57 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             if(data) {
                 $scope.weeklyTrace = data.weeklyTrace;
                 $scope.allTags = data;
+                var recordsForToday=data.recordsForToday;
 
+                var gainCounter=0;
+                var lossCounter=0;
+                var sameCounter=0;
+                var total=0;
+                var totalGained=0;
+                var totalLost=0;
+                recordsForToday.forEach(function (d) {
+                    if(d.change<0){lossCounter++;totalLost+=d.change;}
+                    else if(d.change>0) {gainCounter++;totalGained+=d.change;}
+                    else sameCounter++;
+                    total++;
+                });
+
+                $scope.gain=gainCounter;
+                $scope.loss=lossCounter;
+                $scope.same=sameCounter;
+                $scope.total=total;
+
+
+
+                $scope.data = [
+                    {
+                        key: "Weight Gained",
+                        y: gainCounter
+                    },
+                    {
+                        key: "Weight Lost ",
+                        y: lossCounter
+                    },
+                    {
+                        key: "Same Weight",
+                        y: sameCounter
+                    }
+                ];
+
+
+
+                debugger;
+
+                $scope.data1 = [
+                    {
+                        key: "Total Weight Gained",
+                        y: Math.abs(totalGained)
+                    },
+                    {
+                        key: "Total Weight Lost",
+                        y: Math.abs(totalLost)
+                    }
+                ];
 
                 $scope.allTags.thirdsLayout.title=null;
                 $scope.allTags.thirdsLayout.margin= {

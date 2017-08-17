@@ -563,6 +563,8 @@ a:active {
     transition: all .2s ease-in-out;
 }
 
+/*Changed from 50*/
+
 .rad-body-wrapper.rad-nav-min {
     left: 50px;
 }
@@ -653,11 +655,13 @@ a:active {
     .flat-theme .rad-body-wrapper {
         top: 125px !important;
     }
+    /*Changed from fixed to absolute*/
     .flat-theme .rad-sidebar {
-        position: absolute;
+        position: fixed;
     }
+    /*Changed from fixed to absolute*/
     .flat-theme .rad-navigation {
-        position: absolute;
+        position: fixed;
     }
     .flat-theme .rad-navigation .links > li:first-child {
         margin-left: 15px !important;

@@ -239,9 +239,7 @@ Weight.find({}).exec(function (err, weights){
                     d[a].datePosted=d[a].date.toISOString().substr(0,10);
 
                 if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 || d[a].weight>650 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
-
                     //Not including outliers etc in records at this point otherwise push into records here
-
                     trace2.x.push(d[a].datePosted);
                     trace2.y.push(d[a].weight);
                     trace2Counter++;
@@ -268,7 +266,6 @@ Weight.find({}).exec(function (err, weights){
 
                 //Push this initial reading into records for trends page
                 records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
-
 
                 if(d[0].datePosted==today){
                     recordsForToday.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), change: 0, index: recordCounter });
@@ -341,7 +338,6 @@ Weight.find({}).exec(function (err, weights){
                         //Added
                         if (dt==today){
                             recordsForToday[recordsForTodayCounter-1].weight=wt;
-
                             if(recordsForTodayCounter>2){
                                 recordsForToday[recordsForTodayCounter - 1].change = wt - recordsForToday[recordsForTodayCounter - 2].weight;
                                 var btw=Date.daysBetween( recordsForToday[recordsForTodayCounter - 2].date,recordsForToday[recordsForTodayCounter - 1].date);

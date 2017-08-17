@@ -83,9 +83,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	$scope.currentNavItem='dash';
 
-
-
-
 	$rootScope.$on('$routeChangeSuccess', function(event, current) {
 		if(current && current.$$route && current.$$route.originalPath && current.$$route.originalPath.length>1) {
 
@@ -133,8 +130,8 @@ function tagDataService($http, $q) {
 	return service;
 
     function getStaticFile(callback) {
-        //$http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        $http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
+        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){

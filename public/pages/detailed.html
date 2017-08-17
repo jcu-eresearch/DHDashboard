@@ -1,7 +1,16 @@
-<div class="card-panel" flex >
-    <div class="card-content"  >
-        <md-card>
-            <div class=" graph-container">
+
+
+<rad-dashboard-grid>
+    <div layout="row"  layout-align="stretch" >
+        <div flex="100" >
+
+            <md-card>
+                <md-card-title >
+                    <md-card-title-text layout-align="center center">
+                        <span class="md-headline" >Daily Individual Weight Trend</span>
+                        <span class="md-subhead">Select a Tag to View Weight Trend</span>
+                    </md-card-title-text>
+                </md-card-title>
                 <div layout="row" class="md-padding">
                     <md-input-container class="no-padding right ">
                         <label>Select a Tag </label>
@@ -12,19 +21,19 @@
                             </md-option>
                         </md-select>
                     </md-input-container>
-                   <!-- <div style="width:500px;margin:auto;">
-                        <p>Selected range: {{lower}}-{{upper}}</p>
-                        <range-slider lower-value="lower" upper-value="upper" min-gap="2" step="2" min="min" max="max" ></range-slider>
-                    </div>-->
+                    <!-- <div style="width:500px;margin:auto;">
+                         <p>Selected range: {{lower}}-{{upper}}</p>
+                         <range-slider lower-value="lower" upper-value="upper" min-gap="2" step="2" min="min" max="max" ></range-slider>
+                     </div>-->
                 </div>
-                <div layout="row"  >
+                <div class=" graph-container" >
                     <plotly-detailed plotly-data="selectedTag.traces"
-                            plotly-layout="selectedTag.layout"
-                            plotly-width="fullWidth"
+                                     plotly-layout="layoutDetailed"
+                                     plotly-width="fullWidth"
+                                     plotly-options="{displayModeBar: false}"
                     ></plotly-detailed>
 
-                  </div>
-            </div>
-        </md-card>
-    </div>
-</div>
+                </div>
+            </md-card>
+        </div>
+</rad-dashboard-grid>

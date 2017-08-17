@@ -71,9 +71,11 @@ a:active {
 }
 
 .sm-img {
-    height: 43px !important;
-    width: 40px !important;
-    padding-bottom: 5px !important;
+    height: 45px !important;
+    width: 38px !important;
+    padding-top: 20px !important;
+    padding-right: 5px !important;
+
 }
 
 ::-moz-selection {
@@ -195,7 +197,7 @@ a:active {
 .rad-logo-container {
     width: 450px;
     text-align: center;
-    height: 50px;
+    height: 0px;
     float: left;
     transition: all .2s ease-in-out;
 }
@@ -415,7 +417,7 @@ a:active {
 }
 
 .rad-sidebar {
-    z-index: 9999;
+
     position: fixed;
     font-weight: 600;
     background: white !important;

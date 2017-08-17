@@ -159,17 +159,8 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             tagDataService.getStaticFile(renderData);
         }
         else {
-            $scope.weeklyTrace = dashData.weeklyTrace;
-            $scope.allTags = dashData;
 
-            if($scope.allTags.thirdsTraces){
-                $scope.allTags.thirdsTraces.forEach(function(d){
-                    d.mode="lines";
-                });
-            }
-            if(dashData.alertedTags && dashData.alertedTags.length>0){
-                $scope.$emit('alerts');
-            }
+            renderData(dashData);
         }
 
         function renderData(data){
@@ -215,7 +206,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
 
 
-                debugger;
+
 
                 $scope.data1 = [
                     {

@@ -10,6 +10,12 @@ homesteadApp.controller('detailedController', function($scope, tagDataService, d
     $scope.lower = 0;
     $scope.upper = 50000;
 
+    $scope.layoutDetailed = {
+        yaxis: {title: "Weight (KG)"},
+        showlegend: true,
+        legend: {"orientation": "h"}
+    };
+
     $scope.init=function(){
 
         var detailedData=detailedTagDataService.getTagData();

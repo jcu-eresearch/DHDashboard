@@ -1,48 +1,59 @@
 
-<div layout="row">
-    <!--<div flex="20" class="dark-bluish-grey md-padding">
-
-        <div class="md-padding slider-text" >Weight Range (kg)</div>
-        <div class="slider-padding" ui-slider="{range: true}" min="200" max="500" step="20" use-decimals ng-model="demoVals.sliderWeights"></div>
-        <div class="md-padding slider-text" > {{demoVals.sliderWeights[0] +'kg : '+ demoVals.sliderWeights[1]+'kg'}} </div>
+<header class="rad-page-title">
 
 
-        <div class="md-padding slider-text" >Weight Change Range (kg/day)</div>
-        <div class="slider-padding" ui-slider="{range: true}" min="-5" max="5" step="0.5" use-decimals ng-model="demoVals.sliderWeightsChanges"></div>
-        <div class="md-padding slider-text" > {{demoVals.sliderWeightsChanges[0] +'kg : '+ demoVals.sliderWeightsChanges[1]+'kg'}} </div>
+    <h1>Explore Animal Movement Data</h1>
+    <small class="md-txt">
+        <a href="#" target="_blank">
+            <i class="fa fa-map-marker rad-txt-danger"></i> Lansdown,</a>
 
-        <div layout="column" class="md-padding">
-           &lt;!&ndash; <md-checkbox ng-model="paddocks" class="slider-text">
-                Paddocks
-            </md-checkbox>&ndash;&gt;
-            <md-checkbox ng-model="soil" class="slider-text">
-                Soil
-            </md-checkbox>
-            <md-checkbox ng-model="topology" class="slider-text">
-                Soil Topology
-            </md-checkbox>
+    </small>
+</header>
 
-            <md-checkbox ng-model="heatmap" class="slider-text">
-                Animal Movement
-            </md-checkbox>
+<div layout="column">
+    <div flex="100"  layout-align="center center">
+
+
+        <md-content layout="row" >
 
             <div layout="column" class="md-padding">
-                <md-checkbox ng-model="gradient" class="slider-text">
-                    Change Gradient
-                </md-checkbox>
+            <md-checkbox ng-model="soil">
+                Soil
+            </md-checkbox>
 
+
+            <md-checkbox ng-model="gradient" class="slider-text">
+                Change Gradient
+            </md-checkbox>
+
+
+             </div>
+
+            <div layout="column" class="md-padding">
+                <md-checkbox ng-model="topology">
+                    Soil Topology
+                </md-checkbox>
                 <md-checkbox ng-model="radius" class="slider-text">
                     Change Radius
                 </md-checkbox>
+            </div>
+
+            <div layout="column" class="md-padding">
+
+                <md-checkbox ng-model="heatmap" class="slider-text">
+                    Animal Movement
+                </md-checkbox>
+
+
 
                 <md-checkbox ng-model="opacity" class="slider-text">
                     Change Opacity
                 </md-checkbox>
             </div>
 
-        </div>
+        </md-content>
 
-    </div>-->
+    </div>
 
     <div flex="100" style="height:90vh;" class="">
         <div class="card-panel"  flex>

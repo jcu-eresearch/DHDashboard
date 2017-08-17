@@ -1,4 +1,13 @@
+<header class="rad-page-title">
 
+
+    <h1>Explore Individual Animal Weights</h1>
+    <small class="md-txt">
+        <a href="#" target="_blank">
+            <i class="fa fa-map-marker rad-txt-danger"></i> Lansdown,</a>
+
+    </small>
+</header>
 
 <rad-dashboard-grid>
     <div layout="row"  layout-align="stretch" >
@@ -21,10 +30,7 @@
                             </md-option>
                         </md-select>
                     </md-input-container>
-                    <!-- <div style="width:500px;margin:auto;">
-                         <p>Selected range: {{lower}}-{{upper}}</p>
-                         <range-slider lower-value="lower" upper-value="upper" min-gap="2" step="2" min="min" max="max" ></range-slider>
-                     </div>-->
+
                 </div>
                 <div class=" graph-container" >
                     <plotly-detailed plotly-data="selectedTag.traces"

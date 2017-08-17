@@ -93,8 +93,6 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		else {
             $scope.navItems.selected = $scope.navItems.items[0];
         }
-        //
-        //
 	});
 
 	$scope.showLiveData = function(){

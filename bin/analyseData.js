@@ -169,7 +169,7 @@ Weight.find({}).exec(function (err, weights){
         var tagGraphs=[];
         var alertedTags=[];
 
-        var today=new Date("2017-05-03");
+        var today=new Date("2017-04-03");
         var yesterday= new Date(today-1000*60*60*24)
         today=today.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);

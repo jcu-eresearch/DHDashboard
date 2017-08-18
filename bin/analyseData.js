@@ -158,7 +158,7 @@ Weight.find({}).exec(function (err, weights){
         else if(tag=="110163") return "-19.66872,146.8642";
     }
 
-    /** Perform analysis on the weight data**/
+    /** Perform analysis on the weight data **/
     function analyseData(dataSet){
 
         var dict={};
@@ -191,7 +191,12 @@ Weight.find({}).exec(function (err, weights){
             return [item.id];
         });
 
+        var dateGroup = groupBy(dataSet, function(item){
+            return [item.id];
+        });
+
         var firstDay=dataSet[0].date.toISOString().substr(0,10);
+        today=dataSet[dataSet.length-1].date.toISOString().substr(0,10);
         var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
         var range=[];
 

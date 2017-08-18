@@ -181,7 +181,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         function setHeartBeat(data){
 
-            debugger;
+
             if(data && data.length>0) {
 
                 data.sort(compare);
@@ -229,7 +229,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 var allIds=[];
 
                 recordsForToday.forEach(function (d) {
-
                     if(d.change<0){
                         lossCounter++;
                         totalLost+=d.change;
@@ -242,13 +241,15 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     else sameCounter++;
                     total++;
                     allIds.push(d.id);
-
                 });
 
                 $scope.gain=gainCounter;
                 $scope.loss=lossCounter;
                 $scope.same=sameCounter;
                 $scope.total=total;
+                $scope.gainIds=gainIds;
+                $scope.lossIds=lossIds;
+                $scope.allIds=allIds;
 
                 $scope.data = [
                     {
@@ -309,51 +310,58 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         }
 
         $scope.showTagsGained = function(ev) {
-            // Appending dialog to document.body to cover sidenav in docs app
-            // Modal dialogs should fully cover application
-            // to prevent interaction outside of dialog
-            $mdDialog.show(
-                $mdDialog.alert()
-                    .parent(angular.element(document.querySelector('#popupContainer')))
-                    .clickOutsideToClose(true)
-                    .title('Animal Tags that Gained Weight in the Last 24 Hours')
-                    .textContent('List of Animal Tags Here')
-                    .ariaLabel('Animal Tags')
-                    .ok('Ok')
-                    .targetEvent(ev)
-            );
+            $mdDialog.show({
+                locals:{tags: $scope.gainIds},
+                controller: mdDialogCtrl,
+                templateUrl: 'templates/dialog.html',
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose:true
+
+            })
+                .then(function(answer) {
+
+                }, function() {
+
+                });
         };
 
         $scope.showTagsLost = function(ev) {
-            // Appending dialog to document.body to cover sidenav in docs app
-            // Modal dialogs should fully cover application
-            // to prevent interaction outside of dialog
-            $mdDialog.show(
-                $mdDialog.alert()
-                    .parent(angular.element(document.querySelector('#popupContainer')))
-                    .clickOutsideToClose(true)
-                    .title('Animal Tags that Lost Weight in the Last 24 Hours')
-                    .textContent('List of Animal Tags Here')
-                    .ariaLabel('Animal Tags')
-                    .ok('Ok')
-                    .targetEvent(ev)
-            );
+            $mdDialog.show({
+                locals:{tags: $scope.lossIds},
+                controller: mdDialogCtrl,
+                templateUrl: 'templates/dialog.html',
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose:true
+
+            })
+                .then(function(answer) {
+
+                }, function() {
+
+                });
         };
 
+        var mdDialogCtrl = function ($scope, tags) {
+            $scope.tags = tags;
+        }
+
         $scope.showMeasurements = function(ev) {
-            // Appending dialog to document.body to cover sidenav in docs app
-            // Modal dialogs should fully cover application
-            // to prevent interaction outside of dialog
-            $mdDialog.show(
-                $mdDialog.alert()
-                    .parent(angular.element(document.querySelector('#popupContainer')))
-                    .clickOutsideToClose(true)
-                    .title('Measurements in the Last 24 Hours')
-                    .textContent('List of Measurements Here')
-                    .ariaLabel('Measurements')
-                    .ok('Ok')
-                    .targetEvent(ev)
-            );
+            $mdDialog.show({
+                locals:{tags: $scope.allIds},
+                controller: mdDialogCtrl,
+                templateUrl: 'templates/dialog.html',
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose:true
+
+            })
+                .then(function(answer) {
+
+                }, function() {
+
+                });
         };
 
         $scope.showLatestReading = function(ev) {

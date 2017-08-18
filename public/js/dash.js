@@ -166,12 +166,8 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         }
 
         $scope.lastHeartbeat = "00:05"//msToTime(last.last_heartbeat);
-
         $scope.lastLocation="Spring Creek";
-
         tagDataService.getHeartBeat(setHeartBeat);
-
-
 
         function compare(a,b) {
             if(a && a.last_heartbeat && b && b.last_heartbeat ){
@@ -183,19 +179,15 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
 
             if(data && data.length>0) {
-
                 data.sort(compare);
                 var last=data[data.length-1];
-
-                $scope.lastHeartbeat = "00:05:15"//msToTime(last.last_heartbeat);
-
+                $scope.lastHeartbeat = msToTime(last.last_heartbeat);
                 var loc="";
-
                 if(last.tag_id=="110177")loc="Spring Creek";
                 if(last.tag_id=="110171")loc="Double Barrel";
                 if(last.tag_id=="110163")loc="Junction";
 
-                $scope.lastLocation="Spring Creek";
+                $scope.lastLocation=loc;
             }
 
         }
@@ -217,39 +209,49 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
                 var recordsForToday=data.recordsForToday;
 
-                var gainCounter=0;
-                var lossCounter=0;
-                var sameCounter=0;
-                var total=0;
-                var totalGained=0;
-                var totalLost=0;
+                if(recordsForToday && recordsForToday.length>0) {
+                    var gainCounter = 0;
+                    var lossCounter = 0;
+                    var sameCounter = 0;
+                    var total = 0;
+                    var totalGained = 0;
+                    var totalLost = 0;
 
-                var gainIds=[];
-                var lossIds=[];
-                var allIds=[];
+                    var gainIds = [];
+                    var lossIds = [];
+                    var allIds = [];
 
-                recordsForToday.forEach(function (d) {
-                    if(d.change<0){
-                        lossCounter++;
-                        totalLost+=d.change;
-                        lossIds.push(d.id);
-                    }
-                    else if(d.change>0) {
-                        gainCounter++;totalGained+=d.change;
-                        gainIds.push(d.id);
-                    }
-                    else sameCounter++;
-                    total++;
-                    allIds.push(d.id);
-                });
+                    recordsForToday.forEach(function (d) {
+                        if (d.change < 0) {
+                            lossCounter++;
+                            totalLost += d.change;
+                            lossIds.push(d.id);
+                        }
+                        else if (d.change > 0) {
+                            gainCounter++;
+                            totalGained += d.change;
+                            gainIds.push(d.id);
+                        }
+                        else sameCounter++;
+                        total++;
+                        allIds.push(d.id);
+                    });
 
-                $scope.gain=gainCounter;
-                $scope.loss=lossCounter;
-                $scope.same=sameCounter;
-                $scope.total=total;
-                $scope.gainIds=gainIds;
-                $scope.lossIds=lossIds;
-                $scope.allIds=allIds;
+                    $scope.gain = gainCounter;
+                    $scope.loss = lossCounter;
+                    $scope.same = sameCounter;
+                    $scope.total = total;
+                    $scope.gainIds = gainIds;
+                    $scope.lossIds = lossIds;
+                    $scope.allIds = allIds;
+
+                    debugger;
+                    if(recordsForToday[0].date)
+                        $scope.lastDate = recordsForToday[0].date.substr(0, 10);
+                    else
+                        $scope.lastDate = new Date();
+
+                }
 
                 $scope.data = [
                     {
@@ -311,7 +313,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         $scope.showTagsGained = function(ev) {
             $mdDialog.show({
-                locals:{tags: $scope.gainIds},
+                locals:{tags: $scope.gainIds, date: $scope.lastDate},
                 controller: mdDialogCtrl,
                 templateUrl: 'templates/dialog.html',
                 parent: angular.element(document.body),
@@ -328,7 +330,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         $scope.showTagsLost = function(ev) {
             $mdDialog.show({
-                locals:{tags: $scope.lossIds},
+                locals:{tags: $scope.lossIds, date: $scope.lastDate},
                 controller: mdDialogCtrl,
                 templateUrl: 'templates/dialog.html',
                 parent: angular.element(document.body),
@@ -343,13 +345,14 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 });
         };
 
-        var mdDialogCtrl = function ($scope, tags) {
+        var mdDialogCtrl = function ($scope, tags, date) {
             $scope.tags = tags;
+            $scope.date=date;
         }
 
         $scope.showMeasurements = function(ev) {
             $mdDialog.show({
-                locals:{tags: $scope.allIds},
+                locals:{tags: $scope.allIds, date: $scope.lastDate},
                 controller: mdDialogCtrl,
                 templateUrl: 'templates/dialog.html',
                 parent: angular.element(document.body),

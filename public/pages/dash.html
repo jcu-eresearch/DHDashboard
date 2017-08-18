@@ -73,14 +73,14 @@
             <md-card >
                 <md-card-title>
                     <md-card-title-text>
-                        <span class="md-headline" ng-style="{color: '#df5753'}">5 </span>
-                        <span class="md-subhead">Days Uptime </span>
+                        <span class="md-headline" ng-style="{color: '#df5753'}">{{lastHeartbeat}}  </span>
+                        <span class="md-subhead">Hours Since Last HearBeat </span>
                     </md-card-title-text>
                     <md-icon class="material-icons" style="font-size: 52px; margin-right: 20px " ng-style="{color: '#E67A77'}" >schedule</md-icon>
 
                 </md-card-title>
                 <md-card-actions layout="row" layout-align="end center">
-                    <md-button ng-click="showLatestReading()">Latest Reading</md-button>
+                    <md-button  ng-click="showLatestReading()">{{lastLocation}}</md-button>
                 </md-card-actions>
             </md-card>
         </div>

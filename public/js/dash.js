@@ -20,8 +20,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             strokeWeight: 2
         });
 
-        map.data.loadGeoJson(
-            'data/paddocks.json');
+        map.data.loadGeoJson('data/paddocks.json');
 
         var marker1 = new google.maps.Marker({
             position: {lat: -19.66882, lng: 146.864},
@@ -153,6 +152,54 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         $timeout(function(){$scope.initDashMap();});
 
+        function msToTime(duration) {
+            var milliseconds = parseInt((duration%1000)/100)
+                , seconds = parseInt((duration/1000)%60)
+                , minutes = parseInt((duration/(1000*60))%60)
+                , hours = parseInt((duration/(1000*60*60))%24);
+
+            hours = (hours < 10) ? "0" + hours : hours;
+            minutes = (minutes < 10) ? "0" + minutes : minutes;
+            seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+            return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+        }
+
+        $scope.lastHeartbeat = "00:05"//msToTime(last.last_heartbeat);
+
+        $scope.lastLocation="Spring Creek";
+
+        tagDataService.getHeartBeat(setHeartBeat);
+
+
+
+        function compare(a,b) {
+            if(a && a.last_heartbeat && b && b.last_heartbeat ){
+                return a.last_heartbeat - b.last_heartbeat;
+            }
+        }
+
+        function setHeartBeat(data){
+
+            debugger;
+            if(data && data.length>0) {
+
+                data.sort(compare);
+                var last=data[data.length-1];
+
+                $scope.lastHeartbeat = "00:05:15"//msToTime(last.last_heartbeat);
+
+                var loc="";
+
+                if(last.tag_id=="110177")loc="Spring Creek";
+                if(last.tag_id=="110171")loc="Double Barrel";
+                if(last.tag_id=="110163")loc="Junction";
+
+                $scope.lastLocation="Spring Creek";
+            }
+
+        }
+
         var dashData=detailedTagDataService.getTagData();
 
         if(dashData==null){
@@ -167,6 +214,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             if(data) {
                 $scope.weeklyTrace = data.weeklyTrace;
                 $scope.allTags = data;
+
                 var recordsForToday=data.recordsForToday;
 
                 var gainCounter=0;
@@ -175,19 +223,32 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 var total=0;
                 var totalGained=0;
                 var totalLost=0;
+
+                var gainIds=[];
+                var lossIds=[];
+                var allIds=[];
+
                 recordsForToday.forEach(function (d) {
-                    if(d.change<0){lossCounter++;totalLost+=d.change;}
-                    else if(d.change>0) {gainCounter++;totalGained+=d.change;}
+
+                    if(d.change<0){
+                        lossCounter++;
+                        totalLost+=d.change;
+                        lossIds.push(d.id);
+                    }
+                    else if(d.change>0) {
+                        gainCounter++;totalGained+=d.change;
+                        gainIds.push(d.id);
+                    }
                     else sameCounter++;
                     total++;
+                    allIds.push(d.id);
+
                 });
 
                 $scope.gain=gainCounter;
                 $scope.loss=lossCounter;
                 $scope.same=sameCounter;
                 $scope.total=total;
-
-
 
                 $scope.data = [
                     {
@@ -203,10 +264,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                         y: sameCounter
                     }
                 ];
-
-
-
-
 
                 $scope.data1 = [
                     {
@@ -307,9 +364,9 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 $mdDialog.alert()
                     .parent(angular.element(document.querySelector('#popupContainer')))
                     .clickOutsideToClose(true)
-                    .title('Latest Reading in the Last 24 Hours')
-                    .textContent('Latest Reading Here')
-                    .ariaLabel('Latest Reading')
+                    .title('Last Hearbeat')
+                    .textContent('This is the Last Hearbeat Location')
+                    .ariaLabel('This is the Last Hearbeat Location')
                     .ok('Ok')
                     .targetEvent(ev)
             );

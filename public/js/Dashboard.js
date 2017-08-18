@@ -123,10 +123,27 @@ function tagDataService($http, $q) {
 		getAllTagData: getAllTagData,
 		//getTestData: getTestData,
         getLocationData: getLocationData,
-        getStaticFile: getStaticFile
+        getStaticFile: getStaticFile,
+		getHeartBeat: getHeartBeat
 	};
 	return service;
 
+	function getHeartBeat(callback){
+
+        $http.get('api/status/heartbeat').success(getStaticSuccess,getStaticError);
+
+        function getStaticSuccess(results){
+
+            if(callback){
+                callback(results);
+            }
+        }
+
+        function getStaticError(){
+            console.log("Error getting the heartbeat");
+        }
+
+	}
     function getStaticFile(callback) {
         $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
         //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);

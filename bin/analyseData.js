@@ -170,7 +170,9 @@ Weight.find({}).exec(function (err, weights){
         var alertedTags=[];
 
         var today=new Date("2017-04-03");
-        var yesterday= new Date(today-1000*60*60*24)
+        var today2=new Date();
+        var yesterday= new Date(today-1000*60*60*24);
+        today2=today2.toISOString().substring(0,10);
         today=today.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);
 
@@ -245,7 +247,7 @@ Weight.find({}).exec(function (err, weights){
                     trace2Counter++;
 
                     if(d[a].datePosted==yesterday) outlierYesterday=true;
-                    if(d[a].datePosted==today) outlierToday=true;
+                    if(d[a].datePosted==today2) outlierToday=true;
 
                     d.splice(a,1);
                     a--;

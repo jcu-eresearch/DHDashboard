@@ -341,10 +341,16 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         dc.renderAll();
 
         onresize = function(){
-            dc.chartRegistry.list().forEach(chart => {
-                let: _bbox = chart.root().node().parentNode.getBoundingClientRect();
-            chart.width(_bbox.width).render();
-        });
+            //dc.chartRegistry.list().forEach(chart => {
+              //  let: _bbox = chart.root().node().parentNode.getBoundingClientRect();
+            //chart.width(_bbox.width).render();
+        //});
+            dc.chartRegistry.list().forEach(function(chart){
+                if(chart.map()) return;
+                var _bbox = chart.root().node().parentNode.getBoundingClientRect();
+                chart.width(_bbox.width).render();
+
+            });
         };
 
         onresize();
@@ -679,10 +685,17 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         dc.renderAll();
 
         onresize = function(){
-            dc.chartRegistry.list().forEach(chart => {
-                let: _bbox = chart.root().node().parentNode.getBoundingClientRect();
-            chart.width(_bbox.width).render();
-        });
+            //dc.chartRegistry.list().forEach(chart => {
+               // let: _bbox = chart.root().node().parentNode.getBoundingClientRect();
+            //chart.width(_bbox.width).render();
+        //});
+
+            dc.chartRegistry.list().forEach(function(chart){
+                if(chart.map()) return;
+                var _bbox = chart.root().node().parentNode.getBoundingClientRect();
+                chart.width(_bbox.width).render();
+
+            });
         };
 
         onresize();

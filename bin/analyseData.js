@@ -196,7 +196,7 @@ Weight.find({}).exec(function (err, weights){
         });
 
         var firstDay=dataSet[0].date.toISOString().substr(0,10);
-        today=dataSet[dataSet.length-1].date.toISOString().substr(0,10);
+        today="2017-07-25";
         var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
         var range=[];
 

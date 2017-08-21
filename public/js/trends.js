@@ -100,11 +100,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         });
         var dayOfWeekGroup = dayOfWeek.group();
 
-
-        
-
-        $scope.markerChart = dc.leafletMarkerChart("#inner-map")
-            .mapOptions({scrollWheelZoom: false})
+        var markerChart = dc.leafletMarkerChart("#inner-map")
+            .mapOptions({scrollWheelZoom: false, closePopupOnClick: false})
             .dimension(locationDimension)
             .group(locationGroup)
             .center([ -19.665,146.825])
@@ -114,6 +111,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .fitOnRender(true)
             .fitOnRedraw(true)
             .cluster(false);
+
 
         quarterChart /* dc.pieChart('#quarter-chart', 'chartGroup') */
             .width(180)
@@ -340,6 +338,9 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
         update();
         dc.renderAll();
+
+
+        //(markerChart.map()).openPopup("center", [ -19.665,146.825]);
 
         onresize = function(){
             //dc.chartRegistry.list().forEach(chart => {

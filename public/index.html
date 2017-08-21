@@ -114,16 +114,17 @@
 	<header>
 		<nav class="rad-navigation">
 			<div class="rad-logo-container">
-				<a ng-href="http://www.digitalhomestead.org" class="rad-logo"><img class="sm-img" src="images/image.jpg" alt="" /> The Digital Homestead</a>
+				<a ng-href="http://www.digitalhomestead.org" class="rad-logo"><img class="sm-img" src="images/image.jpg" alt="" /> The Digital Homestead Dashboard</a>
 			</div>
-			<a ng-href="http://www.digitalhomestead.org" class="rad-logo-hidden">The Digital Homestead</a>
+			<a ng-href="http://www.digitalhomestead.org" class="rad-logo-hidden">The Digital Homestead Dashboard</a>
 			<div class="rad-top-nav-container">
 				<a  class="brand-icon"><i class="fa fa-recycle"></i></a>
 				<ul class="pull-right links">
-					<li class="rad-dropdown"><a class="rad-menu-item" ><i class="fa fa-bell-o"><span class="rad-menu-badge">{{alerts?1:0}}</span></i></a>
+					<li   class=""><md-button style="border-radius: 2px; margin: 6px;" class="rad-menu-item"  ng-href="http://www.digitalhomestead.org" ><i class="fa fa-home"></i><span style="margin-left:2px;">MAIN PAGE</span></md-button></li>
 				</ul>
 				<ul class="pull-right links">
-
+					<li class="rad-dropdown"><a class="rad-menu-item" ><i class="fa fa-bell-o"><span ng-cloak="true" ng-if="alerts" class="rad-menu-badge">{{alerts?1:0}}</span></i></a>
+					<li class="rad-dropdown"><a class="rad-menu-item" ><i class="fa fa-exclamation"></i></a>
 				</ul>
 			</div>
 		</nav>

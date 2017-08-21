@@ -6,19 +6,16 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
     var dashData=detailedTagDataService.getTagData();
 
-
     if(dashData==null){
         tagDataService.getStaticFile(renderCharts);
     }
-    else {
 
+    else {
         $timeout(function (){
             dc.chartRegistry.clear();
             renderCharts(dashData);
         });
-
     }
-
 
     function renderCharts(results){
 
@@ -75,7 +72,9 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
         var monthTagsGroup = monthDimension.group().reduceCount(function(d) {return d.id;});
         var locationDimension = ndx.dimension(function(d) { return d.location; });
-        var locationGroup = locationDimension.group().reduceCount(function(d) {return d.id;});
+        var locationNameDimension = ndx.dimension(function(d) {return d.locationName;});
+        var locationGroup = locationDimension.group().reduceCount(function(d) {return d.locationName;});
+        var locationNameGroup = locationNameDimension.group().reduce(function(d) {return d.locationName;});
 
         var quarter = ndx.dimension(function (d) {
             var month = d.dd.getMonth();
@@ -101,7 +100,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var dayOfWeekGroup = dayOfWeek.group();
 
         var markerChart = dc.leafletMarkerChart("#inner-map")
-            .mapOptions({scrollWheelZoom: false, closePopupOnClick: false})
+            .mapOptions({scrollWheelZoom: false})
             .dimension(locationDimension)
             .group(locationGroup)
             .center([ -19.665,146.825])
@@ -110,7 +109,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .height(400)
             .fitOnRender(true)
             .fitOnRedraw(true)
-            .cluster(false);
+            .cluster(false)
+            .popupOnHover(true);
 
 
         quarterChart /* dc.pieChart('#quarter-chart', 'chartGroup') */
@@ -340,13 +340,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         dc.renderAll();
 
 
-        //(markerChart.map()).openPopup("center", [ -19.665,146.825]);
-
         onresize = function(){
-            //dc.chartRegistry.list().forEach(chart => {
-              //  let: _bbox = chart.root().node().parentNode.getBoundingClientRect();
-            //chart.width(_bbox.width).render();
-        //});
             dc.chartRegistry.list().forEach(function(chart){
                 if(chart.map) return;
                 var _bbox = chart.root().node().parentNode.getBoundingClientRect();

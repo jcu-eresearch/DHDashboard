@@ -165,7 +165,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
         }
 
-        $scope.lastHeartbeat = "00:05"//msToTime(last.last_heartbeat);
+        $scope.lastHeartbeat = "00:05";
         $scope.lastLocation="Spring Creek";
         tagDataService.getHeartBeat(setHeartBeat);
 

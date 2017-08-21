@@ -351,7 +351,7 @@ module.exports = function (app, enable_static, static_dir, static_path) {
                         var currentTime = moment();
                         for(i in result){
                             var rt = moment(result[i].last_heartbeat * 1000);
-                            result[i].last_heartbeat = Math.floor((currentTime - rt)/1000);
+                            result[i].last_heartbeat = Math.floor((currentTime - rt));
                         }
                         res.json(result);
                         res.end();

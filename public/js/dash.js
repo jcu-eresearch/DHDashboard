@@ -127,7 +127,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
     $scope.initDashMap=function() {
 
         map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -19.665, lng: 146.825},
+            center: {lat: -19.665, lng: 146.855},
             mapTypeId: 'hybrid',
             zoom:14,
             scrollwheel:  false

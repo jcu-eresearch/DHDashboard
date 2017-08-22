@@ -339,7 +339,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         update();
         dc.renderAll();
 
-
         onresize = function(){
             dc.chartRegistry.list().forEach(function(chart){
                 if(chart.map) return;
@@ -355,8 +354,4 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
     }
 
-
-
-
-    
 });

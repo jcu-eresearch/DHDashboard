@@ -111,6 +111,12 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		});
 	};
 
+    $(".rad-toggle-button").on('click', function() {
+        $(".rad-logo-container").toggleClass("rad-nav-min");
+        $(".rad-sidebar").toggleClass("rad-nav-min");
+        $(".rad-body-wrapper").toggleClass("rad-nav-min");
+    });
+
 });
 
 homesteadApp.controller('LiveDataCtrl', function($scope, $mdBottomSheet){});

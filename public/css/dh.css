@@ -1201,6 +1201,7 @@ a:active {
     color: #aeb2b7 !important;
     -webkit-transition: none;
 }
+
 .flat-theme .rad-info-box {
     box-shadow: none !important;
     border-radius: 4px;

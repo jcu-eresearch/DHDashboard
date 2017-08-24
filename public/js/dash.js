@@ -79,7 +79,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     "year": "2016"
                 },
                 "text": {
-                    "text": "<p>Data is transmitted hourly though Taggle and 3G.</p>"
+                    "text": "<p>Data is transmitted hourly through Taggle and 3G.</p>"
                 }
             },
             {

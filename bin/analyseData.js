@@ -127,12 +127,12 @@ Weight.find({}).exec(function (err, weights){
         })
     }
 
+    /** Get the week from a date **/
     function weeklyHash(date){
         var curr = new Date(date); // get current date
         var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
         return new Date(curr.setDate(first)).toISOString().substr(0,10);
     }
-
 
     /** utility function for calculating the difference between two dates **/
     Date.daysBetween = function( d1, d2 ) {
@@ -152,20 +152,70 @@ Weight.find({}).exec(function (err, weights){
         return Math.round(difference_ms/one_day);
     };
 
+    /** convert tag id to lat lon **/
     function tagIdToLatLong(tag){
         if(tag=="110177") return "-19.66882,146.864"; //Spring Creek
         else if(tag=="110171") return "-19.66574,146.8462"; //Double Barrel
         else if(tag=="110163") return "-19.66872,146.8642"; //Junction
     }
 
+    /** convert tag id to location name **/
     function tagIdToLocationName(tag){
         if(tag=="110177") return "Spring Creek";
         else if(tag=="110171") return "Double Barrel";
         else if(tag=="110163") return "Junction";
     }
 
+    /** convert the date from a date object to YYYY-MM-dd string **/
+    function fixDate(d){
+        if(d.date && d.date.toISOString().substr)
+            return d.date.toISOString().substr(0,10);
+        else return "";
+    }
+
+    /** compare the record against different thresholds return true if it should be filtered **/
+    function checkOutlier(d){
+        if(!(d.qa_flag) ||
+            (d && d.qa_flag &&
+            ( d.weight<300 || d.weight>650
+                || d.qa_flag=="INVALID" || d.qa_flag=="OUTLIER" )) ){
+            return true; //it is an outlier etc
+        }
+        else return false;
+    }
+
+    /** add this data point to the outliers array **/
+    function addToOutliersArray(d, outlierArray, counter){
+        if(d && d.datePosted && d.weight) {
+            outlierArray.x.push(d.datePosted);
+            outlierArray.y.push(d.weight);
+            counter++;
+            return counter;
+        }
+        return 0;
+    }
+
+    /** prepare records for dc.js **/
+    function addRecord(arr, d, recordCounter, delta){
+        arr.push({
+            date: d.date,
+            weight: d.weight,
+            id: d.id,
+            location: tagIdToLatLong(d.tag_id),
+            locationName: tagIdToLocationName(d.tag_id),
+            change: delta,
+            index: recordCounter
+        });
+    }
+
+
     /** Perform analysis on the weight data **/
     function analyseData(dataSet){
+
+        if(!dataSet){
+            console.log("No data available");
+            return;
+        }
 
         var dict={};
         var tagDict={};
@@ -174,13 +224,12 @@ Weight.find({}).exec(function (err, weights){
         var weeklyAverage={};
         var tagGraphs=[];
         var alertedTags=[];
-
-        var today=new Date("2017-04-03");
         var today2=new Date();
-        var yesterday= new Date(today-1000*60*60*24);
+        var yesterday= new Date(today2-1000*60*60*24);
         today2=today2.toISOString().substring(0,10);
-        today=today.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);
+        var today="2017-07-25"; //the latest date with relevant data
+
 
         var layout = {
             title: "Daily Individual Weight Trend",
@@ -188,21 +237,13 @@ Weight.find({}).exec(function (err, weights){
             showlegend: false
         };
 
-        if(!dataSet){
-            console.log("No data available");
-            return;
-        }
         // Group the data by id
         var idGroup = groupBy(dataSet, function(item){
             return [item.id];
         });
 
-        var dateGroup = groupBy(dataSet, function(item){
-            return [item.id];
-        });
-
         var firstDay=dataSet[0].date.toISOString().substr(0,10);
-        today="2017-07-25";
+
         var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
         var range=[];
 
@@ -219,6 +260,8 @@ Weight.find({}).exec(function (err, weights){
         for(var j=0; j<idGroup.length; j++){
 
             var d=idGroup[j];
+
+            //for the weights
             var trace1Counter=0;
             var trace1={
                 x:[],
@@ -230,6 +273,7 @@ Weight.find({}).exec(function (err, weights){
                 type: 'scatter'
             };
 
+            //for the outliers
             var trace2Counter=0;
             var trace2={
                 x:[],
@@ -245,26 +289,22 @@ Weight.find({}).exec(function (err, weights){
             var outlierToday=false;
             var alerted=false;
 
-            //remove all weights greater than the threshold weight
+            //fix dates, check for outliers and set up alerts
             for(var a=0; a<d.length; a++){
-                // fix the date
-                if(d[a].date && d[a].date.toISOString().substr)
-                    d[a].datePosted=d[a].date.toISOString().substr(0,10);
+                d[a].datePosted=fixDate(d[a]);
 
-                if(!(d[a].qa_flag) || (d[a] && d[a].qa_flag && ( d[a].weight<300 || d[a].weight>650 || d[a].qa_flag=="INVALID" || d[a].qa_flag=="OUTLIER" )) ){
-                    //Not including outliers etc in records at this point otherwise push into records here
-                    trace2.x.push(d[a].datePosted);
-                    trace2.y.push(d[a].weight);
-                    trace2Counter++;
-
-                    if(d[a].datePosted==yesterday) outlierYesterday=true;
-                    if(d[a].datePosted==today2) outlierToday=true;
-
+                if(checkOutlier(d[a])){
+                    trace2Counter=addToOutliersArray(d[a], trace2, trace2Counter);
+                    if(d && d.datePosted){
+                        if(d.datePosted==yesterday) outlierYesterday=true;
+                        if(d.datePosted==today2) outlierToday=true;
+                    }
                     d.splice(a,1);
                     a--;
                 }
             }
 
+            //filter out -1 tag
             if(d[0] && d[0].id=='-1') {
                 idGroup.splice(j, 1);
                 j--;
@@ -276,19 +316,52 @@ Weight.find({}).exec(function (err, weights){
                 trace2["name"]='Outlier';
                 trace1.x.push(d[0].datePosted);
                 trace1.y.push(d[0].weight);
+                trace1Counter++;
 
                 //Push this initial reading into records for trends page
-                records.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), locationName: tagIdToLocationName(d[0].tag_id), change: 0, index: recordCounter });
+                addRecord(records, d[0], recordCounter, 0);
 
                 if(d[0].datePosted==today){
-                    recordsForToday.push({date: d[0].date, weight: d[0].weight, id: d[0].id, location: tagIdToLatLong(d[0].tag_id), locationName: tagIdToLocationName(d[0].tag_id),change: 0, index: recordCounter });
+                    addRecord(recordsForToday, d[0], recordCounter, 0);
                     recordsForTodayCounter++;
                 }
 
-                trace1Counter++;
 
+                //is this really required?
                 tagDict[d[0].datePosted]=d[0].weight;
-                if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
+
+                function addToDailyAverage(dailyAverage, d, recordCounter){
+                    //this day already has weight data
+                    if(dailyAverage[d.datePosted]
+                        && dailyAverage[d.datePosted].length
+                            && dailyAverage[d.datePosted].length>0){
+
+                        var sum=d.weight;
+                        if(dailyAverage[d.datePosted].length>=1)
+                            sum=d.weight + dailyAverage[d.datePosted][ dailyAverage[d.datePosted].length-1].sum;
+                        //push the sum up till now
+                        dailyAverage[d.datePosted].push({
+                            weight: d.weight,
+                            id: d.id,
+                            sum : sum,
+                            index: recordCounter
+                        });
+                    }
+                    else{
+                        //initialize this day
+                        dailyAverage[d.datePosted]=[];
+                        dailyAverage[d.datePosted].push({
+                            weight: d.weight,
+                            id: d.id,
+                            sum:  d.weight,
+                            index: recordCounter});
+                    }
+                    return dailyAverage;
+                }
+
+                dailyAverage=addToDailyAverage(dailyAverage, d[0], recordCounter);
+
+              /*  if(dailyAverage[d[0].datePosted] && dailyAverage[d[0].datePosted].length && dailyAverage[d[0].datePosted].length>0){
                     var sum=d[0].weight;
                     if(dailyAverage[d[0].datePosted].length>=1)
                         sum=d[0].weight + dailyAverage[d[0].datePosted][ dailyAverage[d[0].datePosted].length-1].sum;
@@ -297,7 +370,9 @@ Weight.find({}).exec(function (err, weights){
                 else{
                     dailyAverage[d[0].datePosted]=[];
                     dailyAverage[d[0].datePosted].push({weight: d[0].weight, id: d[0].id, sum:  d[0].weight, index: recordCounter});
-                }
+                }*/
+
+
                 if(dailyIds[d[0].datePosted]){
                     dailyIds[d[0].datePosted][d[0].id]=1;
                 }
@@ -305,6 +380,7 @@ Weight.find({}).exec(function (err, weights){
                     dailyIds[d[0].datePosted]={};
                     dailyIds[d[0].datePosted][d[0].id]=1;
                 }
+
                 if(weeklyIds[weeklyHash(d[0].datePosted)]){
                     weeklyIds[weeklyHash(d[0].datePosted)][d[0].id]=1;
                 }
@@ -678,8 +754,6 @@ Weight.find({}).exec(function (err, weights){
         allTags.recordsForToday=recordsForToday;
 
         createStaticFile(allTags);
-
-
     }
 
 

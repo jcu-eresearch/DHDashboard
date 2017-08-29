@@ -484,6 +484,41 @@ Weight.find({}).exec(function (err, weights){
         return false;
     }
 
+    /** sort days **/
+    function getSortedDays(dailyAve) {
+        var sortedDays=[];
+        for (var day in dailyAve){
+            if (dailyAve.hasOwnProperty(day)) {
+                sortedDays.push(day);
+            }
+        }
+        return sortedDays.sort();
+    }
+
+    /** This is for the daily and weekly average graphs**/
+    function prepareAveTraces(dailyAve, weeklyAve, recs ){
+        var sortedDays=getSortedDays(dailyAve);
+        var days=[];
+        var weights=[];
+        var tr=[[],[],[]];
+        for (var c=0; c<sortedDays.length; c++) {
+            var day=sortedDays[c];
+
+            if (dailyAve.hasOwnProperty(day)) {
+                if(dailyAve[day] && dailyAve[day].length>0){
+                    days.push(day);
+                    var aveWeight=calculateAverageForDay(dailyAve,weights,day);
+                    addToAverage(weeklyAve, day, weeklyHash, aveWeight);
+                    assignRanks(dailyAve, day, recs, compare);
+                    addToThirdsTraces(dailyAve, day, tr);
+                }
+            }
+        }
+        var daily={days: days, weights: weights};
+        return {thirds: tr,  daily: daily};
+    }
+
+
     /** Perform analysis on the weight data **/
     function analyseData(dataSet){
 
@@ -644,31 +679,11 @@ Weight.find({}).exec(function (err, weights){
             return keyA.localeCompare(keyB);
         });
 
-        var sortedDays=[];
-        for (var day in dailyAverage){
-            if (dailyAverage.hasOwnProperty(day)) {
-                sortedDays.push(day);
-            }
-        }
 
-        sortedDays.sort();
+        var aveTraces=prepareAveTraces(dailyAverage, weeklyAverage, records);
+        var thirdsTraces=aveTraces.thirds;
+        var dailyTrace=aveTraces.daily;
 
-        /** This is for the daily and weekly average graphs**/
-        var dailyAverageDays=[];
-        var dailyAverageWeights=[];
-        var thirdsTraces=[[],[],[]];
-        for (var counter=0; counter<sortedDays.length; counter++) {
-            var day=sortedDays[counter];
-            if (dailyAverage.hasOwnProperty(day)) {
-                if(dailyAverage[day] && dailyAverage[day].length>0){
-                    dailyAverageDays.push(day);
-                    var aveWeight=calculateAverageForDay(dailyAverage,dailyAverageWeights,day);
-                    addToAverage(weeklyAverage, day, weeklyHash, aveWeight);
-                    assignRanks(dailyAverage, day, records,compare);
-                    addToThirdsTraces(dailyAverage, day, thirdsTraces);
-                }
-            }
-        }
 
         var sortedWeeks=[];
         for (var aWeek in weeklyAverage) {
@@ -711,8 +726,8 @@ Weight.find({}).exec(function (err, weights){
         };
 
         var totalWeights = {
-            x: dailyAverageDays,
-            y: dailyAverageWeights,
+            x: dailyTrace.days,
+            y: dailyTrace.weights,
             mode: 'lines+markers',
             name: "Ave Wt",
             line:{
@@ -730,7 +745,7 @@ Weight.find({}).exec(function (err, weights){
 
         var thirdsTraces=thirdsTraces;
         var lowerThird = {
-            x: dailyAverageDays,
+            x: dailyTrace.days,
             y: thirdsTraces[0],
             mode: 'lines+markers',
             name: "Ave: Lower 1/3",
@@ -743,7 +758,7 @@ Weight.find({}).exec(function (err, weights){
             type: 'scatter'
         };
         var middleThird = {
-            x: dailyAverageDays,
+            x: dailyTrace.days,
             y: thirdsTraces[1],
             mode: 'lines+markers',
             name: "Ave: Middle 1/3",
@@ -756,7 +771,7 @@ Weight.find({}).exec(function (err, weights){
             type: 'scatter'
         };
         var upperThird = {
-            x: dailyAverageDays,
+            x: dailyTrace.days,
             y: thirdsTraces[2],
             mode: 'lines+markers',
             name: "Ave: Upper 1/3",

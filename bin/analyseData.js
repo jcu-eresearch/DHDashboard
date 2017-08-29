@@ -379,7 +379,6 @@ Weight.find({}).exec(function (err, weights){
         else trace[index]= NaN;
     }
 
-
     /** split weight into three bins, take average for each bin to prepare daily ave thirds **/
     function addToThirdsTraces(dailyAverage, day, thirdsTraces){
         var bin=Math.floor(dailyAverage[day].length/3);
@@ -425,12 +424,17 @@ Weight.find({}).exec(function (err, weights){
 
     }
 
+    /** group data by a certain parameter **/
+    function groupByParameter(param, data){
+        return groupBy(data, function(item){
+            return [item[param]];
+        });
+    }
+
     /** find the latest date with valid data **/
     function findLatestDate(dataSet){
         var lastDate= (new Date()).toISOString().substr(0,10);
-        var dateGroup = groupBy(dataSet, function(item){
-            return [item.date];
-        });
+        var dateGroup = groupByParameter("date", dataSet);
         if(dateGroup && dateGroup.length>0){
             var count=dateGroup.length-1;
             var last= {};
@@ -471,8 +475,9 @@ Weight.find({}).exec(function (err, weights){
         return c;
     }
 
+    /** check if there is any data **/
     function empty(data){
-        if(!data || (data.length && data.length<=0)) {
+        if(!data || !data.length || data.length<=0) {
             console.log("No Data Available");
             return true;
         }
@@ -500,9 +505,7 @@ Weight.find({}).exec(function (err, weights){
         };
 
         // Group the data by id
-        var idGroup = groupBy(dataSet, function(item){
-            return [item.id];
-        });
+        var idGroup = groupByParameter("id", dataSet);
 
         var firstDay=dataSet[0].date.toISOString().substr(0,10);
         var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");

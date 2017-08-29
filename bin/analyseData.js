@@ -156,7 +156,7 @@ Weight.find({}).exec(function (err, weights){
     function tagIdToLatLong(tag){
         if(tag=="110177") return "-19.66882,146.864"; //Spring Creek
         else if(tag=="110171") return "-19.66574,146.8462"; //Double Barrel
-        else if(tag=="110163") return "-19.66872,146.8642"; //Junction
+        else if(tag=="110163") return "-19.66872,146.8642"; //Junction//-19.66872,146.8642
     }
 
     /** convert tag id to location name **/
@@ -208,10 +208,18 @@ Weight.find({}).exec(function (err, weights){
         });
     }
 
+    /** push record for dailyAverage **/
+    function insertDailyAverage(arr, w, i, s, r){
+        arr.push({
+            weight: w,
+            id: i,
+            sum:  s,
+            index: r
+        });
+    }
 
     /** this is for quick averaging over all days**/
     function addToDailyAverage(dailyAverage, recordCounter, d, weight, date){
-
         var dt= date? date: d.datePosted;
         var wt= weight? weight: d.weight;
 
@@ -219,28 +227,20 @@ Weight.find({}).exec(function (err, weights){
         if(dailyAverage[dt]
             && dailyAverage[dt].length
             && dailyAverage[dt].length>0){
-
             var l=dailyAverage[dt].length;
             var sum=wt;
             if(l>=1)
                 sum=wt +
                     dailyAverage[dt][l-1].sum;
             //push the sum up till now
-            dailyAverage[dt].push({
-                weight: wt,
-                id: d.id,
-                sum : sum,
-                index: recordCounter
-            });
+            insertDailyAverage(dailyAverage[dt], wt,
+                d.id, sum ,recordCounter);
         }
         else{
             //initialize this day
             dailyAverage[dt]=[];
-            dailyAverage[dt].push({
-                weight: wt,
-                id: d.id,
-                sum:  wt,
-                index: recordCounter});
+            insertDailyAverage(dailyAverage[dt], wt,
+                d.id, wt ,recordCounter);
         }
         return dailyAverage;
     }
@@ -263,12 +263,8 @@ Weight.find({}).exec(function (err, weights){
         }
         else{
             dailyAverage[dt]=[];
-            dailyAverage[dt].push({
-                weight: wt,
-                id: d.id,
-                sum: wt,
-                index: recordCounter
-            });
+            insertDailyAverage(dailyAverage[dt], wt,
+                d.id, wt ,recordCounter);
         }
         return dailyAverage;
     }
@@ -303,7 +299,8 @@ Weight.find({}).exec(function (err, weights){
     }
 
     /** initialize the appearance of a trace **/
-    function initTraceLayout(mode, color, type){
+    function initTraceLayout(mode, color, type, name){
+        var n=name?name:"";
         return {
             x:[],
             y:[],
@@ -311,7 +308,8 @@ Weight.find({}).exec(function (err, weights){
             line:{
                 color: color
             },
-            type: type
+            type: type,
+            name:n
         };
     }
 
@@ -330,13 +328,161 @@ Weight.find({}).exec(function (err, weights){
         else return null;
     }
 
+    /** for sorting an array based on weights **/
+    function compare(a,b) {
+        if(a && a.weight && b && b.weight ){
+            return a.weight - b.weight;
+        }
+    }
+
+    /** divide the accumulated sum by length to get average weight for a day **/
+    function calculateAverageForDay(arr, targetArr, day){
+        var ave=0;
+        if(arr && arr[day] && arr[day][arr[day].length-1]){
+            ave=arr[day][arr[day].length-1].sum/arr[day].length;
+            targetArr.push(ave); //the target array now has the ave wt for day
+        }
+        return ave;
+    }
+
+    /** for calculating the weekly average from the daily average **/
+    function addToAverage(arr, day, fn, ave){
+        //fn is the weekly hash
+        if(arr && arr[fn(day)] && arr[fn(day)].weights && arr[fn(day)].days){
+            arr[fn(day)].weights+=ave; // sum for days in this week
+            (arr[fn(day)].days)++; // days in this week which had data
+        }
+        else{
+            arr[fn(day)]={weights: ave, days: 1}; //first day seen for this week
+        }
+    }
+
+    /** sort an array and assign rank based on weight **/
+    function assignRanks(arr, day, records, compare){
+        arr[day].sort(compare);
+
+        var len=arr[day].length;
+        var rank=1;
+        for(var i=len-1; i>=0; i-- ){
+
+            //this links back to the records array
+            //rank is used in the trends page
+            records[(arr[day][i]).index].rank=rank;
+            rank++;
+        }
+    }
+
+    /** calculate average weight for a trace **/
+    function calcAveForTrace(trace, index,count){
+        if(trace[index] && count>0)
+            trace[index]/=count;
+        else trace[index]= NaN;
+    }
+
+
+    /** split weight into three bins, take average for each bin to prepare daily ave thirds **/
+    function addToThirdsTraces(dailyAverage, day, thirdsTraces){
+        var bin=Math.floor(dailyAverage[day].length/3);
+
+        if(dailyAverage[day]){
+
+            var index0=thirdsTraces[0].length;
+            var index1=thirdsTraces[1].length;
+            var index2=thirdsTraces[2].length;
+            var count0=0,count1=0,count2=0;
+
+            for (var i = 0; i < dailyAverage[day].length; i++){
+                var wt=dailyAverage[day][i].weight;
+                if (i == 0) {
+                    thirdsTraces[0].push(wt);
+                    count0++;
+                }
+                else if (i < bin){
+                    thirdsTraces[0][index0] += wt;
+                    count0++;
+                }
+                else if (i == bin ){
+                    thirdsTraces[1].push(wt);
+                    count1++;
+                }
+                else if (i < 2 * bin){
+                    thirdsTraces[1][index1] += wt;
+                    count1++;
+                }
+                else if (i == 2 * bin || bin==0){
+                    thirdsTraces[2].push(wt);
+                    count2++;
+                }
+                else if (i <  dailyAverage[day].length){
+                    thirdsTraces[2][index2] += wt;
+                    count2++;
+                }
+            }
+            calcAveForTrace(thirdsTraces[0], index0, count0);
+            calcAveForTrace(thirdsTraces[1], index1, count1);
+            calcAveForTrace(thirdsTraces[2], index2, count2);
+        }
+
+    }
+
+    /** find the latest date with valid data **/
+    function findLatestDate(dataSet){
+        var lastDate= (new Date()).toISOString().substr(0,10);
+        var dateGroup = groupBy(dataSet, function(item){
+            return [item.date];
+        });
+        if(dateGroup && dateGroup.length>0){
+            var count=dateGroup.length-1;
+            var last= {};
+            while (count >0){
+                last=dateGroup[count--];
+                if(last && last.length>0 && last[0]){
+                    var l=last[0];
+                    var d= l.date;
+                    if(d && l.qa_flag && l.qa_flag=="VALID"){
+                        var dt=new Date(d);
+                        if(Object.prototype.toString.call(d) === "[object Date]"
+                            && !(isNaN(d.getTime())))
+                            return fixDate(l);
+                    }
+                }
+            }
+        }
+        return lastDate;
+    }
+
+    /** return initialized record for trends page records **/
+    function initRecord(d,c){
+        return {
+            date: d.date,
+            weight: d.weight,
+            id: d.id,
+            location: tagIdToLatLong(d.tag_id),
+            locationName: tagIdToLocationName(d.tag_id),
+            index: c
+        }
+    }
+
+    /** add a wt and dt to a trace **/
+    function addToTrace(trace, c, dt, wt){
+        trace.x.push(dt);
+        trace.y.push(wt);
+        c++;
+        return c;
+    }
+
+    function empty(data){
+        if(!data || (data.length && data.length<=0)) {
+            console.log("No Data Available");
+            return true;
+        }
+        return false;
+    }
+
     /** Perform analysis on the weight data **/
     function analyseData(dataSet){
 
-        if(!dataSet){
-            console.log("No data available");
-            return;
-        }
+        if(empty(dataSet)) return;
 
         var dailyAverage={};
         var weeklyAverage={};
@@ -346,8 +492,7 @@ Weight.find({}).exec(function (err, weights){
         var yesterday= new Date(today2-1000*60*60*24);
         today2=today2.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);
-        var today="2017-07-25"; //the latest date with relevant data
-
+        var today=findLatestDate(dataSet);
         var layout = {
             title: "Daily Individual Weight Trend",
             yaxis: {title: "Weight (KG)"},
@@ -360,10 +505,8 @@ Weight.find({}).exec(function (err, weights){
         });
 
         var firstDay=dataSet[0].date.toISOString().substr(0,10);
-
         var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
         var range=[];
-
         while(itr.hasNext()){
             range.push((itr.next().toDate()).toISOString().substr(0,10));
         }
@@ -375,6 +518,7 @@ Weight.find({}).exec(function (err, weights){
 
         /** Iterate over all the ids and generate the individual graph for each animal **/
         for(var j=0; j<idGroup.length; j++){
+
             var d=idGroup[j];
 
             //filter out -1 tag
@@ -389,8 +533,8 @@ Weight.find({}).exec(function (err, weights){
 
             //trace for the outliers
             var outlierTraceCounter = 0;
-            var outlierTrace = initTraceLayout('markers', '#e98686', 'scatter');
-            outlierTrace["name"] = 'Outlier';
+            var outlierTrace = initTraceLayout('markers', '#e98686', 'scatter', 'Outlier');
+
 
             //for detecting outliers
             var outlierYesterday = false;
@@ -402,7 +546,7 @@ Weight.find({}).exec(function (err, weights){
                 d[a].datePosted = fixDate(d[a]);
                 //filter outliers
                 if (checkOutlier(d[a])) {
-                    outlierTraceCounter = addToOutliersArray(d[a], outlierTrace, outlierTraceCounter);
+                    addToOutliersArray(d[a], outlierTrace, outlierTraceCounter);
                     //detect consecutive outliers
                     if (d && d.datePosted) {
                         if (d.datePosted == yesterday) outlierYesterday = true;
@@ -412,7 +556,6 @@ Weight.find({}).exec(function (err, weights){
                     a--;
                 }
             }
-
             //setting up the main trace here
             if(d[0]) {
                 //consecutive outliers have been detected
@@ -423,7 +566,7 @@ Weight.find({}).exec(function (err, weights){
                 traceCounter = initTrace(trace, traceCounter, d[0]);
                 //this is for dc.js
                 addRecord(records, d[0], recordCounter, 0);
-                dailyAverage = addToDailyAverage(dailyAverage, recordCounter, d[0]);
+                addToDailyAverage(dailyAverage, recordCounter, d[0]);
                 recordCounter++;
                 //this is for main dash stats for the latest date
                 if (d[0].datePosted == today) {
@@ -431,23 +574,16 @@ Weight.find({}).exec(function (err, weights){
                     recordsForTodayCounter++;
                 }
                 //this is for counting ids
-                dailyIds = addToIdList(dailyIds, d[0].id, d[0].datePosted);
-                weeklyIds = addToIdList(weeklyIds, d[0].id, d[0].datePosted, weeklyHash);
+                addToIdList(dailyIds, d[0].id, d[0].datePosted);
+                addToIdList(weeklyIds, d[0].id, d[0].datePosted, weeklyHash);
             }
+
             //take average of multiple readings during one day
             for (var i = 1; i < d.length; i++) {
-
                 var dt = d[i].datePosted,
                     wt = d[i].weight;
                 //Push this initial reading into records for trends page
-                var rec = {
-                    date: d[i].date,
-                    weight: d[i].weight,
-                    id: d[i].id,
-                    location: tagIdToLatLong(d[i].tag_id),
-                    locationName: tagIdToLocationName(d[0].tag_id),
-                    index: recordCounter
-                };
+                var rec = initRecord(d[i], recordCounter);
 
                 if (traceCounter > 0) {
                     var detect = detectDuplicates(trace, traceCounter, d, i);
@@ -459,36 +595,30 @@ Weight.find({}).exec(function (err, weights){
                         if (dt == today)
                             correctWeights(recordsForToday, recordsForTodayCounter, wt);
                         correctDailyAverage(dailyAverage, dt, wt, recordCounter, d[0]);
-                        dailyIds = addToIdList(dailyIds, d[0].id, dt);
-                        weeklyIds = addToIdList(weeklyIds, d[0].id, dt, weeklyHash);
+                        addToIdList(dailyIds, d[0].id, dt);
+                        addToIdList(weeklyIds, d[0].id, dt, weeklyHash);
 
                         i = detect.index;
                         continue;
                     }
                 }
 
-                trace.x.push(dt);
-                trace.y.push(wt);
-                traceCounter++;
-
+                traceCounter=addToTrace(trace, traceCounter, dt, wt);
                 //weight and change in weight for trends
                 rec.weight = wt;
                 rec.change = wt - records[recordCounter - 1].weight;
                 var btwDays = Date.daysBetween(records[recordCounter - 1].date, rec.date);
                 if (btwDays > 1) rec.change = rec.change / btwDays;
                 records.push(rec);
-                dailyAverage = addToDailyAverage(dailyAverage, recordCounter, d[0], wt, dt);
+                addToDailyAverage(dailyAverage, recordCounter, d[0], wt, dt);
                 recordCounter++;
-
                 //weight and change in weight for latest date
                 if (dt == today) {
                     recordsForToday.push(rec);
                     recordsForTodayCounter++;
                 }
-
-                dailyIds = addToIdList(dailyIds, d[0].id, dt);
-                weeklyIds = addToIdList(weeklyIds, d[0].id, dt, weeklyHash);
-
+                addToIdList(dailyIds, d[0].id, dt);
+                addToIdList(weeklyIds, d[0].id, dt, weeklyHash);
             }
 
             //add the trace for this animal
@@ -503,8 +633,6 @@ Weight.find({}).exec(function (err, weights){
                     alerted: alerted
                 });
             }
-
-
         }
 
         tagGraphs.sort(function(a, b){
@@ -513,18 +641,13 @@ Weight.find({}).exec(function (err, weights){
             return keyA.localeCompare(keyB);
         });
 
-        function compare(a,b) {
-            if(a && a.weight && b && b.weight ){
-                return a.weight - b.weight;
-            }
-        }
-
         var sortedDays=[];
         for (var day in dailyAverage){
             if (dailyAverage.hasOwnProperty(day)) {
                 sortedDays.push(day);
             }
         }
+
         sortedDays.sort();
 
         /** This is for the daily and weekly average graphs**/
@@ -532,82 +655,14 @@ Weight.find({}).exec(function (err, weights){
         var dailyAverageWeights=[];
         var thirdsTraces=[[],[],[]];
         for (var counter=0; counter<sortedDays.length; counter++) {
-
             var day=sortedDays[counter];
             if (dailyAverage.hasOwnProperty(day)) {
                 if(dailyAverage[day] && dailyAverage[day].length>0){
                     dailyAverageDays.push(day);
-                    if(dailyAverage[day][dailyAverage[day].length-1]) {
-                        var aveWeight = dailyAverage[day][dailyAverage[day].length - 1].sum / dailyAverage[day].length;
-                        dailyAverageWeights.push(aveWeight);
-
-                        if(weeklyAverage[weeklyHash(day)] && weeklyAverage[weeklyHash(day)].weights ){
-                            weeklyAverage[weeklyHash(day)].weights=weeklyAverage[weeklyHash(day)].weights+aveWeight;
-                            (weeklyAverage[weeklyHash(day)].days)++;
-                        }
-                        else{
-                            weeklyAverage[weeklyHash(day)]={weights: aveWeight, days: 1};
-                        }
-                    }
-                    //also sort while iterating
-                    dailyAverage[day].sort(compare);
-
-                    //assign rank to records based on sorted order
-                    var dailyLen=dailyAverage[day].length;
-                    var dailyRank=1;
-                    for(var dailyIndex=dailyLen-1; dailyIndex>=0; dailyIndex-- ){
-                        records[(dailyAverage[day][dailyIndex]).index].rank=dailyRank;
-                        dailyRank++;
-                    }
-
-                    //Prepare thirds graphs
-                    var bin=Math.floor(dailyAverage[day].length/3);
-
-                    if(dailyAverage[day]){
-                        var index0=thirdsTraces[0].length;
-                        var index1=thirdsTraces[1].length;
-                        var index2=thirdsTraces[2].length;
-                        var count0=0;
-                        var count1=0;
-                        var count2=0;
-                        for (var i = 0; i < dailyAverage[day].length; i++){
-
-                            if (i == 0) {
-                                thirdsTraces[0].push(dailyAverage[day][i].weight);
-                                count0++;
-                            }
-                            else if (i < bin){
-                                thirdsTraces[0][index0] += dailyAverage[day][i].weight;
-                                count0++;
-                            }
-                            else if (i == bin ){
-                                thirdsTraces[1].push(dailyAverage[day][i].weight);
-                                count1++;
-                            }
-                            else if (i < 2 * bin){
-                                thirdsTraces[1][index1] += dailyAverage[day][i].weight;
-                                count1++;
-                            }
-                            else if (i == 2 * bin || bin==0){
-                                thirdsTraces[2].push(dailyAverage[day][i].weight);
-                                count2++;
-                            }
-                            else if (i < d.length){
-                                thirdsTraces[2][index2] += dailyAverage[day][i].weight;
-                                count2++;
-                            }
-
-                        }
-                        if(thirdsTraces[0][index0] && count0>0)
-                            thirdsTraces[0][index0]/=count0;
-                        else thirdsTraces[0][index0]=NaN;
-                        if(thirdsTraces[1][index1] && count1>0)
-                            thirdsTraces[1][index1]/=count1;
-                        else thirdsTraces[1][index1]=NaN;
-                        if(thirdsTraces[2][index2] && count2>0)
-                            thirdsTraces[2][index2]/=count2;
-                        else thirdsTraces[2][index2]=NaN;
-                    }
+                    var aveWeight=calculateAverageForDay(dailyAverage,dailyAverageWeights,day);
+                    addToAverage(weeklyAverage, day, weeklyHash, aveWeight);
+                    assignRanks(dailyAverage, day, records,compare);
+                    addToThirdsTraces(dailyAverage, day, thirdsTraces);
                 }
             }
         }
@@ -644,6 +699,7 @@ Weight.find({}).exec(function (err, weights){
                 size: sortedWeekCounts
             }
         };
+
         var bubbleLayout = {
             title: "Weekly Herd Weight Average",
             yaxis: {

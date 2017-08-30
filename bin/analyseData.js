@@ -171,7 +171,7 @@ Weight.find({}).exec(function (err, weights){
         }
     }
 
-    /** managing all the tag counter here **/
+    /** managing all the tag counters here **/
     function tagCounters(){
 
         var counters=[
@@ -206,7 +206,6 @@ Weight.find({}).exec(function (err, weights){
             getCounts: getCounts
         }
     }
-
 
     /** utility function for grouping data by different fields **/
     function groupBy( array , f ){
@@ -354,6 +353,66 @@ Weight.find({}).exec(function (err, weights){
                 d.id, wt ,recordCounter);
         }
         return dailyAverage;
+    }
+
+
+    function averager(hash){
+
+        var averages={};
+
+        function insert(day, tag, weight, index){
+            if(!averages[day])
+                averages[day]=[];
+
+            var len=averages[day].length-1;
+            var sum=0;
+            if(len>=0)
+                sum=averages[day][len].sum;
+
+            sum+=weight;
+
+            averages[day].push({
+                weight: weight,
+                id: tag,
+                sum:  sum,
+                index: index
+            });
+        }
+
+        function correct(day, tag, weight, index){
+            if(!averages[day] || averages[day].length<1) {
+                insert(day, tag, weight, index);
+                return;
+            }
+            var sum=weight;
+            var l=averages[day].length;
+            //overwrite the previous weight
+            if(l>=2)
+                sum=weight + averages[day][l-2].sum;
+            //retain the previous index
+            var previous=averages[day][l-1].index;
+            averages[day][l-1]={
+                weight: weight,
+                id: tag,
+                sum : sum,
+                index: previous
+            }
+        }
+
+        function getAverage(day){
+
+        }
+
+        function getAverages(){
+
+        }
+
+        return {
+            insert: insert,
+            correct: correct,
+            getAverage: getAverage,
+            getAverages: getAverages
+        };
     }
 
 

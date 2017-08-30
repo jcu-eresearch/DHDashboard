@@ -356,7 +356,7 @@ Weight.find({}).exec(function (err, weights){
     }
 
 
-    function averager(hash){
+    function averager(){
 
         var averages={};
 
@@ -400,18 +400,69 @@ Weight.find({}).exec(function (err, weights){
         }
 
         function getAverage(day){
+            if(!averages[day] || averages[day].length<1)
+                return 0;
+            var l=averages[day].length;
+            return averages[day][l-1].sum/l;
 
         }
 
-        function getAverages(){
+        function getDailyAverages(){
+            var sorted=[];
 
+            for(var timeUnit in averages)
+                sorted.push(timeUnit);
+            sorted.sort();
+
+            var sortedAves=[];
+            for (var k=0; k<sorted.length; k++) {
+                var u=sorted[k];
+                var ave=getAverage(u);
+                sortedAves.push(ave);
+            }
+
+            //chronologically
+            return sortedAves;
+        }
+
+        function getAves(hash){
+            var sorted=[];
+            for(var timeUnit in averages)
+                sorted.push(hash(timeUnit));
+            sorted.sort();
+
+            var sortedAves=[];
+
+            var unit, sum, count;
+            for (var k=0; k<sorted.length; k++) {
+                //initialize
+                unit=sorted[k];
+                sum=getAverage(timeUnit);
+                count=1;
+
+                k++;
+                var u=sorted[k];
+                while(u && u==unit && k<sorted.length){
+                    sum+=getAverage(u);
+                    count++;
+                    k++;
+                    u=(k<sorted.length)?sorted[k]:null;
+                }
+                sum/=(count>0)?count:1;
+                sortedAves.push(sum);
+
+
+            }
+
+            return sortedAves;
         }
 
         return {
             insert: insert,
             correct: correct,
             getAverage: getAverage,
-            getAverages: getAverages
+            getDailyAverages: getDailyAverages,
+            getAves: getAves
         };
     }
 

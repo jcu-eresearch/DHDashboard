@@ -111,8 +111,102 @@ Weight.find({}).exec(function (err, weights){
         });
     }
 
-    var dailyIds={};
-    var weeklyIds={};
+    var tagCounts=tagCounters();
+
+    /** Get the first day of the week from a date **/
+    function weeklyHash(date){
+        var curr = new Date(date); // get current date
+        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        return new Date(curr.setDate(first)).toISOString().substr(0,10);
+    }
+
+    /** Get the first day of the month from a date **/
+    function monthlyHash(date){
+        var curr = new Date(date); // get current date
+        return new Date(curr.setDate(1)).toISOString().substr(0,10);
+    }
+
+    /** this is for quickly counting ids/tags over days, weeks and months**/
+    function tagCounter(hash){
+        var tagList={};
+        var fn=hash?hash:null;
+
+        function addTag(tag, dy){
+            var day=dy;
+            if(fn) day=fn(dy);
+            if(!tagList[day])
+                tagList[day]={};
+            tagList[day][tag]=1;
+        }
+
+        function getTagCount(dy){
+
+            var day=dy;
+            if(fn) day=fn(dy);
+            return tagList[day]?Object.keys(tagList[day]).length:0;
+        }
+
+        function getTagCounts(){
+            var sorted=[];
+
+            for(var timeUnit in tagList)
+                sorted.push(timeUnit);
+            sorted.sort();
+
+            var sortedCounts=[];
+            for (var k=0; k<sorted.length; k++) {
+                var u=sorted[k];
+                var count=Object.keys(tagList[u]).length;
+                sortedCounts.push(count);
+            }
+
+            //chronologically
+            return sortedCounts;
+        }
+
+        return {
+            add: addTag,
+            getCount: getTagCount,
+            getCounts: getTagCounts
+        }
+    }
+
+    /** managing all the tag counter here **/
+    function tagCounters(){
+
+        var counters=[
+            tagCounter(),
+            tagCounter(weeklyHash),
+            tagCounter(monthlyHash)
+        ];
+
+        var ind={
+            daily : 0,
+            weekly : 1,
+            monthly: 2
+        };
+
+        function add(tag, day){
+            counters.forEach(function(d){
+                d.add(tag, day);
+            })
+        }
+
+        function getCount(name, day){
+            return counters[ind[name]].getCount(day);
+        }
+
+        function getCounts(name){
+            return counters[ind[name]].getCounts();
+        }
+
+        return {
+            add: add,
+            getCount: getCount,
+            getCounts: getCounts
+        }
+    }
+
 
     /** utility function for grouping data by different fields **/
     function groupBy( array , f ){
@@ -125,13 +219,6 @@ Weight.find({}).exec(function (err, weights){
         return Object.keys(groups).map( function( group ){
             return groups[group];
         })
-    }
-
-    /** Get the week from a date **/
-    function weeklyHash(date){
-        var curr = new Date(date); // get current date
-        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        return new Date(curr.setDate(first)).toISOString().substr(0,10);
     }
 
     /** utility function for calculating the difference between two dates **/
@@ -269,15 +356,6 @@ Weight.find({}).exec(function (err, weights){
         return dailyAverage;
     }
 
-    /** this is for quickly counting ids over days and weeks**/
-    function addToIdList(list, id, dy, hash){
-        var day=dy;
-        if(hash) day=hash(dy);
-        if(!list[day])
-            list[day]={};
-        list[day][id]=1;
-        return list;
-    }
 
     /** correct for multiple weights collected for the same tag during one day **/
     function correctWeights(r, c, w){
@@ -495,7 +573,7 @@ Weight.find({}).exec(function (err, weights){
         return sortedDays.sort();
     }
 
-    /** This is for the daily and weekly average graphs**/
+    /** This is for calculating the daily and weekly averages **/
     function prepareAveTraces(dailyAve, weeklyAve, recs ){
         var sortedDays=getSortedDays(dailyAve);
         var days=[];
@@ -516,6 +594,15 @@ Weight.find({}).exec(function (err, weights){
         }
         var daily={days: days, weights: weights};
         return {thirds: tr,  daily: daily};
+    }
+
+    function sortTracesById(traces){
+
+        traces.sort(function(a, b){
+            var keyA = a.name,
+                keyB = b.name;
+            return keyA.localeCompare(keyB);
+        });
     }
 
 
@@ -573,7 +660,6 @@ Weight.find({}).exec(function (err, weights){
             var outlierTraceCounter = 0;
             var outlierTrace = initTraceLayout('markers', '#e98686', 'scatter', 'Outlier');
 
-
             //for detecting outliers
             var outlierYesterday = false;
             var outlierToday = false;
@@ -594,6 +680,7 @@ Weight.find({}).exec(function (err, weights){
                     a--;
                 }
             }
+
             //setting up the main trace here
             if(d[0]) {
                 //consecutive outliers have been detected
@@ -611,9 +698,8 @@ Weight.find({}).exec(function (err, weights){
                     addRecord(recordsForToday, d[0], recordCounter, 0);
                     recordsForTodayCounter++;
                 }
-                //this is for counting ids
-                addToIdList(dailyIds, d[0].id, d[0].datePosted);
-                addToIdList(weeklyIds, d[0].id, d[0].datePosted, weeklyHash);
+
+                tagCounts.add(d[0].id, d[0].datePosted);
             }
 
             //take average of multiple readings during one day
@@ -633,9 +719,8 @@ Weight.find({}).exec(function (err, weights){
                         if (dt == today)
                             correctWeights(recordsForToday, recordsForTodayCounter, wt);
                         correctDailyAverage(dailyAverage, dt, wt, recordCounter, d[0]);
-                        addToIdList(dailyIds, d[0].id, dt);
-                        addToIdList(weeklyIds, d[0].id, dt, weeklyHash);
 
+                        tagCounts.add(d[0].id, dt);
                         i = detect.index;
                         continue;
                     }
@@ -651,12 +736,11 @@ Weight.find({}).exec(function (err, weights){
                 addToDailyAverage(dailyAverage, recordCounter, d[0], wt, dt);
                 recordCounter++;
                 //weight and change in weight for latest date
-                if (dt == today) {
+                if (dt == today){
                     recordsForToday.push(rec);
                     recordsForTodayCounter++;
                 }
-                addToIdList(dailyIds, d[0].id, dt);
-                addToIdList(weeklyIds, d[0].id, dt, weeklyHash);
+                tagCounts.add(d[0].id, dt);
             }
 
             //add the trace for this animal
@@ -673,17 +757,12 @@ Weight.find({}).exec(function (err, weights){
             }
         }
 
-        tagGraphs.sort(function(a, b){
-            var keyA = a.name,
-                keyB = b.name;
-            return keyA.localeCompare(keyB);
-        });
+        sortTracesById(tagGraphs);
 
 
         var aveTraces=prepareAveTraces(dailyAverage, weeklyAverage, records);
         var thirdsTraces=aveTraces.thirds;
         var dailyTrace=aveTraces.daily;
-
 
         var sortedWeeks=[];
         for (var aWeek in weeklyAverage) {
@@ -701,7 +780,7 @@ Weight.find({}).exec(function (err, weights){
                 if(weeklyAverage[week]){
                     weeklyAverage[week].weights/=weeklyAverage[week].days;
                     sortedWeekWeights.push(weeklyAverage[week].weights);
-                    var weeklyIdCount=Object.keys(weeklyIds[week]).length;
+                    var weeklyIdCount= tagCounts.getCount("weekly", week);
                     sortedWeekCounts.push(weeklyIdCount);
                     text.push('count: ' + weeklyIdCount);
                 }

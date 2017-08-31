@@ -206,7 +206,7 @@ Weight.find({}).exec(function (err, weights){
         }
     }
 
-    /** this is for quick averaging over all different time periods**/
+    /** this is for quick averaging over all the different time periods**/
     function averager(){
 
         var averages={};
@@ -357,48 +357,48 @@ Weight.find({}).exec(function (err, weights){
             })
         }
 
-        function splitDay(day, thirdsTraces){
+        function splitDay(day, t){
             var bin=Math.floor(averages[day].length/3);
             //don't mess with original ordering
             var ave=averages[day].slice();
             ave =ave.sort(compare);
 
             if(ave) {
-                var index0 = thirdsTraces[0].length;
-                var index1 = thirdsTraces[1].length;
-                var index2 = thirdsTraces[2].length;
-                var count0 = 0, count1 = 0, count2 = 0;
+                var i0 = t[0].length;
+                var i1 = t[1].length;
+                var i2 = t[2].length;
+                var c0 = 0, c1 = 0, c2 = 0;
 
                 for (var i = 0; i < ave.length; i++) {
                     var wt = ave[i].weight;
                     if (i == 0) {
-                        thirdsTraces[0].push(wt);
-                        count0++;
+                        t[0].push(wt);
+                        c0++;
                     }
                     else if (i < bin) {
-                        thirdsTraces[0][index0] += wt;
-                        count0++;
+                        t[0][i0] += wt;
+                        c0++;
                     }
                     else if (i == bin) {
-                        thirdsTraces[1].push(wt);
-                        count1++;
+                        t[1].push(wt);
+                        c1++;
                     }
                     else if (i < 2 * bin) {
-                        thirdsTraces[1][index1] += wt;
-                        count1++;
+                        t[1][i1] += wt;
+                        c1++;
                     }
                     else if (i == 2 * bin || bin == 0) {
-                        thirdsTraces[2].push(wt);
-                        count2++;
+                        t[2].push(wt);
+                        c2++;
                     }
                     else if (i < ave.length) {
-                        thirdsTraces[2][index2] += wt;
-                        count2++;
+                        t[2][i2] += wt;
+                        c2++;
                     }
                 }
-                calcAveForTrace(thirdsTraces[0], index0, count0);
-                calcAveForTrace(thirdsTraces[1], index1, count1);
-                calcAveForTrace(thirdsTraces[2], index2, count2);
+                calcAveForTrace(t[0], i0, c0);
+                calcAveForTrace(t[1], i1, c1);
+                calcAveForTrace(t[2], i2, c2);
             }
         }
 
@@ -653,6 +653,55 @@ Weight.find({}).exec(function (err, weights){
     }
 
 
+    function recorder(){
+
+        var records=[];
+        var recordsForToday=[];
+        var recordCounter=0;
+        var recordsForTodayCounter=0;
+
+    }
+
+    function initializer(){
+        var today=new Date();
+        var yesterday= new Date(today-1000*60*60*24);
+        today=today.toISOString().substring(0,10);
+        yesterday=yesterday.toISOString().substring(0,10);
+
+        function initTag(d, t, c){
+            var outlierYesterday = false;
+            var outlierToday = false;
+            for (var a = 0; a < d.length; a++) {
+                d[a].datePosted = fixDate(d[a]);
+                //filter outliers
+                if (checkOutlier(d[a])) {
+                    addToOutliersArray(d[a], t, c);
+                    //detect consecutive outliers
+                    if (d && d.datePosted) {
+                        if (d.datePosted == yesterday) outlierYesterday = true;
+                        if (d.datePosted == today) outlierToday = true;
+                    }
+                    d.splice(a, 1);
+                    a--;
+                }
+            }
+            if(outlierToday && outlierYesterday) return true;
+        }
+
+        return{
+            initTag: initTag
+        }
+    }
+
+    function removeTag(d, name, target,i){
+
+        if (d && d[0] && d[0].id == name) {
+            target.splice(i, 1);
+            i--;
+            return i;
+        }
+    }
+
     /** Perform analysis on the weight data **/
     function analyseData(dataSet){
 
@@ -662,10 +711,13 @@ Weight.find({}).exec(function (err, weights){
 
         var tagGraphs=[];
         var alertedTags=[];
+
         var today2=new Date();
         var yesterday= new Date(today2-1000*60*60*24);
         today2=today2.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);
+
+
         var today=findLatestDate(dataSet);
         var layout = {
             title: "Daily Individual Weight Trend",
@@ -676,12 +728,6 @@ Weight.find({}).exec(function (err, weights){
         // Group the data by id
         var idGroup = groupByParameter("id", dataSet);
 
-        var firstDay=dataSet[0].date.toISOString().substr(0,10);
-        var itr = moment.utc(new Date(firstDay)).twix(new Date()).iterate("days");
-        var range=[];
-        while(itr.hasNext()){
-            range.push((itr.next().toDate()).toISOString().substr(0,10));
-        }
 
         var records=[];
         var recordsForToday=[];
@@ -711,8 +757,9 @@ Weight.find({}).exec(function (err, weights){
             var outlierYesterday = false;
             var outlierToday = false;
             var alerted = false;
-
             //fix dates, check for outliers and set up alerts
+
+
             for (var a = 0; a < d.length; a++) {
                 d[a].datePosted = fixDate(d[a]);
                 //filter outliers
@@ -738,7 +785,6 @@ Weight.find({}).exec(function (err, weights){
                 traceCounter = initTrace(trace, traceCounter, d[0]);
                 //this is for dc.js
                 addRecord(records, d[0], recordCounter, 0);
-
                 ave.insert(d[0].datePosted, d[0].id, d[0].weight, recordCounter);
 
                 recordCounter++;
@@ -791,6 +837,7 @@ Weight.find({}).exec(function (err, weights){
                     recordsForToday.push(rec);
                     recordsForTodayCounter++;
                 }
+
                 tagCounts.add(d[0].id, dt);
             }
 
@@ -813,7 +860,10 @@ Weight.find({}).exec(function (err, weights){
         ave.assignRanks(records);
 
         var thirdsTraces=ave.getThirdsAves();
-        var dailyTrace={days: ave.getSortedDays() , weights: ave.getDailyAverages()};
+        var dailyTrace={
+            days: ave.getSortedDays() ,
+            weights: ave.getDailyAverages()
+        };
 
         var sortedWeeks=ave.getSorted(weeklyHash);
         var sortedWeekWeights=ave.getAves(weeklyHash);
@@ -821,9 +871,9 @@ Weight.find({}).exec(function (err, weights){
         var sortedWeekCounts=[];
         var text=[];
         sortedWeeks.forEach(function(week){
-            var weeklyIdCount= tagCounts.getCount("weekly", week);
-            sortedWeekCounts.push(weeklyIdCount);
-            text.push('count: ' + weeklyIdCount);
+            var c= tagCounts.getCount("weekly", week);
+            sortedWeekCounts.push(c);
+            text.push('count: ' + c);
 
         });
 

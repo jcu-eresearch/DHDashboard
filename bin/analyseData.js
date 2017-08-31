@@ -505,14 +505,13 @@ Weight.find({}).exec(function (err, weights){
 
 
     /** add this data point to the outliers array **/
-    function addToOutliersArray(d, outlierArray, counter){
+    function addToOutliersArray(d, outlierArray){
         if(d && d.datePosted && d.weight) {
             outlierArray.x.push(d.datePosted);
             outlierArray.y.push(d.weight);
-            counter++;
-            return counter;
+
         }
-        return 0;
+
     }
 
     /** prepare records for dc.js **/
@@ -667,38 +666,40 @@ Weight.find({}).exec(function (err, weights){
         var yesterday= new Date(today-1000*60*60*24);
         today=today.toISOString().substring(0,10);
         yesterday=yesterday.toISOString().substring(0,10);
+        var alertedTags=[];
 
-        function initTag(d, t, c){
+        function initTag(d, t){
             var outlierYesterday = false;
             var outlierToday = false;
+            var tagName="";
+
+            if(d[0])tagName=d[0].id;
+
             for (var a = 0; a < d.length; a++) {
                 d[a].datePosted = fixDate(d[a]);
                 //filter outliers
                 if (checkOutlier(d[a])) {
-                    addToOutliersArray(d[a], t, c);
+                    addToOutliersArray(d[a], t);
                     //detect consecutive outliers
-                    if (d && d.datePosted) {
-                        if (d.datePosted == yesterday) outlierYesterday = true;
-                        if (d.datePosted == today) outlierToday = true;
+                    if (d && d[a].datePosted) {
+                        if (d[a].datePosted == yesterday) outlierYesterday = true;
+                        if (d[a].datePosted == today) outlierToday = true;
                     }
                     d.splice(a, 1);
                     a--;
                 }
             }
-            if(outlierToday && outlierYesterday) return true;
+
+            var alerted=false;
+            if(outlierToday && outlierYesterday){
+                alerted=true;
+                alertedTags.push(tagName);
+            }
+            return {d:d, alerted: alerted};
         }
 
         return{
             initTag: initTag
-        }
-    }
-
-    function removeTag(d, name, target,i){
-
-        if (d && d[0] && d[0].id == name) {
-            target.splice(i, 1);
-            i--;
-            return i;
         }
     }
 
@@ -708,14 +709,8 @@ Weight.find({}).exec(function (err, weights){
         if(empty(dataSet)) return;
 
         var ave=averager();
-
         var tagGraphs=[];
         var alertedTags=[];
-
-        var today2=new Date();
-        var yesterday= new Date(today2-1000*60*60*24);
-        today2=today2.toISOString().substring(0,10);
-        yesterday=yesterday.toISOString().substring(0,10);
 
 
         var today=findLatestDate(dataSet);
@@ -745,43 +740,23 @@ Weight.find({}).exec(function (err, weights){
                 j--;
                 continue;
             }
-            //trace for the weights
+
             var traceCounter = 0;
             var trace = initTraceLayout('lines+markers', '#66bb6a', 'scatter');
 
-            //trace for the outliers
-            var outlierTraceCounter = 0;
             var outlierTrace = initTraceLayout('markers', '#e98686', 'scatter', 'Outlier');
-
-            //for detecting outliers
-            var outlierYesterday = false;
-            var outlierToday = false;
             var alerted = false;
-            //fix dates, check for outliers and set up alerts
+            var init=initializer();
+            var arr=init.initTag(d, outlierTrace);
+
+            d=arr.d;
+            alerted=arr.alerted;
 
 
-            for (var a = 0; a < d.length; a++) {
-                d[a].datePosted = fixDate(d[a]);
-                //filter outliers
-                if (checkOutlier(d[a])) {
-                    addToOutliersArray(d[a], outlierTrace, outlierTraceCounter);
-                    //detect consecutive outliers
-                    if (d && d.datePosted) {
-                        if (d.datePosted == yesterday) outlierYesterday = true;
-                        if (d.datePosted == today2) outlierToday = true;
-                    }
-                    d.splice(a, 1);
-                    a--;
-                }
-            }
-
-            //setting up the main trace here
-            if(d[0]) {
-                //consecutive outliers have been detected
-                if (outlierToday && outlierYesterday) {
+            if(d[0]){
+                if (alerted)
                     alertedTags.push(d[0].id);
-                    alerted = true;
-                }
+
                 traceCounter = initTrace(trace, traceCounter, d[0]);
                 //this is for dc.js
                 addRecord(records, d[0], recordCounter, 0);

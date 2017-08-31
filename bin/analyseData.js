@@ -140,7 +140,6 @@ Weight.find({}).exec(function (err, weights){
         }
 
         function getTagCount(dy){
-
             var day=dy;
             if(fn) day=fn(dy);
             return tagList[day]?Object.keys(tagList[day]).length:0;
@@ -207,6 +206,233 @@ Weight.find({}).exec(function (err, weights){
         }
     }
 
+    /** this is for quick averaging over all different time periods**/
+    function averager(){
+
+        var averages={};
+
+        function insert(day, tag, weight, index){
+            if(!averages[day])
+                averages[day]=[];
+
+            var len=averages[day].length-1;
+            var sum=0;
+            if(len>=0)
+                sum=averages[day][len].sum;
+
+            sum+=weight;
+
+            averages[day].push({
+                weight: weight,
+                id: tag,
+                sum:  sum,
+                index: index
+            });
+        }
+
+        function correct(day, tag, weight, index){
+            if(!averages[day] || averages[day].length<1) {
+                insert(day, tag, weight, index);
+                return;
+            }
+            var sum=weight;
+            var l=averages[day].length;
+            //overwrite the previous weight
+            if(l>=2)
+                sum=weight + averages[day][l-2].sum;
+            //retain the previous index
+            var previous=averages[day][l-1].index;
+            averages[day][l-1]={
+                weight: weight,
+                id: tag,
+                sum : sum,
+                index: previous
+            }
+        }
+
+        function getSortedDays(){
+            var sorted=[];
+
+            for(var day in averages)
+                sorted.push(day);
+            sorted.sort();
+            return sorted;
+        }
+
+        function getSorted(hash){
+            var s=getSortedDays();
+
+            var w=[];
+
+            if(s.length<=0) return [];
+
+            w.push(hash(s[0]));
+
+            for (var i=1; i<s.length; i++){
+                if(w[w.length-1]==(hash(s[i]))){
+                    continue;
+                }
+                w.push(hash(s[i]));
+            }
+
+            return w;
+        }
+
+        function getAverage(day){
+            if(!averages[day] || averages[day].length<1)
+                return 0;
+            var l=averages[day].length;
+            return averages[day][l-1].sum/l;
+
+        }
+
+        function getDay(day){
+            if(averages[day])
+                return averages[day];
+            else return [];
+        }
+
+        function getDailyAverages(){
+            var sorted=[];
+
+            for(var timeUnit in averages)
+                sorted.push(timeUnit);
+            sorted.sort();
+
+            var sortedAves=[];
+            for (var k=0; k<sorted.length; k++) {
+                var u=sorted[k];
+                var ave=getAverage(u);
+                sortedAves.push(ave);
+            }
+            //chronologically sorted daily ave weights
+            return sortedAves;
+        }
+
+        function getAves(hash){
+            var sorted=[];
+            for(var timeUnit in averages)
+                sorted.push(timeUnit);
+            sorted.sort();
+
+            var sortedAves=[];
+
+            var unit, sum, count, k=0;
+            while(k<sorted.length) {
+                //initialize
+                unit=sorted[k];
+                sum=getAverage(unit);
+                unit=hash(unit); //normalize to the first day of week/month
+                count=1;
+                k++;
+                var u=sorted[k];
+                while(u && hash(u)==unit && k<sorted.length){
+                    sum+=getAverage(u);
+                    count++;
+                    k++;
+                    u=(k<sorted.length)?sorted[k]:null;
+                }
+                sum/=(count>0)?count:1;
+                sortedAves.push(sum);
+            }
+            //chronologically sorted weekly/monthly ave weights
+            return sortedAves;
+        }
+
+        function assignRank(day, target){
+            var arr=averages[day].slice();
+            arr =arr.sort(compare);
+            var len=arr.length;
+            var rank=1;
+            for(var i=len-1; i>=0; i-- ){
+                target[(arr[i]).index].rank=rank;
+                rank++;
+            }
+        }
+
+        function assignRanks(target){
+            var s=getSortedDays();
+            s.forEach(function(d){
+                assignRank(d,target);
+            })
+        }
+
+        function splitDay(day, thirdsTraces){
+            var bin=Math.floor(averages[day].length/3);
+            //don't mess with original ordering
+            var ave=averages[day].slice();
+            ave =ave.sort(compare);
+
+            if(ave) {
+                var index0 = thirdsTraces[0].length;
+                var index1 = thirdsTraces[1].length;
+                var index2 = thirdsTraces[2].length;
+                var count0 = 0, count1 = 0, count2 = 0;
+
+                for (var i = 0; i < ave.length; i++) {
+                    var wt = ave[i].weight;
+                    if (i == 0) {
+                        thirdsTraces[0].push(wt);
+                        count0++;
+                    }
+                    else if (i < bin) {
+                        thirdsTraces[0][index0] += wt;
+                        count0++;
+                    }
+                    else if (i == bin) {
+                        thirdsTraces[1].push(wt);
+                        count1++;
+                    }
+                    else if (i < 2 * bin) {
+                        thirdsTraces[1][index1] += wt;
+                        count1++;
+                    }
+                    else if (i == 2 * bin || bin == 0) {
+                        thirdsTraces[2].push(wt);
+                        count2++;
+                    }
+                    else if (i < ave.length) {
+                        thirdsTraces[2][index2] += wt;
+                        count2++;
+                    }
+                }
+                calcAveForTrace(thirdsTraces[0], index0, count0);
+                calcAveForTrace(thirdsTraces[1], index1, count1);
+                calcAveForTrace(thirdsTraces[2], index2, count2);
+            }
+        }
+
+        function getThirdsAves(){
+            var tr=[[],[],[]];
+            var dys=getSortedDays();
+            dys.forEach(function (day) {
+                splitDay(day, tr);
+            });
+            return tr;
+        }
+
+        function calcAveForTrace(trace, index,count){
+            if(trace[index] && count>0)
+                trace[index]/=count;
+            else trace[index]= NaN;
+        }
+
+        return {
+            insert: insert,
+            correct: correct,
+            getAverage: getAverage,
+            getDailyAverages: getDailyAverages,
+            getAves: getAves,
+            getSortedDays: getSortedDays,
+            assignRank: assignRank,
+            assignRanks: assignRanks,
+            getDay: getDay,
+            getSorted: getSorted,
+            getThirdsAves: getThirdsAves,
+
+        };
+    }
+
     /** utility function for grouping data by different fields **/
     function groupBy( array , f ){
         var groups = {};
@@ -270,6 +496,14 @@ Weight.find({}).exec(function (err, weights){
         else return false;
     }
 
+
+
+
+
+
+
+
+
     /** add this data point to the outliers array **/
     function addToOutliersArray(d, outlierArray, counter){
         if(d && d.datePosted && d.weight) {
@@ -293,179 +527,6 @@ Weight.find({}).exec(function (err, weights){
             index: recordCounter
         });
     }
-
-    /** push record for dailyAverage **/
-    function insertDailyAverage(arr, w, i, s, r){
-        arr.push({
-            weight: w,
-            id: i,
-            sum:  s,
-            index: r
-        });
-    }
-
-    /** this is for quick averaging over all days**/
-    function addToDailyAverage(dailyAverage, recordCounter, d, weight, date){
-        var dt= date? date: d.datePosted;
-        var wt= weight? weight: d.weight;
-
-        //does this day already have weight data?
-        if(dailyAverage[dt]
-            && dailyAverage[dt].length
-            && dailyAverage[dt].length>0){
-            var l=dailyAverage[dt].length;
-            var sum=wt;
-            if(l>=1)
-                sum=wt +
-                    dailyAverage[dt][l-1].sum;
-            //push the sum up till now
-            insertDailyAverage(dailyAverage[dt], wt,
-                d.id, sum ,recordCounter);
-        }
-        else{
-            //initialize this day
-            dailyAverage[dt]=[];
-            insertDailyAverage(dailyAverage[dt], wt,
-                d.id, wt ,recordCounter);
-        }
-        return dailyAverage;
-    }
-
-    /** this is for correcting the averages when there are duplicates**/
-    function correctDailyAverage(dailyAverage, dt, wt, recordCounter, d){
-
-        var l=dailyAverage[dt].length;
-        if(dailyAverage[dt] && l && l>0){
-            var sum=wt;
-            if(l>=2)
-                sum=wt + dailyAverage[dt][ l-2].sum;
-            var previous=dailyAverage[dt][l-1].index;
-            dailyAverage[dt][l-1]={
-                weight: wt,
-                id: d.id,
-                sum : sum,
-                index: previous
-            };
-        }
-        else{
-            dailyAverage[dt]=[];
-            insertDailyAverage(dailyAverage[dt], wt,
-                d.id, wt ,recordCounter);
-        }
-        return dailyAverage;
-    }
-
-
-    function averager(){
-
-        var averages={};
-
-        function insert(day, tag, weight, index){
-            if(!averages[day])
-                averages[day]=[];
-
-            var len=averages[day].length-1;
-            var sum=0;
-            if(len>=0)
-                sum=averages[day][len].sum;
-
-            sum+=weight;
-
-            averages[day].push({
-                weight: weight,
-                id: tag,
-                sum:  sum,
-                index: index
-            });
-        }
-
-        function correct(day, tag, weight, index){
-            if(!averages[day] || averages[day].length<1) {
-                insert(day, tag, weight, index);
-                return;
-            }
-            var sum=weight;
-            var l=averages[day].length;
-            //overwrite the previous weight
-            if(l>=2)
-                sum=weight + averages[day][l-2].sum;
-            //retain the previous index
-            var previous=averages[day][l-1].index;
-            averages[day][l-1]={
-                weight: weight,
-                id: tag,
-                sum : sum,
-                index: previous
-            }
-        }
-
-        function getAverage(day){
-            if(!averages[day] || averages[day].length<1)
-                return 0;
-            var l=averages[day].length;
-            return averages[day][l-1].sum/l;
-
-        }
-
-        function getDailyAverages(){
-            var sorted=[];
-
-            for(var timeUnit in averages)
-                sorted.push(timeUnit);
-            sorted.sort();
-
-            var sortedAves=[];
-            for (var k=0; k<sorted.length; k++) {
-                var u=sorted[k];
-                var ave=getAverage(u);
-                sortedAves.push(ave);
-            }
-
-            //chronologically
-            return sortedAves;
-        }
-
-        function getAves(hash){
-            var sorted=[];
-            for(var timeUnit in averages)
-                sorted.push(hash(timeUnit));
-            sorted.sort();
-
-            var sortedAves=[];
-
-            var unit, sum, count;
-            for (var k=0; k<sorted.length; k++) {
-                //initialize
-                unit=sorted[k];
-                sum=getAverage(timeUnit);
-                count=1;
-
-                k++;
-                var u=sorted[k];
-                while(u && u==unit && k<sorted.length){
-                    sum+=getAverage(u);
-                    count++;
-                    k++;
-                    u=(k<sorted.length)?sorted[k]:null;
-                }
-                sum/=(count>0)?count:1;
-                sortedAves.push(sum);
-
-
-            }
-
-            return sortedAves;
-        }
-
-        return {
-            insert: insert,
-            correct: correct,
-            getAverage: getAverage,
-            getDailyAverages: getDailyAverages,
-            getAves: getAves
-        };
-    }
-
 
     /** correct for multiple weights collected for the same tag during one day **/
     function correctWeights(r, c, w){
@@ -521,95 +582,6 @@ Weight.find({}).exec(function (err, weights){
         if(a && a.weight && b && b.weight ){
             return a.weight - b.weight;
         }
-    }
-
-    /** divide the accumulated sum by length to get average weight for a day **/
-    function calculateAverageForDay(arr, targetArr, day){
-        var ave=0;
-        if(arr && arr[day] && arr[day][arr[day].length-1]){
-            ave=arr[day][arr[day].length-1].sum/arr[day].length;
-            targetArr.push(ave); //the target array now has the ave wt for day
-        }
-        return ave;
-    }
-
-    /** for calculating the weekly average from the daily average **/
-    function addToAverage(arr, day, fn, ave){
-        //fn is the weekly hash
-        if(arr && arr[fn(day)] && arr[fn(day)].weights && arr[fn(day)].days){
-            arr[fn(day)].weights+=ave; // sum for days in this week
-            (arr[fn(day)].days)++; // days in this week which had data
-        }
-        else{
-            arr[fn(day)]={weights: ave, days: 1}; //first day seen for this week
-        }
-    }
-
-    /** sort an array and assign rank based on weight **/
-    function assignRanks(arr, day, records, compare){
-        arr[day].sort(compare);
-
-        var len=arr[day].length;
-        var rank=1;
-        for(var i=len-1; i>=0; i-- ){
-
-            //this links back to the records array
-            //rank is used in the trends page
-            records[(arr[day][i]).index].rank=rank;
-            rank++;
-        }
-    }
-
-    /** calculate average weight for a trace **/
-    function calcAveForTrace(trace, index,count){
-        if(trace[index] && count>0)
-            trace[index]/=count;
-        else trace[index]= NaN;
-    }
-
-    /** split weight into three bins, take average for each bin to prepare daily ave thirds **/
-    function addToThirdsTraces(dailyAverage, day, thirdsTraces){
-        var bin=Math.floor(dailyAverage[day].length/3);
-
-        if(dailyAverage[day]){
-
-            var index0=thirdsTraces[0].length;
-            var index1=thirdsTraces[1].length;
-            var index2=thirdsTraces[2].length;
-            var count0=0,count1=0,count2=0;
-
-            for (var i = 0; i < dailyAverage[day].length; i++){
-                var wt=dailyAverage[day][i].weight;
-                if (i == 0) {
-                    thirdsTraces[0].push(wt);
-                    count0++;
-                }
-                else if (i < bin){
-                    thirdsTraces[0][index0] += wt;
-                    count0++;
-                }
-                else if (i == bin ){
-                    thirdsTraces[1].push(wt);
-                    count1++;
-                }
-                else if (i < 2 * bin){
-                    thirdsTraces[1][index1] += wt;
-                    count1++;
-                }
-                else if (i == 2 * bin || bin==0){
-                    thirdsTraces[2].push(wt);
-                    count2++;
-                }
-                else if (i <  dailyAverage[day].length){
-                    thirdsTraces[2][index2] += wt;
-                    count2++;
-                }
-            }
-            calcAveForTrace(thirdsTraces[0], index0, count0);
-            calcAveForTrace(thirdsTraces[1], index1, count1);
-            calcAveForTrace(thirdsTraces[2], index2, count2);
-        }
-
     }
 
     /** group data by a certain parameter **/
@@ -672,42 +644,7 @@ Weight.find({}).exec(function (err, weights){
         return false;
     }
 
-    /** sort days **/
-    function getSortedDays(dailyAve) {
-        var sortedDays=[];
-        for (var day in dailyAve){
-            if (dailyAve.hasOwnProperty(day)) {
-                sortedDays.push(day);
-            }
-        }
-        return sortedDays.sort();
-    }
-
-    /** This is for calculating the daily and weekly averages **/
-    function prepareAveTraces(dailyAve, weeklyAve, recs ){
-        var sortedDays=getSortedDays(dailyAve);
-        var days=[];
-        var weights=[];
-        var tr=[[],[],[]];
-        for (var c=0; c<sortedDays.length; c++) {
-            var day=sortedDays[c];
-
-            if (dailyAve.hasOwnProperty(day)) {
-                if(dailyAve[day] && dailyAve[day].length>0){
-                    days.push(day);
-                    var aveWeight=calculateAverageForDay(dailyAve,weights,day);
-                    addToAverage(weeklyAve, day, weeklyHash, aveWeight);
-                    assignRanks(dailyAve, day, recs, compare);
-                    addToThirdsTraces(dailyAve, day, tr);
-                }
-            }
-        }
-        var daily={days: days, weights: weights};
-        return {thirds: tr,  daily: daily};
-    }
-
     function sortTracesById(traces){
-
         traces.sort(function(a, b){
             var keyA = a.name,
                 keyB = b.name;
@@ -721,8 +658,8 @@ Weight.find({}).exec(function (err, weights){
 
         if(empty(dataSet)) return;
 
-        var dailyAverage={};
-        var weeklyAverage={};
+        var ave=averager();
+
         var tagGraphs=[];
         var alertedTags=[];
         var today2=new Date();
@@ -801,7 +738,9 @@ Weight.find({}).exec(function (err, weights){
                 traceCounter = initTrace(trace, traceCounter, d[0]);
                 //this is for dc.js
                 addRecord(records, d[0], recordCounter, 0);
-                addToDailyAverage(dailyAverage, recordCounter, d[0]);
+
+                ave.insert(d[0].datePosted, d[0].id, d[0].weight, recordCounter);
+
                 recordCounter++;
                 //this is for main dash stats for the latest date
                 if (d[0].datePosted == today) {
@@ -828,7 +767,8 @@ Weight.find({}).exec(function (err, weights){
                         correctWeights(records, recordCounter, wt);
                         if (dt == today)
                             correctWeights(recordsForToday, recordsForTodayCounter, wt);
-                        correctDailyAverage(dailyAverage, dt, wt, recordCounter, d[0]);
+
+                        ave.correct(dt, d[0].id, wt, recordCounter);
 
                         tagCounts.add(d[0].id, dt);
                         i = detect.index;
@@ -843,7 +783,8 @@ Weight.find({}).exec(function (err, weights){
                 var btwDays = Date.daysBetween(records[recordCounter - 1].date, rec.date);
                 if (btwDays > 1) rec.change = rec.change / btwDays;
                 records.push(rec);
-                addToDailyAverage(dailyAverage, recordCounter, d[0], wt, dt);
+
+                ave.insert(dt, d[0].id, wt, recordCounter);
                 recordCounter++;
                 //weight and change in weight for latest date
                 if (dt == today){
@@ -869,33 +810,22 @@ Weight.find({}).exec(function (err, weights){
 
         sortTracesById(tagGraphs);
 
+        ave.assignRanks(records);
 
-        var aveTraces=prepareAveTraces(dailyAverage, weeklyAverage, records);
-        var thirdsTraces=aveTraces.thirds;
-        var dailyTrace=aveTraces.daily;
+        var thirdsTraces=ave.getThirdsAves();
+        var dailyTrace={days: ave.getSortedDays() , weights: ave.getDailyAverages()};
 
-        var sortedWeeks=[];
-        for (var aWeek in weeklyAverage) {
-            sortedWeeks.push(aWeek);
-        }
+        var sortedWeeks=ave.getSorted(weeklyHash);
+        var sortedWeekWeights=ave.getAves(weeklyHash);
 
-        sortedWeeks.sort();
-        var sortedWeekWeights=[];
         var sortedWeekCounts=[];
         var text=[];
+        sortedWeeks.forEach(function(week){
+            var weeklyIdCount= tagCounts.getCount("weekly", week);
+            sortedWeekCounts.push(weeklyIdCount);
+            text.push('count: ' + weeklyIdCount);
 
-        for (var k=0; k<sortedWeeks.length; k++) {
-            var week=sortedWeeks[k];
-            if (weeklyAverage.hasOwnProperty(week) && weeklyAverage[week].days && weeklyAverage[week].days>0) {
-                if(weeklyAverage[week]){
-                    weeklyAverage[week].weights/=weeklyAverage[week].days;
-                    sortedWeekWeights.push(weeklyAverage[week].weights);
-                    var weeklyIdCount= tagCounts.getCount("weekly", week);
-                    sortedWeekCounts.push(weeklyIdCount);
-                    text.push('count: ' + weeklyIdCount);
-                }
-            }
-        }
+        });
 
         var bubble = {
             x: sortedWeeks,
@@ -932,7 +862,7 @@ Weight.find({}).exec(function (err, weights){
             showlegend: false
         };
 
-        var thirdsTraces=thirdsTraces;
+
         var lowerThird = {
             x: dailyTrace.days,
             y: thirdsTraces[0],

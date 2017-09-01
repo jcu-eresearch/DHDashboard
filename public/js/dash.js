@@ -421,8 +421,16 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                         d.line.color=colors[i];
                     };
                 }
-                $scope.allTags.weeklyTrace.traces[0].marker.color= "#95D7BB";
-                $scope.allTags.weeklyTrace.traces[0].marker.opacity= "0.5";
+               /* $scope.allTags.weeklyTrace.traces[0].marker.color= "#E67A77";
+                $scope.allTags.weeklyTrace.traces[0].marker.opacity= "0.3";
+
+                $scope.allTags.weeklyTrace.traces[1].marker.color= "#D9DD81";
+                $scope.allTags.weeklyTrace.traces[1].marker.opacity= "0.5";
+
+                $scope.allTags.weeklyTrace.traces[2].marker.color= "#79D1CF";
+                $scope.allTags.weeklyTrace.traces[2].marker.opacity= "0.5";
+*/
+
                 detailedTagDataService.addTagData(data);
 
                 if (data.alertedTags && data.alertedTags.length > 0) {

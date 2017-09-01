@@ -756,19 +756,16 @@ Weight.find({}).exec(function (err, weights){
             if(d[0]){
                 if (alerted)
                     alertedTags.push(d[0].id);
-
                 traceCounter = initTrace(trace, traceCounter, d[0]);
                 //this is for dc.js
                 addRecord(records, d[0], recordCounter, 0);
                 ave.insert(d[0].datePosted, d[0].id, d[0].weight, recordCounter);
-
                 recordCounter++;
                 //this is for main dash stats for the latest date
                 if (d[0].datePosted == today) {
                     addRecord(recordsForToday, d[0], recordCounter, 0);
                     recordsForTodayCounter++;
                 }
-
                 tagCounts.add(d[0].id, d[0].datePosted);
             }
 
@@ -831,10 +828,10 @@ Weight.find({}).exec(function (err, weights){
         }
 
         sortTracesById(tagGraphs);
-
         ave.assignRanks(records);
 
         var thirdsTraces=ave.getThirdsAves();
+
         var dailyTrace={
             days: ave.getSortedDays() ,
             weights: ave.getDailyAverages()
@@ -842,28 +839,79 @@ Weight.find({}).exec(function (err, weights){
 
         var sortedWeeks=ave.getSorted(weeklyHash);
         var sortedWeekWeights=ave.getAves(weeklyHash);
-
         var sortedWeekCounts=[];
-        var text=[];
+        var textWeek=[];
         sortedWeeks.forEach(function(week){
             var c= tagCounts.getCount("weekly", week);
             sortedWeekCounts.push(c);
-            text.push('count: ' + c);
+            textWeek.push('count: ' + c);
 
         });
 
+        var sortedMonths=ave.getSorted(monthlyHash);
+        var sortedMonthWeights=ave.getAves(monthlyHash);
+        var sortedMonthCounts=[];
+        var textMonth=[];
+        sortedMonths.forEach(function(month){
+            var c= tagCounts.getCount("monthly", month);
+            sortedMonthCounts.push(c);
+            textMonth.push('count: ' + c);
+
+        });
+
+        var sortedDays=ave.getSortedDays();
+        var sortedDayWeights=ave.getDailyAverages();
+        var sortedDayCounts=[];
+        var textDay=[];
+        sortedDays.forEach(function(day){
+            var c= tagCounts.getCount("daily", day) ;
+            sortedDayCounts.push(c);
+            textDay.push('count: ' + c);
+
+        });
+
+
         var bubble = {
+            name: "Weekly",
             x: sortedWeeks,
             y: sortedWeekWeights,
-            text: text,
+            text: textWeek,
             mode: 'markers',
             marker: {
-                size: sortedWeekCounts
+                size: sortedWeekCounts,
+                color: "#79D1CF",
+                opacity: "0.5"
+            }
+        };
+
+        var bubble2 = {
+            name: "Monthly",
+            x: sortedMonths,
+            y: sortedMonthWeights,
+            text: textMonth,
+            mode: 'markers',
+            marker: {
+                size: sortedMonthCounts,
+                color: "#D9DD81",
+                opacity: "0.5"
+            }
+        };
+
+        var bubble3 = {
+            name: "Daily",
+            x: sortedDays,
+            y: sortedDayWeights,
+            text: textDay,
+            mode: 'markers',
+            marker: {
+                size: sortedDayCounts,
+                color: "#E67A77",
+                opacity: "0.3"
             }
         };
 
         var bubbleLayout = {
-            title: "Weekly Herd Weight Average",
+            title: "Herd Weight Average",
             yaxis: {
                 title: "Weight (KG)"
             }
@@ -887,18 +935,17 @@ Weight.find({}).exec(function (err, weights){
             showlegend: false
         };
 
-
         var lowerThird = {
             x: dailyTrace.days,
             y: thirdsTraces[0],
             mode: 'lines+markers',
             name: "Ave: Lower 1/3",
             line:{
-                color: 'rgba(255, 65, 54, 0.2)',
+                color: 'rgba(149,215,187,0.5 )',
                 shape: 'spline'
             },
             fill: "tonexty",
-            fillcolor: "rgba(255, 65, 54, 0.1)",
+            fillcolor: "#95D7BB",
             type: 'scatter'
         };
         var middleThird = {
@@ -907,11 +954,11 @@ Weight.find({}).exec(function (err, weights){
             mode: 'lines+markers',
             name: "Ave: Middle 1/3",
             line:{
-                color: 'rgba(44, 160, 101, 0.5)',
+                color: 'rgba(217,221,129,0.6)',
                 shape: 'spline'
             },
             fill: "tonexty",
-            fillcolor: "rgba(44, 160, 101, 0.4)",
+            fillcolor: "#D9DD81",
             type: 'scatter'
         };
         var upperThird = {
@@ -920,9 +967,9 @@ Weight.find({}).exec(function (err, weights){
             mode: 'lines+markers',
             name: "Ave: Upper 1/3",
             fill: "tonexty",
-            fillcolor: "rgba(93, 164, 214, 0.3)",
+            fillcolor: "rgba(121,209,207,0.6)",
             line:{
-                color: 'rgba(93, 164, 214, 0.5)',
+                color: "#79D1CF",
                 shape: 'spline'
             },
             type: 'scatter'
@@ -944,7 +991,7 @@ Weight.find({}).exec(function (err, weights){
         allTags.thirdsLayout=thirdsLayout;
 
         allTags.weeklyTrace={
-            traces: [bubble],
+            traces: [bubble3, bubble2, bubble],
             layout: bubbleLayout
         };
 

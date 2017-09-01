@@ -941,11 +941,11 @@ Weight.find({}).exec(function (err, weights){
             mode: 'lines+markers',
             name: "Ave: Lower 1/3",
             line:{
-                color: 'rgba(149,215,187,0.5 )',
+                color: '#95D7BB',
                 shape: 'spline'
             },
             fill: "tonexty",
-            fillcolor: "#95D7BB",
+            fillcolor: "rgba(149,215,187,0.5 )",
             type: 'scatter'
         };
         var middleThird = {
@@ -954,11 +954,11 @@ Weight.find({}).exec(function (err, weights){
             mode: 'lines+markers',
             name: "Ave: Middle 1/3",
             line:{
-                color: 'rgba(217,221,129,0.6)',
+                color: '#D9DD81',
                 shape: 'spline'
             },
             fill: "tonexty",
-            fillcolor: "#D9DD81",
+            fillcolor: "rgba(217,221,129,0.6)",
             type: 'scatter'
         };
         var upperThird = {

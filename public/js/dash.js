@@ -407,29 +407,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     t: 10,
                     pad: 4
                 };
-                var colors=[
-                    "#95D7BB",
-                    "#D9DD81",
-                    "#79D1CF",
-                    "#E67A77"];
-                var fillColors=["rgba(149,215,187,0.5 )", "rgba(217,221,129,0.6)", "rgba(121,209,207,0.6)"];
-                if($scope.allTags.thirdsTraces){
-                    for(var i=0; i<$scope.allTags.thirdsTraces.length; i++){
-                        var d=$scope.allTags.thirdsTraces[i];
-                        d.mode="lines+markers";
-                        d.fillcolor= fillColors[i];
-                        d.line.color=colors[i];
-                    };
-                }
-               /* $scope.allTags.weeklyTrace.traces[0].marker.color= "#E67A77";
-                $scope.allTags.weeklyTrace.traces[0].marker.opacity= "0.3";
 
-                $scope.allTags.weeklyTrace.traces[1].marker.color= "#D9DD81";
-                $scope.allTags.weeklyTrace.traces[1].marker.opacity= "0.5";
-
-                $scope.allTags.weeklyTrace.traces[2].marker.color= "#79D1CF";
-                $scope.allTags.weeklyTrace.traces[2].marker.opacity= "0.5";
-*/
 
                 detailedTagDataService.addTagData(data);
 

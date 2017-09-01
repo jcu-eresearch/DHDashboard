@@ -34,7 +34,9 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     "year": "2016"
                 },
                 "text": {
-                    "text": "<p>The Digital Homestead project evaluates how modern Information and Communication Technologies (ICT) such as wireless sensor networks (WSN’s), data analytics and rural connectivity can support greater profitability for the Northern beef industry. </p>"
+                    "text": "<p>The Digital Homestead project evaluates how modern Information and Communication"+
+                    " Technologies (ICT) such as wireless sensor networks (WSN’s), data analytics "+
+                    "and rural connectivity can support greater profitability for the Northern beef industry. </p>"
                 }
             },
             {
@@ -111,7 +113,9 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 },
                 "text": {
 
-                    "text": "<p>The Digital Homestead technology demonstration at the Spyglass Open Day on October 9 2015 provided a chance for producers, members of the community and students to explore what the future of technology and farming might look like. </p>"
+                    "text": "<p>The Digital Homestead technology demonstration at the Spyglass Open Day on October "+
+                    "9 2015 provided a chance for producers, members of the community and students"+
+                    " to explore what the future of technology and farming might look like. </p>"
                 }
             }]
     }

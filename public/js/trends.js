@@ -27,14 +27,12 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var gainOrLossChart = dc.pieChart('#gain-loss-chart');
         var quarterChart = dc.pieChart('#quarter-chart');
         var dayOfWeekChart = dc.rowChart('#day-of-week-chart');
-
         var dateFormat = d3.time.format("%Y-%m-%d");	//d3.time.format.iso;
 
         data.forEach(function (d) {
 
             if(!d || d==null || d==undefined || d.date==undefined) return;
             d.datePosted=d.date.substr(0,10);
-
             d.dd = dateFormat.parse(d.datePosted);
             d.day=d3.time.day(d.dd);
             d.week=d3.time.week(d.dd);
@@ -88,7 +86,8 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                 return 'Q4';
             }
         });
-        var quarterGroup = quarter.group().reduceCount(function (d) {
+
+        var quarterGroup = quarter.group().reduceCount(function (d){
             return d.id;
         });
 
@@ -97,6 +96,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             var name = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             return day + '.' + name[day];
         });
+
         var dayOfWeekGroup = dayOfWeek.group();
 
         var markerChart = dc.leafletMarkerChart("#inner-map")
@@ -111,7 +111,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .fitOnRedraw(true)
             .cluster(false)
             .popupOnHover(true);
-
 
         quarterChart /* dc.pieChart('#quarter-chart', 'chartGroup') */
             .width(180)
@@ -152,7 +151,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .xAxis().ticks(4);
 
         //$(document).ready(initSliders);
-
 
         function initSliders(){
             $("#weightSlider").slider({
@@ -201,7 +199,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                     }
                 }
             });
-
             $("#topKSlider").slider({
                 range: false,
                 step: 1,

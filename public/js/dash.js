@@ -96,7 +96,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     "year": "2016"
                 },
                 "text": {
-                    "text": "<p>Analysis and Ranking of Cattle is presented throught the dashboard.</p>"
+                    "text": "<p>Analysis and Ranking of Cattle is presented through the dashboard.</p>"
                 }
             },
 
@@ -492,6 +492,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     .targetEvent(ev)
             );
         };
+
 
     };
     $scope.init();

@@ -30,6 +30,7 @@
     "lodash": "^4.17.4",
     "crossfilter": "^1.3.12",
     "file-saver": "^1.3.3",
-    "dc-addons": "^0.13.5"
+    "dc-addons": "^0.13.5",
+    "materialize": "^0.100.2"
   }
 }

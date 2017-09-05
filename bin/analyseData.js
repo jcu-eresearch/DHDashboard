@@ -497,13 +497,6 @@ Weight.find({}).exec(function (err, weights){
     }
 
 
-
-
-
-
-
-
-
     /** add this data point to the outliers array **/
     function addToOutliersArray(d, outlierArray){
         if(d && d.datePosted && d.weight) {
@@ -659,6 +652,56 @@ Weight.find({}).exec(function (err, weights){
         var recordCounter=0;
         var recordsForTodayCounter=0;
 
+        function addRecord(d, delta){
+            records.push({
+                date: d.date,
+                weight: d.weight,
+                id: d.id,
+                location: tagIdToLatLong(d.tag_id),
+                locationName: tagIdToLocationName(d.tag_id),
+                change: delta,
+                index: recordCounter
+            });
+        }
+
+        function addLatestRecord(d, delta){
+            recordsForToday.push({
+                date: d.date,
+                weight: d.weight,
+                id: d.id,
+                location: tagIdToLatLong(d.tag_id),
+                locationName: tagIdToLocationName(d.tag_id),
+                change: delta,
+                index: recordCounter
+            });
+        }
+
+        function add(d, ave, counts){
+            ave.insert(d.datePosted, d.id, d.weight, recordCounter);
+            addRecord( d, 0);
+            recordCounter++;
+            //this is for main dash stats for the latest date
+            if (d.datePosted == today) {
+                addLatestRecord( d, 0);
+                recordsForTodayCounter++;
+            }
+            counts.add(d.id, d.datePosted);
+        }
+
+        function getRecords(){
+            return records;
+        }
+
+        function getLatestRecords(){
+           return recordsForToday;
+        }
+
+        return{
+            add: add,
+            getRecords: getRecords,
+            getLatestRecords: getLatestRecords
+        }
+
     }
 
     function initializer(){
@@ -711,7 +754,7 @@ Weight.find({}).exec(function (err, weights){
         var ave=averager();
         var tagGraphs=[];
         var alertedTags=[];
-
+        var rows=recorder();
 
         var today=findLatestDate(dataSet);
         var layout = {
@@ -735,7 +778,7 @@ Weight.find({}).exec(function (err, weights){
             var d=idGroup[j];
 
             //filter out -1 tag
-            if (d && d[0] && d[0].id == '-1') {
+            if (d && d[0] && d[0].id == '-1'){
                 idGroup.splice(j, 1);
                 j--;
                 continue;
@@ -752,12 +795,12 @@ Weight.find({}).exec(function (err, weights){
             d=arr.d;
             alerted=arr.alerted;
 
-
             if(d[0]){
                 if (alerted)
                     alertedTags.push(d[0].id);
                 traceCounter = initTrace(trace, traceCounter, d[0]);
                 //this is for dc.js
+                //rows.add(d[0], ave, tagCounts);
                 addRecord(records, d[0], recordCounter, 0);
                 ave.insert(d[0].datePosted, d[0].id, d[0].weight, recordCounter);
                 recordCounter++;
@@ -774,6 +817,7 @@ Weight.find({}).exec(function (err, weights){
                 var dt = d[i].datePosted,
                     wt = d[i].weight;
                 //Push this initial reading into records for trends page
+
                 var rec = initRecord(d[i], recordCounter);
 
                 if (traceCounter > 0) {
@@ -785,10 +829,9 @@ Weight.find({}).exec(function (err, weights){
                         correctWeights(records, recordCounter, wt);
                         if (dt == today)
                             correctWeights(recordsForToday, recordsForTodayCounter, wt);
-
                         ave.correct(dt, d[0].id, wt, recordCounter);
-
                         tagCounts.add(d[0].id, dt);
+
                         i = detect.index;
                         continue;
                     }
@@ -800,8 +843,8 @@ Weight.find({}).exec(function (err, weights){
                 rec.change = wt - records[recordCounter - 1].weight;
                 var btwDays = Date.daysBetween(records[recordCounter - 1].date, rec.date);
                 if (btwDays > 1) rec.change = rec.change / btwDays;
-                records.push(rec);
 
+                records.push(rec);
                 ave.insert(dt, d[0].id, wt, recordCounter);
                 recordCounter++;
                 //weight and change in weight for latest date
@@ -809,7 +852,6 @@ Weight.find({}).exec(function (err, weights){
                     recordsForToday.push(rec);
                     recordsForTodayCounter++;
                 }
-
                 tagCounts.add(d[0].id, dt);
             }
 
@@ -869,7 +911,6 @@ Weight.find({}).exec(function (err, weights){
             textDay.push('count: ' + c);
 
         });
-
 
         var bubble = {
             name: "Weekly",

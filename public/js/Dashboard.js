@@ -494,7 +494,7 @@ homesteadApp.directive('stopTouchEvent', function () {
 
 homesteadApp.directive('picSlider', function () {
     return {
-        templateUrl: '/templates/slider.html',
+        templateUrl: 'templates/slider.html',
 		controller: function ($timeout){
 
             $timeout( function () {

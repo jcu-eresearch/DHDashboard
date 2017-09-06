@@ -152,7 +152,52 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
         //$(document).ready(initSliders);
 
-        function initSliders(){
+        var slider = document.getElementById('weightSlider');
+        noUiSlider.create(slider, {
+            start: [300, 650],
+            connect: true,
+            step: 1,
+            orientation: 'horizontal', // 'horizontal' or 'vertical'
+            range: {
+                'min': 300,
+                'max': 650
+            },
+            format: wNumb({
+                decimals: 0
+            })
+        });
+
+
+        var slider1 = document.getElementById('changeSlider');
+        noUiSlider.create(slider1, {
+            start: [-60, 60],
+            connect: true,
+            step: 1,
+            orientation: 'horizontal', // 'horizontal' or 'vertical'
+            range: {
+                'min': -60,
+                'max': 60
+            },
+            format: wNumb({
+                decimals: 0
+            })
+        });
+
+
+        var slider2 = document.getElementById('topKSlider');
+        noUiSlider.create(slider2, {
+            start: [100],
+            connect: false,
+            step: 1,
+            orientation: 'horizontal', // 'horizontal' or 'vertical'
+            range: {
+                'min': 1,
+                'max': 100
+            }
+        });
+
+
+      /*  function initSliders(){
             $("#weightSlider").slider({
                 range: true,
                 min: 300,
@@ -219,6 +264,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             });
         }
         initSliders();
+*/
 
         var colorScale = d3.scale.ordinal().range(["#95D7BB", "#D9DD81", "#79D1CF", "#E67A77"]);
         gainOrLossChart
@@ -268,7 +314,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .yAxis().ticks(0);
 
 
-       table
+        table
             .dimension(tagDimension)
             .group(function(d) {
                 return d.day;
@@ -290,15 +336,13 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
                         return d.weight;
                     }
                 }])
-           .on('renderlet', function (table) {
+            .on('renderlet', function (table) {
                table.selectAll('.dc-table-group').classed('info', true)});
 
 
 
          $scope.downloadData=function(){
                 var data = tagDimension.top(Infinity);
-
-
 
                 var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
                 saveAs(blob, 'data.csv');
@@ -348,6 +392,65 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         onresize();
 
         window.addEventListener('resize', onresize);
+
+        slider.noUiSlider.on('update', (function(dc){
+            function redraw(){
+                dc.redrawAll();
+            }
+            return function(values){
+                var start, end;
+                $("#startWeight").val(values[0]);
+                $("#endWeight").val(values[1]);
+
+                if (document.getElementById("startWeight").value != "") {
+                    start = document.getElementById("startWeight").value;
+                };
+                if (document.getElementById("endWeight").value != "") {
+                    end = document.getElementById("endWeight").value;
+                };
+                weightDimension.filterRange([start, end]);
+                redraw();
+            };
+
+        })(dc));
+
+        slider1.noUiSlider.on('update', (function(dc){
+            function redraw(){
+                dc.redrawAll();
+            }
+            return function(values){
+                var start, end;
+                $("#startChange").val(values[0]);
+                $("#endChange").val(values[1]);
+                if (document.getElementById("startChange").value != "") {
+                    start = document.getElementById("startChange").value;
+                };
+                if (document.getElementById("endChange").value != "") {
+                    end = document.getElementById("endChange").value;
+                };
+                changeDimension.filterRange([start, end]);
+                redraw();
+            };
+
+        })(dc));
+
+        slider2.noUiSlider.on('update', (function(dc){
+            function redraw(){
+                dc.redrawAll();
+            }
+            return function(values){
+                var val;
+                $("#startTopK").val(values[0]);
+
+                if (document.getElementById("startTopK").value != "") {
+                    val = document.getElementById("startTopK").value;
+                };
+
+                rankDimension.filterRange([0, (parseInt(val)+1)]);
+                redraw();
+            };
+
+        })(dc));
 
     }
 

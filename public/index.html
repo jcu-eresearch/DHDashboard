@@ -89,14 +89,17 @@
 	<link rel="stylesheet" href="components/digitalhomesteadlive/digitalhomesteadlive.component.css">
 	<link rel="stylesheet" href="css/dh.css">
 
-
+	<!--<link rel="stylesheet" href="js/materialize/dist/css/materialize.css"/>-->
 	<script src="js/materialize/dist/js/materialize.js"></script>
+
+	<link rel="stylesheet" href="js/materialize/extras/noUiSlider/nouislider.css" />
+	<script src="js/materialize/extras/noUiSlider/nouislider.js"></script>
 
 </head>
 
 <body ng-controller="AppCtrl" ng-app="homesteadApp"  class="background flat-theme" style="height: 100%;" layout="row">
 <div style="height: 100%;">
-	<nav  class="rad-sidebar " >
+	<nav class="rad-sidebar " >
 		<ul>
 			<li ng-repeat="item in navItems.items"  ng-class="{'rad-sidebar-selected': navItems.selected==item}" ng-click="navItems.selected=item;">
 				<a ng-href="{{item.ref}}" name="{{item.name}}"  >

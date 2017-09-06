@@ -15,19 +15,41 @@
     <div layout="row"  layout-align="stretch">
 
         <div layout="column" flex="25" layout-align="stretch">
-            <md-card>
+            <md-card layout-align="center">
                 <md-card-title >
                     <md-card-title-text layout-align="center center">
                         <span class="md-headline" >Weight Range</span>
                         <span class="md-subhead">Filter by Weight/Weight Change Range</span>
                     </md-card-title-text>
                 </md-card-title>
-                <div style="margin-left: 50px">
-                    Weight (KG):  Start:<input type="text"  id="startWeight" style="margin-top:10px ;border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=300 ></input>
+                <div style="margin-left: 50px" >
+
+                    Start:<input type="text"  id="startWeight" style="margin-top:10px ;border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=300 />
+                    End:<input type="text"  id="endWeight" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=650 />
+                    <br/><br/>
+                    <!-- <div id="test-slider" style="width:80%;"></div>-->
+
+                    <div id="weightSlider" style="width:80%;height:2px !important;"></div>
+                    <br/><br/>
+
+                    Weight Change/Day (KG):  Start:<input type="text"  id="startChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=-60></input>
+                    End:<input type="text"  id="endChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=60></input>
+                    <br/><br/>
+
+                    <!-- <div id="test-slider" style="width:80%;"></div>-->
+                    <div id="changeSlider" style="width:80%;"></div>
+                    <br/><br/>
+
+                    Top <input type="text"  id="startTopK" style="border: 0; color: #95D7BB; font-weight: bold;width: 45px" value=100></input> Animals
+                    <br/><br/>
+                    <!-- <div id="test-slider" style="width:80%;"></div>-->
+                    <div id="topKSlider" style="width:80%;"></div>
+                    <br/><br/>
+
+                    <!-- Weight (KG):  Start:<input type="text"  id="startWeight" style="margin-top:10px ;border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=300 ></input>
                     End:<input type="text"  id="endWeight" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=650></input>
                     <br/><br/>
                     <div id="weightSlider" style="width:80%;"></div>
-                    <br/><br/>
 
                     Weight Change/Day (KG):  Start:<input type="text"  id="startChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=-60></input>
                     End:<input type="text"  id="endChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=60></input>
@@ -38,7 +60,7 @@
                     Top <input type="text"  id="startTopK" style="border: 0; color: #95D7BB; font-weight: bold;width: 30px" value=100></input> Animals
                     <br/><br/>
                     <div id="topKSlider" style="width:80%;"></div>
-                    <br/><br/>
+                    <br/><br/>-->
                 </div>
             </md-card>
 

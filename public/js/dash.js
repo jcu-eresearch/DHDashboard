@@ -14,9 +14,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         timenav_mobile_height_percentage: 1,
         slide_padding_lr: 60,
         layout: "portrait"
-
-
-
     };
 
     var timeline_json = {
@@ -478,9 +475,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         };
 
         $scope.showLatestReading = function(ev) {
-            // Appending dialog to document.body to cover sidenav in docs app
-            // Modal dialogs should fully cover application
-            // to prevent interaction outside of dialog
+
             $mdDialog.show(
                 $mdDialog.alert()
                     .parent(angular.element(document.querySelector('#popupContainer')))

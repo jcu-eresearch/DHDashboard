@@ -295,19 +295,5 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
 
     $timeout(function(){$scope.initMap();});
 
-    $scope.slider = {
-        'options': {
-            start: function(event, ui) {
-                $log.info('Event: Slider start - set with slider options', event);
-            },
-            stop: function(event, ui) {
-                $log.info('Event: Slider stop - set with slider options', event);
-            }
-        }
-    };
-    $scope.demoVals = {
-        sliderWeights: [200, 500],
-        sliderWeightsChanges: [-5, 5]
-    };
 
 });

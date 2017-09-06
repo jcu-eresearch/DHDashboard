@@ -56,7 +56,6 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var dayDimension = ndx.dimension(function (d) {return d.day;});
         var dayTagsGroup = dayDimension.group().reduceCount(function(d) {return d.id;});
         var locationDimension = ndx.dimension(function(d) { return d.location; });
-        var locationNameDimension = ndx.dimension(function(d) {return d.locationName;});
         var locationGroup = locationDimension.group().reduceCount(function(d) {return d.locationName;});
 
         var quarter = ndx.dimension(function (d) {

@@ -295,18 +295,23 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         update();
         dc.renderAll();
 
-        var onresize = function(){
+        var onResize = function(){
             dc.chartRegistry.list().forEach(function(chart){
                 if(chart.map) return;
                 var _bbox = chart.root().node().parentNode.getBoundingClientRect();
                 chart.width(_bbox.width).render();
-
             });
         };
 
-        onresize();
+        onResize();
 
-        window.addEventListener('resize', onresize);
+        $scope.$on("message", function(e, msg) {
+            if (msg === "resize") {
+                //$timeout(onResize);
+            }
+        });
+
+        window.addEventListener('resize', onResize);
 
         //dc has to be passed from this context
         slider.noUiSlider.on('update', (function(dc){

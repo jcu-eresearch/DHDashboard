@@ -12,9 +12,9 @@
 </header>
 <rad-dashboard-grid>
 
-    <div layout="row"  layout-align="stretch">
+    <div layout-gt-sm="row" layout-sm="column" layout-xs="column" layout-align="stretch">
 
-        <div layout="column" flex="25" layout-align="stretch">
+        <div layout="column" flex-gt-sm="25" layout-align="stretch">
             <md-card layout-align="center">
                 <md-card-title >
                     <md-card-title-text layout-align="center center">
@@ -32,15 +32,15 @@
                     <div id="weightSlider" style="width:80%;height:2px"></div>
                     <br/><br/>
 
-                    Weight Change/Day (KG):  Start:<input type="text"  id="startChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=-60></input>
-                    End:<input type="text"  id="endChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=60></input>
+                    Weight Change/Day (KG):  Start:<input type="text"  id="startChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=-60 />
+                    End:<input type="text"  id="endChange" style="border: 0; color: #95D7BB; font-weight: bold;width: 50px" value=60 />
                     <br/><br/>
 
 
                     <div id="changeSlider" style="width:80%;height:2px"></div>
                     <br/><br/>
 
-                    Top <input type="text"  id="startTopK" style="border: 0; color: #95D7BB; font-weight: bold;width: 30px" value=100></input> Animals
+                    Top <input type="text"  id="startTopK" style="border: 0; color: #95D7BB; font-weight: bold;width: 30px" value=100 /> Animals
                     <br/><br/>
 
                     <div id="topKSlider" style="width:80%;height:2px"></div>
@@ -61,7 +61,7 @@
             </md-card>
         </div>
 
-        <md-card flex="75" layout="column" class="graph-container" >
+        <md-card flex-gt-sm="75" layout="column" class="graph-container" >
             <md-card-title >
                 <md-card-title-text layout-align="center center">
                     <span class="md-headline" >Number of Animals/Day</span>
@@ -73,8 +73,8 @@
         </md-card>
     </div>
 
-    <div layout="row"  layout-align="stretch" >
-            <md-card  flex="25" layout-align="center center">
+    <div layout-gt-sm="row" layout-sm="column" layout-xs="column"  layout-align="stretch" >
+            <md-card  flex-gt-sm="25" layout-align="center center">
                 <md-card-title >
                     <md-card-title-text layout-align="center center">
                         <span class="md-headline" >Number of Animals that Lost/Gained Weight</span>
@@ -83,7 +83,7 @@
                 </md-card-title>
                 <div style="margin-bottom: 20px;" id='gain-loss-chart'><span></span></div>
             </md-card>
-            <md-card  flex="25" layout-align="center center">
+            <md-card  flex-gt-sm="25" layout-align="center center">
                 <md-card-title >
                     <md-card-title-text layout-align="center center">
                         <span class="md-headline" >Number of Animals/Quarter</span>
@@ -92,7 +92,7 @@
                 </md-card-title>
                 <div style="margin-bottom: 20px;" id='quarter-chart'><span></span></div>
             </md-card>
-            <md-card flex="25" layout-align="center center">
+            <md-card flex-gt-sm="25" layout-align="center center">
                 <md-card-title >
                     <md-card-title-text layout-align="center center">
                         <span class="md-headline" >Number of Animals/Day of the Week</span>
@@ -101,7 +101,7 @@
                 </md-card-title>
                 <div style="margin-bottom: 20px;" id='day-of-week-chart'><span></span></div>
             </md-card>
-            <md-card flex="25" class="md-padding" layout-align="center center">
+            <md-card flex-gt-sm="25" class="md-padding" layout-align="center center">
                 <md-card-title>
                     <md-card-title-text layout-align="center center">
                         <span class="md-headline">Selected Animal Tags</span>

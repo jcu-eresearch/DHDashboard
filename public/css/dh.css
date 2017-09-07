@@ -284,6 +284,7 @@ a:active {
 .sm-menu > li > a {
     padding: 10px;
 }
+/*
 
 .rad-dropmenu-item {
     position: absolute;
@@ -346,6 +347,7 @@ a:active {
 .rad-dropmenu-footer {
     border-top: 1px solid #CFD8DC;
 }
+*/
 
 .rad-chk-pin {
     margin: 0 !important;
@@ -391,6 +393,7 @@ a:active {
     transform: scale(1.1);
     transition: all .2s linear;
 }
+/*
 
 .rad-color-swatch {
     display: table;
@@ -415,6 +418,7 @@ a:active {
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
 }
+*/
 
 .rad-sidebar {
 
@@ -556,6 +560,10 @@ a:active {
     transform: scale(1.2, 1);
 }
 
+.rad-body-wrapper.rad-nav-min {
+    left: 50px;
+}
+
 .rad-body-wrapper {
     position: absolute;
     left: 230px;
@@ -565,11 +573,7 @@ a:active {
     transition: all .2s ease-in-out;
 }
 
-/*Changed from 50*/
 
-.rad-body-wrapper.rad-nav-min {
-    left: 50px;
-}
 
 .rad-collapse {
     height: 0px;
@@ -647,6 +651,8 @@ a:active {
         top: 20px !important;
     }
 }
+
+
 @media screen and (max-width: 850px) {
     .flat-theme .rad-menu-badge {
         top: -3px;
@@ -657,11 +663,11 @@ a:active {
     .flat-theme .rad-body-wrapper {
         top: 125px !important;
     }
-    /*Changed from fixed to absolute*/
+
     .flat-theme .rad-sidebar {
         position: fixed;
     }
-    /*Changed from fixed to absolute*/
+
     .flat-theme .rad-navigation {
         position: fixed;
     }
@@ -760,13 +766,57 @@ a:active {
 
     .rad-body-wrapper {
         top: 125px;
-        position: relative;
+       /* CHANGED position: relative;*/
     }
 
     .rad-body-wrapper.rad-nav-min {
         left: 0px;
     }
+
+
+
+    /* Added */
+
+
+
+    .rad-sidebar {
+        width: 45px !important;
+    }
+    .rad-sidebar .rad-sidebar-item {
+        opacity: 0;
+        visibility: hidden;
+        -webkit-transition: all .1s linear;
+        transform: translate3d(-200px, 0, 0);
+    }
+    .rad-sidebar .icon-bg {
+        transform: translate3d(0, 0, 0);
+    }
+    .rad-sidebar i {
+        border: 0px;
+        color: white;
+        transition: all .2s linear;
+    }
+    .rad-sidebar li:hover .icon-bg {
+        transform: scale(1.2, 1);
+    }
+
+    .rad-body-wrapper {
+        left: 50px;
+    }
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
 .panel {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
     border-radius: 0 !important;

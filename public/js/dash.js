@@ -286,22 +286,25 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
         }
 
-        $scope.lastHeartbeat = "00:05";
-        $scope.lastLocation="Spring Creek";
+        $scope.lastHeartbeat = "00:00";
+        $scope.lastLocation="None";
         tagDataService.getHeartBeat(setHeartBeat);
 
         function compare(a,b) {
             if(a && a.last_heartbeat && b && b.last_heartbeat ){
-                return a.last_heartbeat - b.last_heartbeat;
+
+                var ai=parseInt(a.last_heartbeat);
+                var bi=parseInt(b.last_heartbeat);
+                return ai - bi;
             }
         }
 
         function setHeartBeat(data){
-
-
             if(data && data.length>0) {
+
+
                 data.sort(compare);
-                var last=data[data.length-1];
+                var last=data[0];
                 $scope.lastHeartbeat = msToTime(last.last_heartbeat);
                 var loc="";
                 if(last.tag_id=="110177")loc="Spring Creek";
@@ -310,7 +313,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
                 $scope.lastLocation=loc;
             }
-
         }
 
         var dashData=detailedTagDataService.getTagData();
@@ -319,7 +321,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             tagDataService.getStaticFile(renderData);
         }
         else {
-
             renderData(dashData);
         }
 

@@ -301,7 +301,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         function setHeartBeat(data){
             if(data && data.length>0) {
-
+                debugger;
 
                 data.sort(compare);
                 var last=data[0];

@@ -111,11 +111,20 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 		});
 	};
 
-    $(".rad-toggle-button").on('click', function() {
+	function minimizeSidebar(){
+
         $(".rad-logo-container").toggleClass("rad-nav-min");
         $(".rad-sidebar").toggleClass("rad-nav-min");
         $(".rad-body-wrapper").toggleClass("rad-nav-min");
-    });
+
+        $rootScope.$broadcast('message', 'resize')
+        //resize all graphs and components here
+	}
+
+    $(".rad-toggle-button").on('click', minimizeSidebar);
+
+
+
 
 });
 
@@ -136,10 +145,11 @@ function tagDataService($http, $q) {
 
 	function getHeartBeat(callback){
 
+		debugger;
         $http.get('api/status/heartbeat').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
-
+			debugger;
             if(callback){
                 callback(results);
             }
@@ -382,6 +392,10 @@ homesteadApp.directive('plotly', [
 				scope.$on("message", function(e, msg, dataSeries) {
 					if (msg === "alertsUpdated")onUpdate();
 				});
+
+                scope.$on("message", function(e, msg) {
+                    if (msg === "resize")onResize();
+                });
 			}
 		};
 	}
@@ -475,6 +489,10 @@ homesteadApp.directive('plotlyDetailed', [
 
                 scope.$on("message", function(e, msg, dataSeries) {
                     if (msg === "alertsUpdated")onUpdate();
+                });
+
+                scope.$on("message", function(e, msg) {
+                    if (msg === "resize")onResize();
                 });
             }
         };

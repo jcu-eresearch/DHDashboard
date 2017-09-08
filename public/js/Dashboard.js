@@ -64,10 +64,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
     $scope.navItems = {
         selected: null,
         items : [
-            {name: "dash", ref:"#/", icon: "fa fa-dashboard", badge: "icon-bg rad-bg-success", text: "Dashboard"},
-            {name: "map", ref:"#map",  icon: "fa fa-map-marker", badge: "icon-bg rad-bg-danger", text: "Movement"},
-            {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg rad-bg-warning", text: "Details" },
-			{name: "trends", ref:"#trends",  icon: "fa fa-line-chart", badge: "icon-bg rad-bg-primary", text: "Trends" }
+            {name: "dash", ref:"#/", icon: "fa fa-dashboard", badge: "icon-bg dh-bg-success", text: "Dashboard"},
+            {name: "map", ref:"#map",  icon: "fa fa-map-marker", badge: "icon-bg dh-bg-danger", text: "Movement"},
+            {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg dh-bg-warning", text: "Details" },
+			{name: "trends", ref:"#trends",  icon: "fa fa-line-chart", badge: "icon-bg dh-bg-primary", text: "Trends" }
         ],
 		returnIndex: function (loc) {
 			if(loc=="/") return 0;
@@ -113,15 +113,15 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
 
 	function minimizeSidebar(){
 
-        $(".rad-logo-container").toggleClass("rad-nav-min");
-        $(".rad-sidebar").toggleClass("rad-nav-min");
-        $(".rad-body-wrapper").toggleClass("rad-nav-min");
+        $(".dh-logo-container").toggleClass("dh-nav-min");
+        $(".dh-sidebar").toggleClass("dh-nav-min");
+        $(".dh-body-wrapper").toggleClass("dh-nav-min");
 
         $rootScope.$broadcast('message', 'resize')
         //resize all graphs and components here
 	}
 
-    $(".rad-toggle-button").on('click', minimizeSidebar);
+    $(".dh-toggle-button").on('click', minimizeSidebar);
 
 
 
@@ -145,11 +145,9 @@ function tagDataService($http, $q) {
 
 	function getHeartBeat(callback){
 
-		debugger;
         $http.get('api/status/heartbeat').success(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
-			debugger;
             if(callback){
                 callback(results);
             }

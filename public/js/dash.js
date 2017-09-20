@@ -143,6 +143,8 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         map.data.loadGeoJson('data/paddocks.json');
 
+
+
         var marker1 = new google.maps.Marker({
             position: {lat: -19.66882, lng: 146.864},
             map: map,
@@ -234,6 +236,34 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 anchor: new google.maps.Point(11, 40),
             }
         });
+
+        var markers=[marker1, marker11, marker3, marker33, marker4, marker44];
+
+        map.addListener( 'zoom_changed', function() {
+            var zoom = map.getZoom();
+
+            // iterate over markers and call setVisible
+            for (var i = 0; i < markers.length; i++) {
+                markers[i].setVisible(zoom >= 12);
+            }
+
+            if(zoom<12){
+                map.data.setStyle({
+                    visible: false
+                });
+            }
+            else{
+
+                map.data.setStyle({
+                    strokeColor: '#66bb6a',
+                    fillColor: '#66bb6a',
+                    fillOpacity: 0.1,
+                    strokeWeight: 2,
+                    visible: true
+                });
+            }
+
+        });
     };
 
     $scope.layout = {
@@ -302,8 +332,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         function setHeartBeat(data){
             if(data && data.length>0) {
 
-                debugger;
-
                 data.sort(compare);
                 var last=data[0];
                 $scope.lastHeartbeat = msToTime(last.last_heartbeat);
@@ -368,7 +396,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     $scope.lossIds = lossIds;
                     $scope.allIds = allIds;
 
-                    debugger;
+
                     if(recordsForToday[0].date)
                         $scope.lastDate = recordsForToday[0].date.substr(0, 10);
                     else

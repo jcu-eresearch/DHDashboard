@@ -50,7 +50,6 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         div.style.height = (sw.y - ne.y) + 'px';
     };
 
-
     imgOverlay.prototype.updateBounds = function(bounds){
         this.bounds_ = bounds;
         this.draw();
@@ -267,6 +266,36 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(11, 40),
             }
+        });
+
+        var markers=[marker1, marker11, marker3, marker33, marker4, marker44];
+
+        map.addListener( 'zoom_changed', function() {
+            var zoom = map.getZoom();
+
+
+
+            // iterate over markers and call setVisible
+            for (var i = 0; i < markers.length; i++) {
+                markers[i].setVisible(zoom >= 12);
+            }
+
+            if(zoom<12){
+                map.data.setStyle({
+                    visible: false
+                });
+            }
+            else{
+
+                map.data.setStyle({
+                    strokeColor: '#66bb6a',
+                    fillColor: '#66bb6a',
+                    fillOpacity: 0.1,
+                    strokeWeight: 2,
+                    visible: true
+                });
+            }
+
         });
 
         tagDataService.getLocationData(renderMovementData);

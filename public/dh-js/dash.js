@@ -4,126 +4,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
     $scope.allTags={};
     var map;
 
-    var options = {
-        hash_bookmark: false,
-        timenav_height: 5,
-        timenav_height_min: 5,
-        track_events: [],
-        base_class: 'none',
-        timenav_height_percentage: 1,
-        timenav_mobile_height_percentage: 1,
-        slide_padding_lr: 60,
-        layout: "portrait"
-    };
-
-    var timeline_json = {
-
-        "events": [
-            {
-                "media": {
-                    "url": "https://www.youtube.com/watch?v=pNj4wbWoUWw",
-                    "caption": "The Digital Homestead",
-                    "credit": ""
-                },
-                "start_date": {
-                    "month": "6",
-                    "day": "1",
-                    "year": "2016"
-                },
-                "text": {
-                    "text": "<p>The Digital Homestead project evaluates how modern Information and Communication"+
-                    " Technologies (ICT) such as wireless sensor networks (WSN’s), data analytics "+
-                    "and rural connectivity can support greater profitability for the Northern beef industry. </p>"
-                }
-            },
-            {
-                "media": {
-                    "url": "images/11.jpg",
-                    "caption": "Cattle Drawn to Water.",
-                    "credit": ""
-                },
-                "start_date": {
-                    "month": "6",
-                    "day": "1",
-                    "year": "2016"
-                },
-                "text": {
-                    "text": "<p>Cattle are drawn to areas with water.</p>"
-                }
-            },
-            {
-                "media": {
-                    "url": "images/10.jpg",
-                    "caption": "Weight Data Recorded.",
-                    "credit": ""
-                },
-                "start_date": {
-                    "month": "6",
-                    "day": "1",
-                    "year": "2016"
-                },
-                "text": {
-                    "text": "<p>Weight data is captured by the Walk Over Weigher.</p>"
-                }
-            },
-            {
-                "media": {
-                    "url": "images/12.jpg",
-                    "caption": "Data Transmitted.",
-                    "credit": ""
-                },
-                "start_date": {
-                    "month": "6",
-                    "day": "1",
-                    "year": "2016"
-                },
-                "text": {
-                    "text": "<p>Data is transmitted hourly through Taggle and 3G.</p>"
-                }
-            },
-            {
-                "media": {
-                    "url": "images/9.jpg",
-                    "caption": "Analysis Presented.",
-                    "credit": ""
-                },
-                "start_date": {
-                    "month": "6",
-                    "day": "1",
-                    "year": "2016"
-                },
-                "text": {
-                    "text": "<p>Analysis and Ranking of Cattle is presented through the dashboard.</p>"
-                }
-            },
-
-            {
-                "media": {
-                    "url": "https://www.youtube.com/watch?v=6U1cVwN2nwc",
-                    "caption": "The Digital Homestead",
-                    "credit": ""
-                },
-                "start_date": {
-                    "month": "6",
-                    "day": "1",
-                    "year": "2016"
-                },
-                "text": {
-
-                    "text": "<p>The Digital Homestead technology demonstration at the Spyglass Open Day on October "+
-                    "9 2015 provided a chance for producers, members of the community and students"+
-                    " to explore what the future of technology and farming might look like. </p>"
-                }
-            }]
-    }
-
-    $timeout(function(){
-        var timeline = new TL.Timeline('dash-timeline', timeline_json, options);
-        $('.tl-headline-date').remove();
-        $('.tl-timenav').remove();
-        $('.tl-menubar').remove();
-        $('.tl-slidenav-description').remove();
-    });
 
     $scope.initDashMap=function() {
 
@@ -272,10 +152,11 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         showlegend: false
     };
 
-    $scope.chart = {
+    var chart = {
         chart: {
             type: 'pieChart',
             showLabels: false,
+            height: 400,
             donut: true,
             color : [ '#D9DD81', '#E67A77',  '#95D7BB'],
             x: function(d){return d['key'];},
@@ -285,11 +166,12 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
     $scope.data={};
 
-    $scope.chart1 = {
+    var chart1 = {
         chart: {
             type: 'pieChart',
             showLabels: false,
             donut: true,
+            height: 400,
             color : [  '#D9DD81', '#79D1CF', '#95D7BB'],
             x: function(d){return d['key'];},
             y: function(d){return d['y'];}
@@ -299,7 +181,18 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
     $scope.data1={};
 
 
+
     $scope.init=function(){
+
+        $scope.chart=chart;
+        $scope.chart1=chart1;
+
+        nv.utils.windowResize((function(scope){
+            return function(){debugger;
+            scope.chart.api.update();
+            scope.chart1.api.update();
+                }
+        })($scope));
 
         $timeout(function(){$scope.initDashMap();});
 

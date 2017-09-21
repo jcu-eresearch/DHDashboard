@@ -64,10 +64,10 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
     $scope.navItems = {
         selected: null,
         items : [
-            {name: "dash", ref:"#/", icon: "fa fa-dashboard", badge: "icon-bg dh-bg-success", text: "Dashboard"},
-            {name: "map", ref:"#map",  icon: "fa fa-map-marker", badge: "icon-bg dh-bg-danger", text: "Movement"},
-            {name: "detailed", ref:"#detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg dh-bg-warning", text: "Details" },
-			{name: "trends", ref:"#trends",  icon: "fa fa-line-chart", badge: "icon-bg dh-bg-primary", text: "Trends" }
+            {name: "dash", ref:"#!/", icon: "fa fa-dashboard", badge: "icon-bg dh-bg-success", text: "Dashboard"},
+            {name: "map", ref:"#!map",  icon: "fa fa-map-marker", badge: "icon-bg dh-bg-danger", text: "Movement"},
+            {name: "detailed", ref:"#!detailed",  icon: "fa fa-bar-chart-o", badge: "icon-bg dh-bg-warning", text: "Details" },
+			{name: "trends", ref:"#!trends",  icon: "fa fa-line-chart", badge: "icon-bg dh-bg-primary", text: "Trends" }
         ],
 		returnIndex: function (loc) {
 			if(loc=="/") return 0;
@@ -145,11 +145,11 @@ function tagDataService($http, $q) {
 
 	function getHeartBeat(callback){
 
-        $http.get('api/status/heartbeat').success(getStaticSuccess,getStaticError);
+        $http.get('api/status/heartbeat').then(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
             if(callback){
-                callback(results);
+                callback(results.data);
             }
         }
 
@@ -159,12 +159,13 @@ function tagDataService($http, $q) {
 
 	}
     function getStaticFile(callback) {
-        $http.get('/dh/weightsData.jsonz').success(getStaticSuccess,getStaticError);
-        //$http.get('data/staticFileTest.json').success(getStaticSuccess,getStaticError);
+        $http.get('/dh/weightsData.jsonz').then(getStaticSuccess,getStaticError);
+        //$http.get('data/staticFileTest.json').then(getStaticSuccess,getStaticError);
 
         function getStaticSuccess(results){
+
             if(callback){
-                callback(results);
+                callback(results.data);
             }
         }
         function getStaticError(){

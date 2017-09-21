@@ -904,16 +904,22 @@ md-checkbox .md-icon {
 }
 
 .carousel.carousel-slider .carousel-item h2 {
+
+    color: white;
     font-size: 24px;
     font-weight: 500;
     line-height: 32px;
 }
 
 .carousel.carousel-slider .carousel-item p {
+    color: white;
     font-size: 15px;
+
 }
 
 .carousel .carousel-item {
+
+    color: white;
     display: none;
     width: 200px;
     height: 200px;

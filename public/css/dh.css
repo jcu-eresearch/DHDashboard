@@ -99,10 +99,12 @@ a:active {
 
 .dh-page-title {
     margin-bottom: 20px;
+    margin-left: 10px;
     text-shadow: 1px 4px 6px #c6c6c6, 0 0 0 #000, 1px 4px 6px #c6c6c6;
 }
 .dh-page-title button {
     float: right;
+    font-size: smaller;
     min-width: 100px;
     height: 45px;
     text-align: left;
@@ -121,6 +123,10 @@ a:active {
     font-weight: 500;
     display: block;
     margin: 0;
+}
+
+.dh-page-title a {
+    color: #337AB7;
 }
 
 .dh-navigation {

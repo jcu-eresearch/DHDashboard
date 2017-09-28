@@ -160,9 +160,12 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             donut: true,
             color : [ '#D9DD81', '#E67A77',  '#95D7BB'],
             x: function(d){return d['key'];},
-            y: function(d){return d['y'];}
-        }
+            y: function(d){return Math.round(d['y']);},
+            valueFormat: d3.format('d')
+            }
     };
+
+
 
     $scope.data={};
 
@@ -187,8 +190,10 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         $scope.chart=chart;
         $scope.chart1=chart1;
 
+
         nv.utils.windowResize((function(scope){
-            return function(){debugger;
+            return function(){
+
             scope.chart.api.update();
             scope.chart1.api.update();
                 }
@@ -331,7 +336,17 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     t: 10,
                     pad: 4
                 };
+                $scope.allTags.thirdsLayout.legend.orientation="v";
 
+
+                $scope.weeklyTrace.layout.title=null;
+                $scope.weeklyTrace.layout.margin= {
+                    l: 100,
+                    r: 50,
+                    b: 50,
+                    t: 10,
+                    pad: 4
+                };
 
                 detailedTagDataService.addTagData(data);
 
@@ -339,6 +354,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     $scope.$emit('alerts');
                 }
             }
+
         }
 
         $scope.showTagsGained = function(ev) {

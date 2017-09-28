@@ -1022,7 +1022,7 @@ Weight.find({}).exec(function (err, weights){
                 range: [300, 650]
             },
             showlegend: true,
-            legend: {"orientation": "h"}
+            legend: {"orientation": "v"}
         };
         var allTags={};
 

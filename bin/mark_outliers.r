@@ -11,8 +11,8 @@ library(utils)
 
 
 #connect to mongo
-#weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost:33335")
-weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://mongo:27017")
+weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost:27017")
+#weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://mongo:27017")
 
 #get the distinct tags for the animals
 distinctIds<-weights$distinct("weights.id")
@@ -21,28 +21,33 @@ distinctIds<-weights$distinct("weights.id")
 countValid<-1
 countInvalid<-1
 for(id in distinctIds){
-
+  
   print(id)
   if(id=="-1") next;
   #get the tagWeights: working with 125004185879 125004149782 right now
   tagWeights<-weights$aggregate(
     paste0('[ {"$unwind" : "$weights"}, {"$match":  {"weights.id" : ','"',id,'"','} }, {"$project":  { "weight" : "$weights.weight", "id" : "$weights._id",  "flag" : "$weights.qa_flag"  } } ]'))
-
+  
   countValid<-1;
   countInvalid<-1;
   indexValid<-vector();
   indexInvalid<-vector();
   weightsValid<-vector();
   weightsInvalid<-vector();
-
+  
   #iterate over the weights
   for(i in 1:length(tagWeights[[1]]) ){
     if(tagWeights[i,2]>650 || tagWeights[i,2]<300){
       indexInvalid[countInvalid]<-i;
       weightsInvalid[countInvalid]<-tagWeights[i,2];
+
+      out<-tryCatch({
       if(is.na( tagWeights[i,4]) || tagWeights[i,4]!="INVALID")
         weights$update( query=paste0 ('{"_id":"', tagWeights[i,1] ,'", "weights._id": {"$oid":"',tagWeights[i,3],'"}}'),
                         update='{"$set":{"weights.$.qa_flag": "INVALID"}}')
+
+      },
+      error=function(cond){ print(cond); })
       countInvalid<-countInvalid+1;
     }
     else{
@@ -52,20 +57,20 @@ for(id in distinctIds){
       if( is.na(tagWeights[i,4]) || tagWeights[i,4]!="VALID")
         weights$update( query=paste0 ('{"_id":"', tagWeights[i,1] ,'", "weights._id": {"$oid": "',tagWeights[i,3],'"}}'),
                         update='{"$set":{"weights.$.qa_flag": "VALID"}}')
-
+      
     }
   }
-
+  
   out<-tryCatch({
     weightSeries<-ts(weightsValid);
   },
   error=function(cond){ print(cond); })
-
+  
   out<-tryCatch({
     weightOutliers<-tso(weightSeries,types= c("TC", "AO"))
   },
   error=function(cond){ print(cond); })
-
+  
   #update info about Outliers detected weightOutliers$outliers$type weightOutliers$outliers$ind weightOutliers$outliers$coefhat
   out<-tryCatch({
     for(j in 1:length(weightOutliers$outliers[[1]]) ){
@@ -74,5 +79,5 @@ for(id in distinctIds){
     }
   },
   error=function(cond){ print(cond); })
-
+  
 }

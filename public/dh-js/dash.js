@@ -1,5 +1,40 @@
 homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, tagDataService, detailedTagDataService) {
 
+
+    $scope.slides =[];
+    $scope.title = "Title";
+    $scope.location = "Location";
+    $scope.sliderAvatar = "";
+    $scope.status = "Stock Status";
+    $scope.includeLiveData = true;
+
+
+    $scope.data= {
+        markers : [],
+        stationMapping : [],
+        center : {"lat": -19.665, "lng": 146.855},
+        paddocks : "data/paddocks.json",
+
+    };
+
+
+    //setting up the location and map markers
+    $scope.configureSettings = function (data){
+        if(data) {
+            $scope.data = data;
+
+            $scope.slides= data.slides;
+            $scope.title = data.title;
+            $scope.status = data.status;
+            $scope.location = data.location;
+            $scope.sliderAvatar = data.sliderAvatar;
+            $scope.includeLiveData = data.includeLiveData;
+        }
+
+    };
+
+    tagDataService.getConfigFile($scope.configureSettings);
+
     $scope.currentNavItem = 'page1';
     $scope.allTags={};
     var map;
@@ -7,8 +42,12 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
     $scope.initDashMap=function() {
 
+        var stationMarkers = $scope.data.markers;
+        var center = $scope.data.center;
+        var paddocks = $scope.data.paddocks;
+
         map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -19.665, lng: 146.855},
+            center: center,
             mapTypeId: 'hybrid',
             zoom:14,
             scrollwheel:  false
@@ -21,103 +60,43 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             strokeWeight: 2
         });
 
-        map.data.loadGeoJson('data/paddocks.json');
+        map.data.loadGeoJson(paddocks);
 
+        var markers = [];
 
+        if (stationMarkers && stationMarkers.length>0){
 
-        var marker1 = new google.maps.Marker({
-            position: {lat: -19.66882, lng: 146.864},
-            map: map,
-            title: "Spring Creek"
-        });
+            stationMarkers.forEach(function(m){
 
-        var marker11 = new google.maps.Marker({
-            position: {lat: -19.66882, lng: 146.864},
-            map: map,
-            label: {
-                text: "Spring Creek",
-                color: "white"
-            },
-            title: "Spring Creek",
-            icon: {
-                labelOrigin: new google.maps.Point(11, 50),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
+                var marker1 = new google.maps.Marker({
+                    position: m.position,
+                    map: map,
+                    title: m.title
+                });
 
-        var marker2 = new google.maps.Marker({
-            position: {lat: -19.657496, lng: 146.835306},
-            map: map,
-            title: "Digital Homestead"
-        });
+                var marker11 = new google.maps.Marker({
+                    position: m.position,
+                    map: map,
+                    label: {
+                        text: m.title,
+                        color: "white"
+                    },
+                    title: m.title,
+                    icon: {
+                        labelOrigin: new google.maps.Point(m.labelTop, m.labelLeft),
+                        url: 'default_marker.png',
+                        size: new google.maps.Size(22, 40),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(11, 40),
+                    }
+                });
 
-        var marker22 = new google.maps.Marker({
-            position: {lat: -19.657496, lng: 146.835306},
-            map: map,
-            label: {
-                text:  "Digital Homestead",
-                color: "white"
-            },
-            title: "Digital Homestead",
-            icon: {
-                labelOrigin: new google.maps.Point(11, 50),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
+                markers.push(marker1);
+                markers.push(marker11);
 
-        var marker3 = new google.maps.Marker({
-            position: {lat: -19.66574, lng: 146.8462},
-            map: map,
-            title: "Double Barrel"
-        });
+            })
+        }
 
-        var marker33 = new google.maps.Marker({
-            position: {lat: -19.66574, lng: 146.8462},
-            map: map,
-            label: {
-                text:  "Double Barrel",
-                color: "white"
-            },
-            title: "Double Barrel",
-            icon: {
-                labelOrigin: new google.maps.Point(11, 50),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
-
-        var marker4 = new google.maps.Marker({
-            position: {lat: -19.66872, lng: 146.8642},
-            map: map,
-            text: "Junction"
-        });
-
-        var marker44 = new google.maps.Marker({
-            position: {lat: -19.66872, lng: 146.8642},
-            map: map,
-            label: {
-                text:  "Junction",
-                color: "white"
-            },
-            title: "Junction",
-            icon: {
-                labelOrigin: new google.maps.Point(50, 20),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
-
-        var markers=[marker1, marker11, marker3, marker33, marker4, marker44];
 
         map.addListener( 'zoom_changed', function() {
             var zoom = map.getZoom();
@@ -234,9 +213,17 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 var last=data[0];
                 $scope.lastHeartbeat = msToTime(last.last_heartbeat);
                 var loc="";
-                if(last.tag_id=="110177")loc="Spring Creek";
+
+                for (var i =0; i< $scope.data.stationMapping.length; i++){
+
+                    if(last.tag_id== $scope.data.stationMapping[i].tag ){
+                        loc=  $scope.data.stationMapping[i].location;
+                    }
+                }
+
+                /* if(last.tag_id=="110177")loc="Spring Creek";
                 if(last.tag_id=="110171")loc="Double Barrel";
-                if(last.tag_id=="110163")loc="Junction";
+                if(last.tag_id=="110163")loc="Junction";*/
 
                 $scope.lastLocation=loc;
             }

@@ -2,6 +2,24 @@
 
 homesteadApp.controller('mapController', function($scope, tagDataService, $rootScope, $timeout) {
 
+    $scope.data= {
+        location : "Location",
+        status : "Stock Status",
+        markers : [],
+        center : {"lat": -19.665, "lng": 146.855},
+        paddocks : "data/paddocks.json",
+        includeAnimalMovement : false
+    };
+
+    //setting up the location and map markers
+    $scope.configureSettings = function (data){
+        if(data) {
+            $scope.data = data;
+        }
+    };
+
+    tagDataService.getConfigFile($scope.configureSettings);
+
     imgOverlay.prototype = new google.maps.OverlayView();
     var heatmap;
 
@@ -128,7 +146,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
             'rgba(127, 0, 63, 1)',
             'rgba(191, 0, 31, 1)',
             'rgba(255, 0, 0, 1)'
-        ]
+        ];
         $scope.heatmapOverlay.set('gradient',  $scope.heatmapOverlay.get('gradient') ? null : gradient);
     }
 
@@ -140,29 +158,48 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         $scope.heatmapOverlay.set('opacity',  $scope.heatmapOverlay.get('opacity') ? null : 0.2);
     }
 
-    $scope.initMap=function() {
+    $scope.createOverlay= function (data) {
 
-        var map
+        if(data.bounds1 && data.bounds2) {
+            var neBound = new google.maps.LatLng(data.bounds1.lat, data.bounds1.lng);
+            var swBound = new google.maps.LatLng(data.bounds2.lat, data.bounds2.lng);
+            var bounds = new google.maps.LatLngBounds(swBound, neBound);
+            var srcImage = data.image;
+            return new imgOverlay(bounds, srcImage, map);
+        }
+    };
+
+    $scope.initMap=function() {
+        var stationMarkers= $scope.data.markers;
+        var center = $scope.data.center;
+        var paddocks = $scope.data.paddocks;
+        var movement= $scope.data.includeAnimalMovement;
+
+        var map;
         map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -19.66350, lng: 146.85200},
+            center: center,
             mapTypeId: 'hybrid',
-            zoom:15
+            zoom: 15
         });
         $scope.map=map;
 
-        var neBound = new google.maps.LatLng(-19.65111042090178, 146.87229902673334);
-        var swBound = new google.maps.LatLng( -19.676194910665817, 146.8331438674927);
-        var bounds = new google.maps.LatLngBounds(swBound, neBound);
-        var srcImage = 'data/paddSoil.png';
-        $scope.soilOverlay = new imgOverlay(bounds, srcImage, map);
-        $scope.soilOverlay.removeFromMap();
+        if($scope.data.includeSoil) {
+            $scope.soilOverlay = $scope.createOverlay({
+                bounds1: $scope.data.soilNEBounds,
+                bounds2: $scope.data.soilSWBounds,
+                image: $scope.data.soilData
+            });
+            $scope.soilOverlay.removeFromMap();
+        }
 
-        var neBound1 = new google.maps.LatLng(-19.6522016454622, 146.87255651879877);
-        var swBound1 = new google.maps.LatLng( -19.6767606432209, 146.83365885162357);
-        var bounds1 = new google.maps.LatLngBounds(swBound1, neBound1);
-        var srcImage1 = 'data/soilTopo.png';
-        $scope.topologyOverlay = new imgOverlay(bounds1, srcImage1, map);
-        $scope.topologyOverlay.removeFromMap();
+        if($scope.data.includeSoilTopology) {
+            $scope.topologyOverlay = $scope.createOverlay({
+                bounds1: $scope.data.soilTopologyNEBounds,
+                bounds2: $scope.data.soilTopologySWBounds,
+                image: $scope.data.soilTopologyData
+            });
+            $scope.topologyOverlay.removeFromMap();
+        }
 
         map.data.setStyle({
             strokeColor: '#66bb6a',
@@ -171,104 +208,43 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
             strokeWeight: 2
         });
 
-        map.data.loadGeoJson(
-            'data/paddocks.json');
+        map.data.loadGeoJson(paddocks);
 
 
+        var markers = [];
 
-        var marker1 = new google.maps.Marker({
-            position: {lat: -19.66882, lng: 146.864},
-            map: map,
-            title: "Spring Creek"
-        });
+        if (stationMarkers && stationMarkers.length>0){
 
-        var marker11 = new google.maps.Marker({
-            position: {lat: -19.66882, lng: 146.864},
-            map: map,
-            label: {
-                text: "Spring Creek",
-                color: "white"
-            },
-            title: "Spring Creek",
-            icon: {
-                labelOrigin: new google.maps.Point(11, 50),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
+            stationMarkers.forEach(function(m){
 
-        var marker2 = new google.maps.Marker({
-            position: {lat: -19.657496, lng: 146.835306},
-            map: map,
-            title: "Digital Homestead"
-        });
+                var marker1 = new google.maps.Marker({
+                    position: m.position,
+                    map: map,
+                    title: m.title
+                });
 
-        var marker22 = new google.maps.Marker({
-            position: {lat: -19.657496, lng: 146.835306},
-            map: map,
-            label: {
-                text:  "Digital Homestead",
-                color: "white"
-            },
-            title: "Digital Homestead",
-            icon: {
-                labelOrigin: new google.maps.Point(11, 50),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
+                var marker11 = new google.maps.Marker({
+                    position: m.position,
+                    map: map,
+                    label: {
+                        text: m.title,
+                        color: "white"
+                    },
+                    title: m.title,
+                    icon: {
+                        labelOrigin: new google.maps.Point(m.labelTop, m.labelLeft),
+                        url: 'default_marker.png',
+                        size: new google.maps.Size(22, 40),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(11, 40),
+                    }
+                });
 
-        var marker3 = new google.maps.Marker({
-            position: {lat: -19.66574, lng: 146.8462},
-            map: map,
-            title: "Double Barrel"
-        });
+                markers.push(marker1);
+                markers.push(marker11);
 
-        var marker33 = new google.maps.Marker({
-            position: {lat: -19.66574, lng: 146.8462},
-            map: map,
-            label: {
-                text:  "Double Barrel",
-                color: "white"
-            },
-            title: "Double Barrel",
-            icon: {
-                labelOrigin: new google.maps.Point(11, 50),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
-
-        var marker4 = new google.maps.Marker({
-            position: {lat: -19.66872, lng: 146.8642},
-            map: map,
-            text: "Junction"
-        });
-
-        var marker44 = new google.maps.Marker({
-            position: {lat: -19.66872, lng: 146.8642},
-            map: map,
-            label: {
-                text:  "Junction",
-                color: "white"
-            },
-            title: "Junction",
-            icon: {
-                labelOrigin: new google.maps.Point(50, 20),
-                url: 'default_marker.png',
-                size: new google.maps.Size(22, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(11, 40),
-            }
-        });
-
-        var markers=[marker1, marker11, marker3, marker33, marker4, marker44];
+            })
+        }
 
         map.addListener( 'zoom_changed', function() {
             var zoom = map.getZoom();
@@ -298,7 +274,10 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
 
         });
 
-        tagDataService.getLocationData(renderMovementData);
+
+        if(movement) {
+            tagDataService.getLocationData(renderMovementData);
+        }
 
         function renderMovementData(movementData){
 
@@ -320,7 +299,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
             }
             $scope.heatmapOverlay=heatmap;
         }
-    }
+    };
 
     $timeout(function(){$scope.initMap();});
 

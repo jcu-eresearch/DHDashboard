@@ -11,8 +11,8 @@ library(utils)
 
 
 #connect to mongo
-#weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost:33335")
-weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://mongo:27017")
+weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost:27017")
+#weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://mongo:27017")
 
 #get the distinct tags for the animals
 distinctIds<-weights$distinct("weights.id")
@@ -55,23 +55,30 @@ for(id in distinctIds){
 
     }
   }
+  
+  weightSeries<- logical(0);
+  weightOutliers<- logical(0);
 
   out<-tryCatch({
-    weightSeries<-ts(weightsValid);
+    if(length(weightsValid)>0)
+      weightSeries<-ts(weightsValid);
   },
   error=function(cond){ print(cond); })
 
   out<-tryCatch({
-    weightOutliers<-tso(weightSeries,types= c("TC", "AO"))
+    if(length(weightSeries)>5)
+      weightOutliers<-tso(weightSeries,types= c("TC", "AO"))
   },
-  error=function(cond){ print(cond); })
+  error=function(cond){ print(cond);  })
 
   #update info about Outliers detected weightOutliers$outliers$type weightOutliers$outliers$ind weightOutliers$outliers$coefhat
   out<-tryCatch({
-    for(j in 1:length(weightOutliers$outliers[[1]]) ){
-      weights$update( query=paste0 ('{"_id":"', tagWeights[indexValid[weightOutliers$outliers[j,2]],1] ,'", "weights._id": {"$oid": "',tagWeights[indexValid[weightOutliers$outliers[j,2]],3],'"}}'),
-                      update=paste0('{"$set":{"weights.$.qa_flag": "OUTLIER",   "weights.$.qa_value": "',weightOutliers$outliers[j,4],'"}}'))
-    }
+    if(length(weightOutliers)>0)
+      for(j in 1:length(weightOutliers$outliers[[1]]) ){
+        
+        weights$update( query=paste0 ('{"_id":"', tagWeights[indexValid[weightOutliers$outliers[j,2]],1] ,'", "weights._id": {"$oid": "',tagWeights[indexValid[weightOutliers$outliers[j,2]],3],'"}}'),
+                        update=paste0('{"$set":{"weights.$.qa_flag": "OUTLIER",   "weights.$.qa_value": "',weightOutliers$outliers[j,4],'"}}'))
+      }
   },
   error=function(cond){ print(cond); })
 

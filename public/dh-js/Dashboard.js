@@ -59,6 +59,22 @@ homesteadApp.config(function($routeProvider) {
 
 homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope, $location, $mdDialog) {
 
+    //setting up the logo, heading, website
+    $scope.configureNavbar = function (data){
+		if(data) {
+			$scope.settings = data;
+		}
+	};
+
+	tagDataService.getConfigFile($scope.configureNavbar);
+
+    //default values
+	$scope.settings = {
+        logo: "images/image.jpg",
+        title: "Website name goes here",
+        website: "https://jcu.edu.au"
+    }
+
 	$scope.alerts=false;
 
     $scope.navItems = {
@@ -139,7 +155,8 @@ function tagDataService($http, $q) {
 		//getTestData: getTestData,
         getLocationData: getLocationData,
         getStaticFile: getStaticFile,
-		getHeartBeat: getHeartBeat
+		getHeartBeat: getHeartBeat,
+        getConfigFile: getConfigFile
 	};
 	return service;
 
@@ -170,6 +187,21 @@ function tagDataService($http, $q) {
         }
         function getStaticError(){
         	console.log("Error getting the data");
+        }
+    }
+
+    function getConfigFile(callback) {
+
+        $http.get('config/settings.json').then(getStaticSuccess,getStaticError);
+
+        function getStaticSuccess(results){
+            if(callback){
+            	debugger;
+                callback(results.data);
+            }
+        }
+        function getStaticError(){
+            console.log("Error getting the config file");
         }
     }
 

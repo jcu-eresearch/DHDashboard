@@ -1,12 +1,12 @@
 <header class="dh-page-title">
-    <md-button class="btn" ng-click="showLiveData()" >
+    <md-button ng-if="includeLiveData" class="btn" ng-click="showLiveData()" >
         <i class="fa fa-rss"></i>View Live Data</md-button>
 
     <h1>Dashboard</h1>
     <small class="md-txt">Welcome,
         <a href="#" target="_blank">
-            <i class="fa fa-map-marker dh-txt-danger"></i> Lansdown,</a>
-        <i ></i> Current Status: <span class=" dh-txt-danger" >No Stock</span></a>
+            <i class="fa fa-map-marker dh-txt-danger"></i> {{location}},</a>
+        <i ></i> Current Status: <span class=" dh-txt-danger" >{{status}}</span></a>
     </small>
 </header>
 <dh-dashboard-grid>

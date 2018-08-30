@@ -5,3 +5,4 @@ public/js/moment*
 public/js/pubnub*
 public/js/restruct*
 node_modules
+public/config/settings.json

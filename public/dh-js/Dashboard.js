@@ -57,14 +57,17 @@ homesteadApp.config(function($routeProvider) {
 		});
 });
 
-homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope, $location, $mdDialog) {
+homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, tagDataService, $rootScope, $location, $mdDialog, $document) {
 
     //setting up the logo, heading, website
     $scope.configureNavbar = function (data){
 		if(data) {
 			$scope.settings = data;
+            $document[0].title = data.title;
 		}
 	};
+
+    console.log($document[0].title);
 
 	tagDataService.getConfigFile($scope.configureNavbar);
 
@@ -74,6 +77,8 @@ homesteadApp.controller('AppCtrl', function($scope,  $mdBottomSheet, $mdToast, t
         title: "Website name goes here",
         website: "https://jcu.edu.au"
     }
+
+    $document[0].title = $scope.settings.title;
 
 	$scope.alerts=false;
 

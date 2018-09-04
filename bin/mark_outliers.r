@@ -9,6 +9,7 @@ library(stsm)
 library(tseries)
 library(utils)
 
+options(nwarnings = 500)
 
 #connect to mongo
 weights<-mongo(collection = "weights", db = "digitalhomestead", url = "mongodb://localhost:27017")

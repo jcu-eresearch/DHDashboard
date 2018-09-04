@@ -1,5 +1,18 @@
 homesteadApp.controller('detailedController', function($scope, tagDataService, detailedTagDataService) {
 
+    $scope.data= {
+        location : "Location"
+    };
+
+    //setting up the location and map markers
+    $scope.configureSettings = function (data){
+        if(data) {
+            $scope.data.location = data.location;
+        }
+    };
+
+    tagDataService.getConfigFile($scope.configureSettings);
+
     $scope.currentNavItem = 'page1';
     $scope.selectedTag;
     $scope.tagGraphs=[];

@@ -1,6 +1,20 @@
 
 homesteadApp.controller('trendsController', function($scope, tagDataService, detailedTagDataService,$rootScope, $timeout) {
 
+    $scope.data= {
+        location : "Location"
+    };
+
+    //setting up the location and map markers
+    $scope.configureSettings = function (data){
+        if(data) {
+            $scope.data.location = data.location;
+        }
+    };
+
+    tagDataService.getConfigFile($scope.configureSettings);
+
+
     var dashData=detailedTagDataService.getTagData();
 
     if(dashData==null)

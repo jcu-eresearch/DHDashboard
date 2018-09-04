@@ -8,7 +8,9 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         markers : [],
         center : {"lat": -19.665, "lng": 146.855},
         paddocks : "data/paddocks.json",
-        includeAnimalMovement : false
+        includeAnimalMovement : false,
+        initialZoom : 14,
+        maxZoom : 8
     };
 
     //setting up the location and map markers
@@ -179,7 +181,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         map = new google.maps.Map(document.getElementById('map'), {
             center: center,
             mapTypeId: 'hybrid',
-            zoom: 15
+            zoom: $scope.data.initialZoom
         });
         $scope.map=map;
 
@@ -232,7 +234,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
                     },
                     title: m.title,
                     icon: {
-                        labelOrigin: new google.maps.Point(m.labelTop, m.labelLeft),
+                        labelOrigin: new google.maps.Point(m.labelLeft, m.labelTop),
                         url: 'default_marker.png',
                         size: new google.maps.Size(22, 40),
                         origin: new google.maps.Point(0, 0),
@@ -246,17 +248,18 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
             })
         }
 
+        var maxZoom = $scope.data.maxZoom;
         map.addListener( 'zoom_changed', function() {
             var zoom = map.getZoom();
 
 
 
             // iterate over markers and call setVisible
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setVisible(zoom >= 12);
+            for (var i = 1; i < markers.length; i++) {
+                markers[i].setVisible(zoom >= maxZoom);
             }
 
-            if(zoom<12){
+            if(zoom< maxZoom){
                 map.data.setStyle({
                     visible: false
                 });

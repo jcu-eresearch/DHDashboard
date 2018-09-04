@@ -1,6 +1,5 @@
 homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, tagDataService, detailedTagDataService) {
 
-
     $scope.slides =[];
     $scope.title = "Title";
     $scope.location = "Location";
@@ -8,13 +7,13 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
     $scope.status = "Stock Status";
     $scope.includeLiveData = true;
 
-
     $scope.data= {
         markers : [],
         stationMapping : [],
         center : {"lat": -19.665, "lng": 146.855},
         paddocks : "data/paddocks.json",
-
+        initialZoom : 14,
+        maxZoom : 8
     };
 
 
@@ -22,7 +21,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
     $scope.configureSettings = function (data){
         if(data) {
             $scope.data = data;
-
             $scope.slides= data.slides;
             $scope.title = data.title;
             $scope.status = data.status;
@@ -30,6 +28,8 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             $scope.sliderAvatar = data.sliderAvatar;
             $scope.includeLiveData = data.includeLiveData;
         }
+
+
 
     };
 
@@ -49,7 +49,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
         map = new google.maps.Map(document.getElementById('map'), {
             center: center,
             mapTypeId: 'hybrid',
-            zoom:14,
+            zoom: $scope.data.initialZoom,
             scrollwheel:  false
         });
 
@@ -57,7 +57,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             strokeColor: '#66bb6a',
             fillColor: '#66bb6a',
             fillOpacity: 0.1,
-            strokeWeight: 2
+            strokeWeight: 3
         });
 
         map.data.loadGeoJson(paddocks);
@@ -83,7 +83,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     },
                     title: m.title,
                     icon: {
-                        labelOrigin: new google.maps.Point(m.labelTop, m.labelLeft),
+                        labelOrigin: new google.maps.Point(m.labelLeft, m.labelTop),
                         url: 'default_marker.png',
                         size: new google.maps.Size(22, 40),
                         origin: new google.maps.Point(0, 0),
@@ -97,16 +97,16 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             })
         }
 
-
+        var maxZoom = $scope.data.maxZoom;
         map.addListener( 'zoom_changed', function() {
             var zoom = map.getZoom();
 
             // iterate over markers and call setVisible
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setVisible(zoom >= 12);
+            for (var i = 1; i < markers.length; i++) {
+                markers[i].setVisible(zoom >= maxZoom);
             }
 
-            if(zoom<12){
+            if(zoom< maxZoom){
                 map.data.setStyle({
                     visible: false
                 });
@@ -172,9 +172,10 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         nv.utils.windowResize((function(scope){
             return function(){
-
-            scope.chart.api.update();
-            scope.chart1.api.update();
+            if(scope && scope.chart && scope.chart.api) {
+                scope.chart.api.update();
+                scope.chart1.api.update();
+            }
                 }
         })($scope));
 
@@ -315,26 +316,29 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     }
                 ];
 
-                $scope.allTags.thirdsLayout.title=null;
-                $scope.allTags.thirdsLayout.margin= {
-                    l: 100,
-                    r: 50,
-                    b: 50,
-                    t: 10,
-                    pad: 4
-                };
-                $scope.allTags.thirdsLayout.legend.orientation="v";
+                if($scope.allTags && $scope.allTags.thirdsLayout) {
+                    $scope.allTags.thirdsLayout.title = null;
+                    $scope.allTags.thirdsLayout.margin = {
+                        l: 100,
+                        r: 50,
+                        b: 50,
+                        t: 10,
+                        pad: 4
+                    };
+                    if($scope.allTags.thirdsLayout.legend)
+                    $scope.allTags.thirdsLayout.legend.orientation = "v";
+                }
 
-
-                $scope.weeklyTrace.layout.title=null;
-                $scope.weeklyTrace.layout.margin= {
-                    l: 100,
-                    r: 50,
-                    b: 50,
-                    t: 10,
-                    pad: 4
-                };
-
+                if($scope.weeklyTrace && $scope.weeklyTrace.layout) {
+                    $scope.weeklyTrace.layout.title = null;
+                    $scope.weeklyTrace.layout.margin = {
+                        l: 100,
+                        r: 50,
+                        b: 50,
+                        t: 10,
+                        pad: 4
+                    };
+                }
                 detailedTagDataService.addTagData(data);
 
                 if (data.alertedTags && data.alertedTags.length > 0) {

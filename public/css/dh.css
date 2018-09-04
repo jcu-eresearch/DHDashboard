@@ -78,10 +78,10 @@ a:active {
 }
 
 .sm-img {
-    height: 45px !important;
-    width: 38px !important;
-    padding-top: 20px !important;
-    padding-right: 5px !important;
+    height: 45px ;
+    width: 38px ;
+    padding-top: 20px ;
+    padding-right: 5px ;
 
 }
 
@@ -106,6 +106,8 @@ a:active {
     float: right;
     font-size: smaller;
     min-width: 100px;
+    padding-left: 10px;
+    padding-right: 10px;
     height: 45px;
     text-align: left;
     margin-right: 15px;
@@ -475,7 +477,7 @@ a:active {
         top: 75px;
     }
     .dh-body-wrapper {
-        top: 100px;
+        top: 115px;
     }
     .flat-theme .dh-toggle-btn {
         top: 20px !important;
@@ -484,7 +486,7 @@ a:active {
 @media screen and (max-width: 850px) {
 
     .dh-navigation {
-        height: 100px;
+        height: 115px;
     }
     .dh-logo-container {
         transform: translate3d(0, 0, 0);
@@ -504,7 +506,7 @@ a:active {
     .dh-top-nav-container {
         display: block;
         float: none;
-        margin-top: 40px;
+        margin-top: 60px;
         background: white;
     }
     .dh-top-nav-container .links > li > a {
@@ -517,7 +519,7 @@ a:active {
         line-height: 15px;
     }
     .dh-sidebar {
-        top: 100px;
+        top: 115px;
     }
     .dh-sidebar.dh-nav-min {
         transform: translate3d(-200px, 0, 0);

@@ -2,7 +2,7 @@
 This project provides a dashboard for the Digital Homestead project.
 Dependencies include node.js, bower, and MongoDB.
 
-## Instillation
+## Installation
 Execute the following steps to run:
 
     git clone https://github.com/jcu-eresearch/DHDashboard.git

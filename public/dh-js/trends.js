@@ -28,6 +28,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
     function renderCharts(results){
 
+        if(!results || !results.records) return;
         var data=results.records;
 
         var filterChart = dc.barChart("#errorbar");
@@ -38,14 +39,16 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         var dayOfWeekChart = dc.rowChart('#day-of-week-chart');
         var dateFormat = d3.time.format("%Y-%m-%d");	//d3.time.format.iso;
 
-        data.forEach(function (d) {
-            if(!d || d==null || d==undefined || d.date==undefined) return;
-            d.datePosted=d.date.substr(0,10);
-            d.dd = dateFormat.parse(d.datePosted);
-            d.day=d3.time.day(d.dd);
-            d.week=d3.time.week(d.dd);
-            d.month = d3.time.month(d.dd); // pre-calculate month for better performance
-        });
+        if(data) {
+            data.forEach(function (d) {
+                if (!d || d == null || d == undefined || d.date == undefined) return;
+                d.datePosted = d.date.substr(0, 10);
+                d.dd = dateFormat.parse(d.datePosted);
+                d.day = d3.time.day(d.dd);
+                d.week = d3.time.week(d.dd);
+                d.month = d3.time.month(d.dd); // pre-calculate month for better performance
+            });
+        }
 
         var ndx = crossfilter(data);
         $scope.ndx=ndx;

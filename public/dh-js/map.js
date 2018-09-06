@@ -18,6 +18,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         if(data) {
             $scope.data = data;
         }
+        $timeout(function(){$scope.initMap();});
     };
 
     tagDataService.getConfigFile($scope.configureSettings);
@@ -92,30 +93,43 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
     $scope.heatmap=true;
 
     $scope.$watch('soil', function(newVal, oldVal) {
-        if(newVal)
-            $scope.soilOverlay.addToMap($scope.map);
-        else
-            $scope.soilOverlay.removeFromMap();
+        if(newVal){
+            if($scope.soilOverlay)
+                $scope.soilOverlay.addToMap($scope.map);
+        }
+        else {
+            if($scope.soilOverlay)
+                $scope.soilOverlay.removeFromMap();
+        }
     });
 
     $scope.$watch('topology', function(newVal, oldVal) {
-        if(newVal)
-            $scope.topologyOverlay.addToMap($scope.map);
-        else
-            $scope.topologyOverlay.removeFromMap();
+        if(newVal) {
+            if($scope.topologyOverlay)
+                $scope.topologyOverlay.addToMap($scope.map);
+        }
+        else {
+            if($scope.topologyOverlay)
+                $scope.topologyOverlay.removeFromMap();
+        }
     });
 
     $scope.$watch('paddocks', function(newVal, oldVal) {
-        if(newVal)
-            $scope.map.data.loadGeoJson('data/paddocks.json');
-        else
-            $scope.map.data.forEach(function (feature) {
-                if (feature.getProperty('letter') == 'G')
-                    $scope.map.data.remove(feature);
-            });
+        if(newVal) {
+            if($scope.map && $scope.map.data)
+                $scope.map.data.loadGeoJson('data/paddocks.json');
+        }
+        else {
+            if($scope.map && $scope.map.data)
+                $scope.map.data.forEach(function (feature) {
+                    if (feature.getProperty('letter') == 'G')
+                        $scope.map.data.remove(feature);
+                });
+        }
     });
 
     $scope.$watch('heatmap', function(newVal, oldVal) {
+        if($scope.heatmapOverlay)
             $scope.heatmapOverlay.setMap( $scope.heatmapOverlay.getMap() ? null : $scope.map);
     });
 
@@ -149,15 +163,18 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
             'rgba(191, 0, 31, 1)',
             'rgba(255, 0, 0, 1)'
         ];
-        $scope.heatmapOverlay.set('gradient',  $scope.heatmapOverlay.get('gradient') ? null : gradient);
+        if($scope.heatmapOverlay)
+            $scope.heatmapOverlay.set('gradient',  $scope.heatmapOverlay.get('gradient') ? null : gradient);
     }
 
     function changeRadius() {
-        $scope.heatmapOverlay.set('radius',  $scope.heatmapOverlay.get('radius') ? null : 20);
+        if($scope.heatmapOverlay)
+            $scope.heatmapOverlay.set('radius',  $scope.heatmapOverlay.get('radius') ? null : 20);
     }
 
     function changeOpacity() {
-        $scope.heatmapOverlay.set('opacity',  $scope.heatmapOverlay.get('opacity') ? null : 0.2);
+        if($scope.heatmapOverlay)
+            $scope.heatmapOverlay.set('opacity',  $scope.heatmapOverlay.get('opacity') ? null : 0.2);
     }
 
     $scope.createOverlay= function (data) {
@@ -304,7 +321,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
         }
     };
 
-    $timeout(function(){$scope.initMap();});
+
 
 
 });

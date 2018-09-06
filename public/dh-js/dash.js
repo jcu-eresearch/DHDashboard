@@ -28,9 +28,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             $scope.sliderAvatar = data.sliderAvatar;
             $scope.includeLiveData = data.includeLiveData;
         }
-
-
-
     };
 
     tagDataService.getConfigFile($scope.configureSettings);
@@ -172,7 +169,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
         nv.utils.windowResize((function(scope){
             return function(){
-            if(scope && scope.chart && scope.chart.api) {
+            if(scope && scope.chart && scope.chart.api &&  scope.chart.api.update) {
                 scope.chart.api.update();
                 scope.chart1.api.update();
             }
@@ -421,5 +418,4 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
     };
     $scope.init();
-
 });

@@ -208,7 +208,6 @@ function tagDataService($http, $q) {
 
         function getStaticSuccess(results){
             if(callback){
-            	debugger;
                 callback(results.data);
             }
         }

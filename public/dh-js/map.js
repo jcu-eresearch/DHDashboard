@@ -252,7 +252,7 @@ homesteadApp.controller('mapController', function($scope, tagDataService, $rootS
                     title: m.title,
                     icon: {
                         labelOrigin: new google.maps.Point(m.labelLeft, m.labelTop),
-                        url: 'default_marker.png',
+                        url: '',
                         size: new google.maps.Size(22, 40),
                         origin: new google.maps.Point(0, 0),
                         anchor: new google.maps.Point(11, 40),

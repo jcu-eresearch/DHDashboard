@@ -27,6 +27,8 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             $scope.location = data.location;
             $scope.sliderAvatar = data.sliderAvatar;
             $scope.includeLiveData = data.includeLiveData;
+
+            $timeout(function(){$scope.initDashMap();});
         }
     };
 
@@ -176,7 +178,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                 }
         })($scope));
 
-        $timeout(function(){$scope.initDashMap();});
+
 
         function msToTime(duration) {
             var milliseconds = parseInt((duration%1000)/100)

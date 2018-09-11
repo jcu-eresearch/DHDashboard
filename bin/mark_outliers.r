@@ -77,7 +77,7 @@ for(id in distinctIds){
     if(length(weightOutliers)>0)
       for(j in 1:length(weightOutliers$outliers[[1]]) ){
         
-        weights$update( query=paste0 ('{"_id":"', tagWeights[indexValid[weightOutliers$outliers[j,2]],1] ,'", "weights._id": {"$oid": "',tagWeights[indexValid[weightOutliers$outliers[j,2]],3],'"}}'),
+        weights$update( query=paste0 ('{"_id":"', tagWeights[indexValid[weightOutliers$outliers[j,2]], '_id'] ,'", "weights._id": {"$oid": "',tagWeights[indexValid[weightOutliers$outliers[j,2]], 'id'],'"}}'),
                         update=paste0('{"$set":{"weights.$.qa_flag": "OUTLIER",   "weights.$.qa_value": "',weightOutliers$outliers[j,4],'"}}'))
       }
   },

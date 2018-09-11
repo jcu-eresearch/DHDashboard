@@ -38,20 +38,20 @@ for(id in distinctIds){
 
   #iterate over the weights
   for(i in 1:length(tagWeights[[1]]) ){
-    if(tagWeights[i,2]>650 || tagWeights[i,2]<300){
+    if(tagWeights[i,'weight']>650 || tagWeights[i,'weight']<300){
       indexInvalid[countInvalid]<-i;
-      weightsInvalid[countInvalid]<-tagWeights[i,2];
-      if(is.na( tagWeights[i,4]) || tagWeights[i,4]!="INVALID")
-        weights$update( query=paste0 ('{"_id":"', tagWeights[i,1] ,'", "weights._id": {"$oid":"',tagWeights[i,3],'"}}'),
+      weightsInvalid[countInvalid]<-tagWeights[i,'weight'];
+      if(is.na( tagWeights[i,'flag']) || tagWeights[i,'flag']!="INVALID")
+        weights$update( query=paste0 ('{"_id":"', tagWeights[i,'_id'] ,'", "weights._id": {"$oid":"',tagWeights[i,'id'],'"}}'),
                         update='{"$set":{"weights.$.qa_flag": "INVALID"}}')
       countInvalid<-countInvalid+1;
     }
     else{
       indexValid[countValid]<-i;
-      weightsValid[countValid]<-tagWeights[i,2] ;
+      weightsValid[countValid]<-tagWeights[i,'weight'] ;
       countValid<-countValid+1;
-      if( is.na(tagWeights[i,4]) || tagWeights[i,4]!="VALID")
-        weights$update( query=paste0 ('{"_id":"', tagWeights[i,1] ,'", "weights._id": {"$oid": "',tagWeights[i,3],'"}}'),
+      if( is.na(tagWeights[i,'flag']) || tagWeights[i,'flag']!="VALID")
+        weights$update( query=paste0 ('{"_id":"', tagWeights[i,'_id'] ,'", "weights._id": {"$oid": "',tagWeights[i,'id'],'"}}'),
                         update='{"$set":{"weights.$.qa_flag": "VALID"}}')
 
     }

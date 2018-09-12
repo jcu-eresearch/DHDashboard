@@ -1000,7 +1000,7 @@ Weight.find({}).exec(function (err, weights){
             name: "Ave Wt",
             line:{
                 color: '#66bb6a',
-                shape: 'spline'
+                shape: 'linear'
             },
             type: 'scatter'
         };
@@ -1018,7 +1018,7 @@ Weight.find({}).exec(function (err, weights){
             name: "Ave: Lower 1/3",
             line:{
                 color: '#95D7BB',
-                shape: 'spline'
+                shape: 'linear'
             },
             fill: "tonexty",
             fillcolor: "rgba(149,215,187,0.5 )",
@@ -1031,7 +1031,7 @@ Weight.find({}).exec(function (err, weights){
             name: "Ave: Middle 1/3",
             line:{
                 color: '#D9DD81',
-                shape: 'spline'
+                shape: 'linear'
             },
             fill: "tonexty",
             fillcolor: "rgba(217,221,129,0.6)",
@@ -1046,7 +1046,7 @@ Weight.find({}).exec(function (err, weights){
             fillcolor: "rgba(121,209,207,0.6)",
             line:{
                 color: "#79D1CF",
-                shape: 'spline'
+                shape: 'linear'
             },
             type: 'scatter'
         };

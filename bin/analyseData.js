@@ -115,15 +115,46 @@ Weight.find({}).exec(function (err, weights){
 
     /** Get the first day of the week from a date **/
     function weeklyHash(date){
-        var curr = new Date(date); // get current date
-        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        return new Date(curr.setDate(first)).toISOString().substr(0,10);
+        if (Object.prototype.toString.call(date) === "[object Date]") {
+            // it is a date
+            if (isNaN(date.getTime())) {  // d.valueOf() could also work
+                console.log(date);
+                console.log("not a valid date");
+                return new Date();
+            } else {
+                console.log(date);
+                var curr = new Date(date); // get current date
+                var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+                return new Date(curr.setDate(first)).toISOString().substr(0,10);
+            }
+        } else {
+            console.log(date);
+            console.log("not a valid date");
+            return new Date();
+        }
+
+
     }
 
     /** Get the first day of the month from a date **/
     function monthlyHash(date){
-        var curr = new Date(date); // get current date
-        return new Date(curr.setDate(1)).toISOString().substr(0,10);
+        if (Object.prototype.toString.call(date) === "[object Date]") {
+            // it is a date
+            if (isNaN(date.getTime())) {  // d.valueOf() could also work
+                console.log(date);
+                console.log("not a valid date");
+                return new Date();
+            } else {
+                console.log(date);
+                var curr = new Date(date); // get current date
+                return new Date(curr.setDate(1)).toISOString().substr(0,10);
+            }
+        } else {
+            console.log(date);
+            console.log("not a valid date");
+            return new Date();
+        }
+
     }
 
     /** this is for quickly counting ids/tags over days, weeks and months**/
@@ -482,7 +513,10 @@ Weight.find({}).exec(function (err, weights){
     function fixDate(d){
         if(d.date && d.date.toISOString().substr)
             return d.date.toISOString().substr(0,10);
-        else return "";
+        else {
+            var x= new Date();
+            return x.toISOString().substr(0,10);
+        }
     }
 
     /** compare the record against different thresholds return true if it should be filtered **/
@@ -814,6 +848,7 @@ Weight.find({}).exec(function (err, weights){
 
             //take average of multiple readings during one day
             for (var i = 1; i < d.length; i++) {
+
                 var dt = d[i].datePosted,
                     wt = d[i].weight;
                 //Push this initial reading into records for trends page

@@ -36,7 +36,8 @@
     "leaflet.markercluster": "0.4.0",
     "components-font-awesome": "^4.7.0",
     "font-awesome": "^4.7.0",
-    "google-material-icons": "^2.2.0"
+    "google-material-icons": "^2.2.0",
+    "downloadjs": "^1.4.8"
   },
   "resolutions": {
     "dcjs": "^2.1.8",

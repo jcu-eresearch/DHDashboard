@@ -277,7 +277,9 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         $scope.downloadData=function(){
             var data = tagDimension.top(Infinity);
             var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
-            saveAs(blob, 'data.csv');
+
+            download(blob, 'data.csv', 'text/csv');
+            //saveAs(blob, 'data.csv');
         };
 
         var ofs = 0, pag = 10;

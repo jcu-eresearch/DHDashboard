@@ -13,6 +13,7 @@
     "commander": "^2.9.0",
     "decimal.js": "git://github.com/MikeMcl/decimal.js",
     "express": "^4.16.3",
+    "js-file-download": "^0.4.1",
     "locks": "^0.2.2",
     "method-override": "^3.0.0",
     "moment": "^2.22.2",

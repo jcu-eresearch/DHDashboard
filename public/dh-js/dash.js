@@ -142,11 +142,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             valueFormat: d3.format('d')
             }
     };
-
-
-
     $scope.data={};
-
     var chart1 = {
         chart: {
             type: 'pieChart',
@@ -158,7 +154,6 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             y: function(d){return d['y'];}
         }
     };
-
     $scope.data1={};
 
 
@@ -289,6 +284,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
 
                 }
 
+                if(gainCounter >0 || lossCounter>0 || sameCounter>0)
                 $scope.data = [
                     {
                         key: "Weight Gained",
@@ -304,6 +300,7 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
                     }
                 ];
 
+                if(totalGained>0 || totalLost>0)
                 $scope.data1 = [
                     {
                         key: "Total Weight Gained",

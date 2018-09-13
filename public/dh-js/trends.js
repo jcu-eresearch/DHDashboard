@@ -230,7 +230,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .margins({top: 30, right: 50, bottom: 25, left: 50})
             .elasticY(true)
             .rangeChart(rangeChart)
-            .x(d3.time.scale().domain([new Date(2016, 06, 1), new Date(2017, 05, 04)]))
+            .x(d3.time.scale().domain([new Date(2018, 6,6), new Date(2018, 12, 12)]))
             .centerBar(true)
             .gap(1)
             .xUnits(d3.time.days)
@@ -244,7 +244,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
             .group(dayTagsGroup)
             .centerBar(true)
             .gap(1)
-            .x(d3.time.scale().domain([new Date(2016, 06, 1), new Date(2017, 05, 04)]))
+            .x(d3.time.scale().domain([new Date(2018, 6,6), new Date(2018, 12, 12)]))
             .xUnits(d3.time.days)
             .colors(["#95D7BB"])
             .yAxis().ticks(0);

@@ -12,7 +12,23 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         }
     };
 
+    $scope.downloadMessage ="Download All Data";
+
+    $scope.downloadAllData = function(){
+        tagDataService.getAllTagData($scope.allData);
+        $scope.downloadMessage = "waiting";
+    };
+
+    $scope.allData = function(data){
+        var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
+        download(blob, 'data.csv', 'text/csv');
+        $scope.downloadMessage ="Download All Data";
+    };
+
+
     tagDataService.getConfigFile($scope.configureSettings);
+
+
 
 
     var dashData=detailedTagDataService.getTagData();
@@ -153,12 +169,12 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
 
         var slider = document.getElementById('weightSlider');
         noUiSlider.create(slider, {
-            start: [300, 650],
+            start: [200, 650],
             connect: false,
             step: 1,
             orientation: 'horizontal', // 'horizontal' or 'vertical'
             range: {
-                'min': 300,
+                'min': 200,
                 'max': 650
             },
             format: wNumb({
@@ -277,9 +293,7 @@ homesteadApp.controller('trendsController', function($scope, tagDataService, det
         $scope.downloadData=function(){
             var data = tagDimension.top(Infinity);
             var blob = new Blob([d3.csv.format(data)], {type: "text/csv;charset=utf-8"});
-
             download(blob, 'data.csv', 'text/csv');
-            //saveAs(blob, 'data.csv');
         };
 
         var ofs = 0, pag = 10;

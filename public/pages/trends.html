@@ -2,7 +2,11 @@
 
 <header class="dh-page-title">
     <md-button class="btn" ng-click="downloadData()" >
-        <i class="fa fa-download"></i>Download Filtered Tags</md-button>
+        <i class="fa fa-download"></i>Download Filtered Tags
+    </md-button>
+    <md-button class="btn" ng-click="downloadAllData()" >
+        <i class="fa fa-download"></i>{{downloadMessage}}
+    </md-button>
 
     <h1>Explore Animal Weight Trends</h1>
     <small class="md-txt">Welcome,

@@ -115,46 +115,15 @@ Weight.find({}).exec(function (err, weights){
 
     /** Get the first day of the week from a date **/
     function weeklyHash(date){
-        if (Object.prototype.toString.call(date) === "[object Date]") {
-            // it is a date
-            if (isNaN(date.getTime())) {  // d.valueOf() could also work
-                console.log(date);
-                console.log("not a valid date");
-                return new Date();
-            } else {
-                console.log(date);
-                var curr = new Date(date); // get current date
-                var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-                return new Date(curr.setDate(first)).toISOString().substr(0,10);
-            }
-        } else {
-            console.log(date);
-            console.log("not a valid date");
-            return new Date();
-        }
-
-
+        var curr = new Date(date); // get current date
+        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        return new Date(curr.setDate(first)).toISOString().substr(0,10);
     }
 
     /** Get the first day of the month from a date **/
     function monthlyHash(date){
-        if (Object.prototype.toString.call(date) === "[object Date]") {
-            // it is a date
-            if (isNaN(date.getTime())) {  // d.valueOf() could also work
-                console.log(date);
-                console.log("not a valid date");
-                return new Date();
-            } else {
-                console.log(date);
-                var curr = new Date(date); // get current date
-                return new Date(curr.setDate(1)).toISOString().substr(0,10);
-            }
-        } else {
-            console.log(date);
-            console.log("not a valid date");
-            return new Date();
-        }
-
+        var curr = new Date(date); // get current date
+        return new Date(curr.setDate(1)).toISOString().substr(0,10);
     }
 
     /** this is for quickly counting ids/tags over days, weeks and months**/
@@ -514,8 +483,8 @@ Weight.find({}).exec(function (err, weights){
         if(d.date && d.date.toISOString().substr)
             return d.date.toISOString().substr(0,10);
         else {
-            var x= new Date();
-            return x.toISOString().substr(0,10);
+            //var x= new Date();
+            //return x.toISOString().substr(0,10);
         }
     }
 
@@ -523,7 +492,7 @@ Weight.find({}).exec(function (err, weights){
     function checkOutlier(d){
         if(!(d.qa_flag) ||
             (d && d.qa_flag &&
-            ( d.weight<300 || d.weight>650
+            ( d.weight<200 || d.weight>650
                 || d.qa_flag=="INVALID" || d.qa_flag=="OUTLIER" )) ){
             return true; //it is an outlier etc
         }
@@ -1054,7 +1023,7 @@ Weight.find({}).exec(function (err, weights){
             title: "Daily Herd Weight Average: Thirds",
             yaxis: {
                 title: "Weight (KG)",
-                range: [300, 650]
+                range: [200, 650]
             },
             showlegend: true,
             legend: {"orientation": "v"}

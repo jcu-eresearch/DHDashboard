@@ -148,7 +148,33 @@
             </md-card>
         </div>
         <div  flex-gt-md="40" flex-md="100" flex-sm="100" flex-xs="100">
-            <div pic-slider ></div>
+            <div >
+                <md-card>
+                    <md-card-header>
+                        <md-card-avatar>
+                            <img class="md-user-avatar" src="{{sliderAvatar}}">
+                        </md-card-avatar>
+                        <md-card-header-text>
+                            <span class="md-title">{{title}}</span>
+                            <span class="md-subhead">{{location}}</span>
+                        </md-card-header-text>
+                    </md-card-header>
+
+                    <div class="carousel carousel-slider center" data-indicators="true" ng-class="{ fullscreen : isFullScreen }">
+
+
+                        <a ng-repeat="slide in slides"  class="carousel-item" >
+                            <img ng-src="{{slide.image}}" class="md-card-image" alt="image caption" height="497px" width="auto">
+                            <div class="carousel-caption slideDown">
+                                <h3>{{slide.title}}</h3>
+                                <p class="light grey-text text-lighten-3">{{slide.subtitle}}</p>
+                            </div>
+                        </a>
+
+                    </div>
+
+                </md-card>
+            </div>
         </div>
     </div>
 

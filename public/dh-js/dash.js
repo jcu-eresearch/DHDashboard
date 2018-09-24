@@ -21,7 +21,11 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
     $scope.configureSettings = function (data){
         if(data) {
             $scope.data = data;
-            $scope.slides= data.slides;
+            $scope.slides= [];
+            for (var i=0; i<data.slides.length; i++){
+                $scope.slides.push(data.slides[i]);
+            }
+
             $scope.title = data.title;
             $scope.status = data.status;
             $scope.location = data.location;
@@ -29,6 +33,11 @@ homesteadApp.controller('dashController', function($scope, $timeout, $mdDialog, 
             $scope.includeLiveData = data.includeLiveData;
 
             $timeout(function(){$scope.initDashMap();});
+            $timeout( function () {
+                $(document).ready(function () {
+                    $('.carousel.carousel-slider').carousel({fullWidth: true});
+                });
+            });
         }
     };
 

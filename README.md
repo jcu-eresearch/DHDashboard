@@ -2,6 +2,15 @@
 This project provides a dashboard for the Digital Homestead project.
 Dependencies include node.js, bower, and MongoDB.
 
+## What does the Digital Homestead system do?
+Data from tracking cattle movements and from walk over weigh stations was transmitted using _taggle_ radios via a _PubNub_ feed. This data was fed into a MongoDB database as it came in. 
+There are 2 R scripts that were run against the MongoDB (they can be found in the jcu-eresearch/DigitalHomesteadContainers repository): 
+
+- one was run hourly, this converts the data into JSON format that the _plotly_ library can use to display the graphs; 
+- the second script was run daily and uses an algorithm for getting rid of noisy data points. 
+
+The dashboard website is served by NodeJS behind an Apache reverse proxy.
+
 ## Installation
 Execute the following steps to run:
 
